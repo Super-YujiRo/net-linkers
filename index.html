@@ -1226,15 +1226,16 @@ const NET={on:false,host:false,guest:false,conn:null,peer:null,bc:null,ready:fal
 let NID=0;
 function netStatus(h){const el=$('lobby');el.classList.remove('hide');el.innerHTML=h;}
 function loadPeer(){return new Promise((res,rej)=>{if(window.Peer)return res();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';s.onload=()=>res();s.onerror=()=>rej(new Error('通信ライブラリを読み込めませんでした'));document.head.appendChild(s);});}
+function peerOpts(){const o={debug:0};if(QS.get('ph')){o.host=QS.get('ph');o.port=+QS.get('pp')||9000;o.path='/';o.secure=false;}return o;}
 function onNetData(raw){let o;try{o=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){return;}if(NET.host)hostOnMsg(o);else guestOnMsg(o);}
 function onNetClose(){if(!NET.on&&!NET.ready&&!NET.gReady){netStatus('接続が切れました。ページを読み込み直してください。');return;}
  if(NET.host){NET.on=false;NET.conn=null;if(MODE!=='title'){banner('2Pとの接続が切れました（ミストはCPUが操作します）','#ffb0b0');}else netStatus('2Pとの接続が切れました。もう一度URLを送ってください。');}
  else{NET.on=false;if(document.pointerLockElement)document.exitPointerLock();showResult('接続が切れました','ホスト（レオ側）との接続が切れました。<br>ホストに新しいURLをもらって、もう一度参加してください。',()=>location.reload());}}
-async function netHost(){NET.host=true;NET.guest=false;const rid='nl'+Math.random().toString(36).slice(2,9);const url=location.origin+location.pathname+'?join='+rid+(QS.get('bc')?'&bc=1':'');
+async function netHost(){NET.host=true;NET.guest=false;const rid='nl'+Math.random().toString(36).slice(2,9);const url=location.origin+location.pathname+'?join='+rid+(QS.get('bc')?'&bc=1':'')+(QS.get('ph')?'&ph='+QS.get('ph')+'&pp='+(QS.get('pp')||9000):'');
  const showInv=()=>netStatus('<b>① このURLを相手に送ってください</b><br><input id="invite" readonly value="'+url+'" style="width:100%;margin:8px 0;padding:8px;font-size:14px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"><button id="copyInv">URLをコピー</button><div id="lstat" style="margin-top:10px">相手の参加を待っています…（あなたは レオ＆ボルト）</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');
  if(QS.get('bc')){NET.bc=new BroadcastChannel(rid);NET.bc.onmessage=ev=>{if(ev.data.from==='g')onNetData(ev.data.d);};showInv();}
  else{netStatus('部屋を作っています…');try{await loadPeer();}catch(e){netStatus('オンラインの準備に失敗しました：'+e.message+'<br>ネットにつながっているか確認してください。');return;}
-  const peer=NET.peer=new Peer(rid,{debug:0});peer.on('open',()=>showInv());peer.on('error',e=>{netStatus('オンラインの準備に失敗しました（'+(e.type||e)+'）。ページを読み込み直して、もう一度お試しください。');});
+  const peer=NET.peer=new Peer(rid,peerOpts());peer.on('open',()=>showInv());peer.on('error',e=>{netStatus('オンラインの準備に失敗しました（'+(e.type||e)+'）。ページを読み込み直して、もう一度お試しください。');});
   peer.on('connection',c=>{if(NET.conn&&NET.conn.open){c.close();return;}NET.conn=c;c.on('data',onNetData);c.on('close',onNetClose);c.on('open',()=>{NET.send({t:'hello'});});});}
  const cp=()=>{const b=$('copyInv');if(b)b.onclick=()=>{const i=$('invite');i.select();try{navigator.clipboard.writeText(i.value);}catch(e){document.execCommand('copy');}b.textContent='コピーしました！';};};setTimeout(cp,50);setTimeout(cp,1500);
  bootGame(true).then(()=>{NET.ready=true;hostMaybeReady();});}
@@ -1375,7 +1376,7 @@ async function netJoin(id){NET.guest=true;NET.host=false;$('modebtns').classList
  $('gjoin').onclick=async()=>{audioInit();netStatus('ホストに接続しています…');
   if(QS.get('bc')){NET.bc=new BroadcastChannel(id);NET.bc.onmessage=ev=>{if(ev.data.from==='h')onNetData(ev.data.d);};}
   else{try{await loadPeer();}catch(e){netStatus('接続に失敗しました：'+e.message);return;}
-   const peer=NET.peer=new Peer({debug:0});peer.on('error',e=>{netStatus('接続に失敗しました（'+(e.type==='peer-unavailable'?'部屋が見つかりません。ホストのページが開いたままか確認して、新しいURLをもらってください':(e.type||e))+'）');});
+   const peer=NET.peer=new Peer(peerOpts());peer.on('error',e=>{netStatus('接続に失敗しました（'+(e.type==='peer-unavailable'?'部屋が見つかりません。ホストのページが開いたままか確認して、新しいURLをもらってください':(e.type||e))+'）');});
    await new Promise(r=>peer.on('open',r));const c=NET.conn=peer.connect(id,{reliable:true});c.on('data',onNetData);c.on('close',onNetClose);await new Promise(r=>c.on('open',r));}
   netStatus('つながりました！　読み込み中…');await bootGame(true);netStatus('準備OK！　ホスト（レオ側）が「ふたりで はじめる」を押すのを待っています…');NET.send({t:'gready'});};}
 
