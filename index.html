@@ -62,6 +62,8 @@ button{font:inherit;cursor:pointer;border:none;border-radius:12px;color:#fff}
 #chap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(3,5,16,.88);z-index:16;pointer-events:none;animation:fadein .6s}
 #chapn{font-family:Orbitron;letter-spacing:.5em;color:#3fd0ff;font-weight:900}#chapt{font-size:40px;font-weight:900;margin-top:8px;text-shadow:0 0 20px #3fd0ff88}
 @keyframes fadein{from{opacity:0}}
+#phonebox{position:fixed;right:12px;top:96px;z-index:12;display:flex;flex-direction:column;gap:6px;max-width:330px;pointer-events:none}.ph{background:rgba(8,14,36,.96);border-left:4px solid #7dff9a;padding:8px 12px;font-size:14px;line-height:1.45;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.55);transition:opacity .5s,transform .3s;animation:phin .3s}.ph b{display:block;color:#7dff9a;font-size:12px;margin-bottom:2px}.ph.out{opacity:0}@keyframes phin{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+#phl .pl{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.12);font-size:14px;line-height:1.5}#phl .pl b{color:#7dff9a;margin-right:6px}
 #who{position:fixed;right:12px;top:52px;z-index:6;background:rgba(6,10,30,.85);padding:6px 14px;font-weight:900;border-right:4px solid #ffb347}
 #msg.slam{animation:slam .5s ease-out}
 @keyframes slam{0%{transform:translateX(-50%) scale(3);opacity:0;letter-spacing:.6em}60%{transform:translateX(-50%) scale(.95);opacity:1}100%{transform:translateX(-50%) scale(1);letter-spacing:.05em}}
@@ -154,11 +156,11 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <div id="chips" class="hide"></div>
 <div id="bossbar" class="hide"><div id="bbn">NOISE ZERO</div><div class="bar" style="height:14px"><i id="bbf" style="width:100%;background:linear-gradient(90deg,#ff2a4a,#ff9ab0)"></i></div><div id="bbp"></div></div>
 <div id="cross" class="hide"></div><canvas id="chg" width="80" height="80" class="hide"></canvas>
-<div id="help" class="hide">左クリック バスター（長押しチャージ）　右クリック/1〜4 チップ　ホイール チップ選択　Tab カスタム　Q ロックオン　Space ジャンプ　C スライディング　Shift ダッシュ</div>
+<div id="help" class="hide">左クリック バスター（長押しチャージ）　右クリック/1〜4 チップ　ホイール チップ選択　Tab カスタム　Q ロックオン　Space ジャンプ　C スライディング　P スマホ　Shift ダッシュ</div>
 <div id="area" class="hide"></div>
 <div id="clickme" class="hide">画面をクリックして操作開始</div>
 <div id="dlg" class="hide"><img id="dlgimg"><div class="dlgb"><div id="dlgn"></div><div id="dlgt"></div><div id="dlgm">▼</div></div></div>
-<div id="choice" class="hide"></div><div id="obj" class="hide"></div><div id="prompt" class="hide"></div><div id="roomhelp" class="hide">WASD 移動　マウス 視点（画面クリックで固定）　F／左クリック 調べる　X キャラ切替（レオ ⇄ モリー）　Shift ダッシュ</div>
+<div id="phonebox"></div><div id="phonelog" class="ov hide"><div class="card" style="max-width:480px"><h1 style="font-size:20px">📱 スマホ（手がかりメモ）</h1><div id="phl" style="max-height:60vh;overflow:auto"></div><div style="opacity:.7;font-size:12px;margin-top:8px">P キー／クリックで閉じる</div></div></div><div id="choice" class="hide"></div><div id="obj" class="hide"></div><div id="prompt" class="hide"></div><div id="roomhelp" class="hide">WASD 移動　マウス 視点（画面クリックで固定）　F／左クリック 調べる　X キャラ切替（レオ ⇄ モリー）　Shift ダッシュ</div>
 <div id="chap" class="hide"><div id="chapn"></div><div id="chapt"></div></div><div id="who" class="hide"></div>
 <div id="msg"></div><div id="cut" class="hide"></div><div id="dmg"></div><div id="fade"></div><div id="vign"></div><div id="wflash"></div>
 <button id="gear" class="hide">⚙ 設定</button>
@@ -536,6 +538,7 @@ const EDEF={bitton:{n:'ビットン',img:'en_bitton',hp:130,h:1.3,sp:2.4,keep:6,
  driller:{n:'ドリラー',img:'en_driller',hp:160,h:1.3,sp:2,keep:6,pats:['tackle','rain']},
  medic:{n:'メディッカ',img:'en_bitton',tint:'#7dffb0',hp:95,h:1.2,sp:2.6,keep:10,pats:['heal','spread']},
  phantom:{n:'ファントム',img:'en_sparkle',tint:'#c49bff',hp:120,h:1.3,sp:2.2,float:1,evade:1,keep:5,pats:['warp','warp','homing']},
+ ncore:{n:'ツインコア',img:'en_sparkle',tint:'#ff4f7a',hp:150,h:1.2,sp:0,float:1,keep:0,pats:[]},
  boss:{n:'ノイズ・ゼロ',img:'en_boss',hp:3400,h:3,sp:1.6,keep:7,pats:['sweep','meteor','beam3','slam','dash','summon']}};
 const BOSS_PATS={1:['sweep','meteor','beam3','slam','dash','summon'],2:['sweep','meteor','beam3','slam','dash','radial','homingx','cross','storm'],3:['cross','storm','meteor','radial','homingx','beam3','dash','slam','sweep','summon']};
 const TELE={heal:1,warp:.55,storm:1.3,cross:1.4,homingx:1,dash:.8,wave:.8,slam:1,spread:.7,homing:1,tackle:.9,beam:1.2,rain:1.1,sweep:1.3,meteor:1.1,radial:.9,beam3:1.2,summon:.8};
@@ -616,7 +619,7 @@ function aimInfo(){ // returns aim point and target
  if(best)return {x:best.x,y:(best.y||0)+.8,z:best.z,t:best};
  const p=camera.position.clone().addScaledVector(cf,28);return {x:p.x,y:Math.max(.5,p.y),z:p.z,t:null};}
 // ---------- damage ----------
-function hurtEnemy(e,dmg,from,opt){if(e.dead||NET.guest)return;opt=opt||{};if(e.binv>0){popup(e.x,e.h+.2,e.z,'NO DAMAGE','#9ab',16);return;}if(e.dazed>0)dmg=Math.round(dmg*1.6);
+function hurtEnemy(e,dmg,from,opt){if(e.dead||NET.guest)return;opt=opt||{};if(e.binv>0){popup(e.x,e.h+.2,e.z,'NO DAMAGE','#9ab',16);return;}if(e.k==='boss'&&EN.some(x=>x.k==='ncore'&&!x.dead&&x.zone===e.zone)){if(!e.cmsg||T-e.cmsg>1.2){e.cmsg=T;popup(e.x,e.h+.2,e.z,'コアのバリア！','#ff9ab0',16);}return;}if(e.dazed>0)dmg=Math.round(dmg*1.6);
  if(e.shield&&!(e.open>0)&&!opt.breakShield&&!opt.ignoreShield){const ex=Math.sin(e.face),ez=Math.cos(e.face);const fx=from.x-e.x,fz=from.z-e.z,fl=Math.hypot(fx,fz)||1;if((ex*fx+ez*fz)/fl>.2){popup(e.x,1.6,e.z,'GUARD','#9ab',16);burst(e.x,1,e.z,'#cde',5,2);return;}}
  if(opt.breakShield&&e.shield){e.shield=false;popup(e.x,2.2,e.z,'シールド破壊！','#ffa53c',18);}
  e.hp-=dmg;e.flash=.1;SFX(dmg>=40?'bighit':'hit');if(e.k==='boss'&&e.hp>0){const f=e.hp/e.max;const np=f<.33?3:f<.66?2:1;if(np>(e.phase||1))bossPhase(e,np);}sparks(e.x,(e.y||0)+(e.float?1.2:.8),e.z,dmg>=40?'#ffcf3a':'#9ef',dmg>=40?12:4,dmg>=40?6:3);if(dmg>=40)glow(e.x,(e.y||0)+.9,e.z,'#fff',2.2,.18,1);e.flinch=.15;popup(e.x,e.h+.3,e.z,String(dmg),dmg>=60?'#ffe14d':'#fff',dmg>=60?30:20);burst(e.x,.9,e.z,'#9ef',6,2.5);
@@ -624,9 +627,9 @@ function hurtEnemy(e,dmg,from,opt){if(e.dead||NET.guest)return;opt=opt||{};if(e.
  if(opt.freeze){e.frozen=2.5;e.tele=0;e.act=null;popup(e.x,e.h+.7,e.z,'フリーズ','#9fe8ff',16);}
  if(dmg>=40){hitstop=Math.max(hitstop,.06);shakeT=Math.max(shakeT,.12);}
  if(e.tele>0&&dmg>=40){e.tele=0;e.act=null;e.stun=1;if(e.zone)e.zone.counters=(e.zone.counters||0)+1;popup(e.x,e.h+.7,e.z,'COUNTER','#ffe14d',18);}
- if(e.hp<=0){e.dead=true;e.deadT=0;SFX('delete');if(e.zone&&e.zone.deaths)e.zone.deaths.push(T);glow(e.x,.9,e.z,'#7ff',4,.4,1.5);sparks(e.x,.9,e.z,'#7ff',24,6);for(let k=0;k<14;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),new THREE.MeshBasicMaterial({color:k%2?'#7ff':'#fff'}));m.position.set(e.x+rnd(-.5,.5),rnd(.2,1.6),e.z+rnd(-.5,.5));scene.add(m);FX.push({m,v:new THREE.Vector3(rnd(-.5,.5),rnd(2,4),rnd(-.5,.5)),t:0,life:.9,float:1});}hitstop=Math.max(hitstop,.05);e.bar.classList.add('hide');e.hpn&&e.hpn.classList.add('hide');burst(e.x,.9,e.z,'#7ff',22,5);popup(e.x,e.h,e.z,'DELETE','#7ff',18);if(lockT===e)lockT=null;gaugeV=Math.min(1,gaugeV+.15);clearCharge(e);if(e.k==='boss'){for(let k=0;k<5;k++)setTimeout(()=>{glow(e.x+rnd(-1,1),rnd(.5,3),e.z+rnd(-1,1),'#ff2a4a',4,.5,1.5);sparks(e.x,1.5,e.z,'#ff6b8a',20,7);SFX('boom');shakeT=.4;},k*260);EN.filter(x=>x.zone===e.zone&&!x.dead).forEach(x=>{x.hp=1;hurtEnemy(x,9,x,{ignoreShield:1});});cutin(['volt_e0','mist_e0'],'NOISE DELETED');slowT=.8;}}
+ if(e.hp<=0){e.dead=true;e.deadT=0;e.deathT=T;SFX('delete');if(e.zone&&e.zone.deaths)e.zone.deaths.push(T);glow(e.x,.9,e.z,'#7ff',4,.4,1.5);sparks(e.x,.9,e.z,'#7ff',24,6);for(let k=0;k<14;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),new THREE.MeshBasicMaterial({color:k%2?'#7ff':'#fff'}));m.position.set(e.x+rnd(-.5,.5),rnd(.2,1.6),e.z+rnd(-.5,.5));scene.add(m);FX.push({m,v:new THREE.Vector3(rnd(-.5,.5),rnd(2,4),rnd(-.5,.5)),t:0,life:.9,float:1});}hitstop=Math.max(hitstop,.05);e.bar.classList.add('hide');e.hpn&&e.hpn.classList.add('hide');burst(e.x,.9,e.z,'#7ff',22,5);popup(e.x,e.h,e.z,'DELETE','#7ff',18);if(lockT===e)lockT=null;gaugeV=Math.min(1,gaugeV+.15);clearCharge(e);if(e.k==='boss'){for(let k=0;k<5;k++)setTimeout(()=>{glow(e.x+rnd(-1,1),rnd(.5,3),e.z+rnd(-1,1),'#ff2a4a',4,.5,1.5);sparks(e.x,1.5,e.z,'#ff6b8a',20,7);SFX('boom');shakeT=.4;},k*260);EN.filter(x=>x.zone===e.zone&&!x.dead).forEach(x=>{x.hp=1;hurtEnemy(x,9,x,{ignoreShield:1});});cutin(['volt_e0','mist_e0'],'NOISE DELETED');slowT=.8;}}
 }
-function bossPhase(e,np){SFX('phase');e.phase=np;e.binv=2.2;e.tele=0;e.dash=null;clearCharge(e);e.cd=2.4;e.dazed=0;slowT=.6;shakeT=1;flashScreen(.5);HAZ.forEach(h=>h.cancel=true);
+function bossPhase(e,np){SFX('phase');setTimeout(()=>{if(!e.dead&&MODE==='play')spawnCores(e);},2300);e.phase=np;e.binv=2.2;e.tele=0;e.dash=null;clearCharge(e);e.cd=2.4;e.dazed=0;slowT=.6;shakeT=1;flashScreen(.5);HAZ.forEach(h=>h.cancel=true);
  banner(np===2?'ノイズが 膨れ上がる…！':'ノイズ・ゼロ 暴走！！','#ff2a4a');ringWaveHz(e.x,e.z,14,10,20);glow(e.x,1.5,e.z,'#ff2a4a',8,.8,1.5);if(np===3){e.tint='#ff6b6b';EDEF.boss.sp=2.2;}
  setTimeout(()=>{if(!e.dead&&MODE==='play'){const n=np===2?2:3;for(let k=0;k<n;k++){const x=e.x+rnd(-5,5),z=e.z+rnd(-4,4);if(walk(x,z)){const u=spawnEnemy(['bitton','sparkle','driller'][k%3],e.zone,x,z);u.cd=2;}}}},1200);}
 function hurtAlly(a,dmg,src){if(NET.guest)return;dmg=Math.round(dmg*1.3);if(a.down||a.dead)return;
@@ -648,7 +651,7 @@ function projStep(dt){for(const p of PROJ){p.t+=dt;
  p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.m.position.set(p.x,p.y,p.z);p.tr=(p.tr||0)+dt;if(p.tr>.025){p.tr=0;glow(p.x,p.y,p.z,p.col||'#fff',(p.r||.15)*3.2,.18,-.6);}
  if(p.lob&&p.y<=.1){explode(p);p.dead=true;continue;}
  if(p.side==='P'){for(const e of liveEn()){if(p.hit.has(e))continue;const ey=(e.y||0)+(e.float?1:.7);if(Math.hypot(e.x-p.x,e.z-p.z)<.7&&Math.abs(ey-p.y)<1.1){p.hit.add(e);
-   if(p.splash){explode(p);p.dead=true;break;}hurtEnemy(e,p.dmg,p.from,{freeze:p.freeze,kb:p.kb});if(!p.pierce){p.dead=true;break;}}}}
+   if(p.splash){explode(p);p.dead=true;break;}hurtEnemy(e,p.dmg,p.from,{freeze:p.freeze,kb:p.kb});if(p.charged)crossCheck(e,p.from);if(!p.pierce){p.dead=true;break;}}}}
  else{for(const a of [V,M]){if(a.down||p.hit.has(a))continue;if(Math.hypot(a.x-p.x,a.z-p.z)<.55&&Math.abs(a.y+.8-p.y)<.9){p.hit.add(a);hurtAlly(a,p.dmg,p);p.dead=true;break;}}}
  if(p.t>(p.life||2.5))p.dead=true;}
  PROJ=PROJ.filter(p=>{if(p.dead)scene.remove(p.m);return !p.dead;});}
@@ -661,7 +664,7 @@ function waveStep(dt){for(const w of WAVES){w.t+=dt;w.x+=w.dx*w.sp*dt;w.z+=w.dz*
  else{for(const a of [V,M]){if(!a.down&&!w.hit.has(a)&&Math.hypot(a.x-w.x,a.z-w.z)<.8&&a.y<.45){w.hit.add(a);hurtAlly(a,w.dmg,w);}}}}
  WAVES=WAVES.filter(w=>{if(w.dead)scene.remove(w.m);return !w.dead;});}
 // ---------- player ----------
-function onKey(c){if(NET.on&&NET.guest&&!CHOICE){if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(!$('bust').classList.contains('hide')){if(['Enter','Space','NumpadEnter'].includes(c)){$('bust').classList.add('hide');tryLock();}return;}if(MODE==='room'&&c==='KeyF'&&!NET.lock)NET.send({t:'interact'});
+function onKey(c){if(c==='KeyP'&&(MODE==='room'||MODE==='play')&&!CHOICE){togglePhone();return;}if(NET.on&&NET.guest&&!CHOICE){if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(!$('bust').classList.contains('hide')){if(['Enter','Space','NumpadEnter'].includes(c)){$('bust').classList.add('hide');tryLock();}return;}if(MODE==='room'&&c==='KeyF'&&!NET.lock)NET.send({t:'interact'});
  if(MODE==='play'){if(paused&&!$('custom').classList.contains('hide')){if(/^Digit[1-6]$/.test(c))togglePick(+c[5]-1);if(c==='Enter'||c==='NumpadEnter')closeCustom();return;}if(/^Digit[1-4]$/.test(c))useChip(+c[5]-1);if(c==='Tab')openCustom();if(c==='KeyE')guestSkill();}return;}if(CHOICE){if(/^Digit[1-4]$/.test(c))CHOICE(+c[5]-1);return;}if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(MODE==='room'){if(c==='KeyF')roomInteract();if(c==='KeyX')switchHuman();return;}if(MODE!=='play')return;
  if(paused&&!$('bust').classList.contains('hide')){if(c==='Enter'||c==='NumpadEnter'||c==='Space')closeBust();return;}
  if(paused){if(!$('custom').classList.contains('hide')){if(/^Digit[1-6]$/.test(c))togglePick(+c[5]-1);if(c==='Enter'||c==='NumpadEnter')closeCustom();}return;}
@@ -731,7 +734,7 @@ function playerStep(dt,t){const L=V;if(paused){L.moving=false;L.holding=false;L.
  if(lockT&&!lockT.dead){const ty=Math.atan2(V.x-lockT.x,V.z-lockT.z);let d=ty-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*Math.min(1,dt*5);}else if(lockT)lockT=null;
 }
 function busterShot(charged){SFX(charged?'charge':'shot');if(V.is3d&&!V.moving)charOneShot(V,'Pistol_Shoot',charged?.9:1.6);if(charged){glow(V.x,1,V.z,'#ff5a5f',3,.25,1.2);flashScreen(.08);}const aim=aimInfo();V.aimFace=Math.atan2(aim.x-V.x,aim.z-V.z);V.face=V.aimFace;V.faceHold=.4;
- fireAt(V,aim,charged?{side:'P',sp:32,dmg:40,col:'#ff5a5f',r:.35,kb:1,pierce:0}:{side:'P',sp:34,dmg:4,col:'#fff',r:.12});if(charged){shakeT=.1;burst(V.x,1,V.z,'#ff5a5f',8,3);}}
+ fireAt(V,aim,charged?{side:'P',sp:32,dmg:40,col:'#ff5a5f',r:.35,kb:1,pierce:0,charged:1}:{side:'P',sp:34,dmg:4,col:'#fff',r:.12});if(charged){shakeT=.1;burst(V.x,1,V.z,'#ff5a5f',8,3);}}
 // ---------- Mist CPU ----------
 function mistStep(dt){const F=M;F.faceHold=Math.max(0,(F.faceHold||0)-dt);F.inv=Math.max(0,F.inv-dt);F.slide=Math.max(0,(F.slide||0)-dt);F.shotCD=Math.max(0,F.shotCD-dt);F.skillCD-=dt;
  if(F.jumpAt>0){F.jumpAt-=dt;if(F.jumpAt<=0&&F.y<=0)F.vy=7.5;}if(F.y>0||F.vy>0){F.vy-=20*dt;F.y=Math.max(0,F.y+F.vy*dt);if(F.y<=0)F.vy=0;}
@@ -762,6 +765,7 @@ function enemyStep(e,dt){
  if(e.dead){e.deadT+=dt;e.g.visible=e.deadT<.25;clearCharge(e);return;}
  const zn=e.zone;if(!zn.act)return;
  e.bar.classList.remove('hide');
+ if(e.k==='ncore'){const b=EN.find(x=>x.k==='boss'&&x.zone===zn);if(b){const a=e.oa+T*.45;const nx=b.x+Math.sin(a)*5.5,nz=b.z+Math.cos(a)*5.5;e.x=nx;e.z=nz;e.y=Math.sin(T*2+e.oa)*.3;}e.moving=false;return;}
  e.open=Math.max(0,e.open-dt);if(e.binv>0)e.binv-=dt;if(e.dazed>0){e.dazed-=dt;e.moving=false;if(e.tele>0){e.tele=0;clearCharge(e);}return;}
  if(e.frozen>0||e.stun>0){if(e.frozen>0)e.frozen-=dt;else e.stun-=dt;if(e.tele>0){e.tele=0;clearCharge(e);}if(e.y>0)e.y=Math.max(0,e.y-dt*6);return;}
  const tgt=nearestAlly(e);if(!tgt)return;const dx=tgt.x-e.x,dz=tgt.z-e.z,d=Math.hypot(dx,dz)||1;
@@ -969,11 +973,11 @@ function buildLiving(key){const who=key==='leoL'?'leo':'molly';const R=ROOMS[key
  const mom=who==='leo'?MOM1:MOM2;if(mom){placeHuman(mom,key,-3.4,.9,Math.PI/2);ROOM_OF[mom===MOM1?'mom1':'mom2']=key;}
  INTER.push({room:key,x:-3.4,z:.9,r:1.4,label:who==='leo'?'ママ':'オンマ（엄마）',fn:who==='leo'?talkMom:talkOmma},
   {room:key,x:1.5,z:-hd+1,r:1.3,label:'テレビ',fn:()=>talkTV(who)},{room:key,x:-4.4,z:3.2,r:1,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-1.5,z:-hd+.5,r:1,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、テファガンの写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
-async function talkMom(){if(PH==='rooms1'){if(!FL.passport){await say('mom1','レオ、パスポートでしょ？　なくさないように、ママが預かってたのよ。');await say('leo','あ……助かった。スーツケースに入れたつもりだった。');await say('mom1','はい。それと、これ。モリーちゃんのおうちへのおみやげ、うなぎパイ。ちゃんと「はじめまして」って言うのよ。');await say('leo','わかってるって。……ありがと。');await say('sys','パスポートと、モリーの家族へのおみやげを受け取った。');FL.passport=1;SFX('chip');updRooms1();return;}
+async function talkMom(){if(PH==='rooms1'){if(!FL.passport){await say('mom1','レオ、パスポートでしょ？　なくさないように、ママが預かってたのよ。');await say('leo','あ……助かった。スーツケースに入れたつもりだった。');await say('mom1','はい。それと、これ。モリーちゃんのおうちへのおみやげ、うなぎパイ。ちゃんと「はじめまして」って言うのよ。');await say('leo','わかってるって。……ありがと。');await say('sys','パスポートと、モリーの家族へのおみやげを受け取った。');FL.passport=1;phoneSend('leo','パスポート、ママが預かってた……あぶねー。うなぎパイも持ってく！');SFX('chip');updRooms1();return;}
   await say('mom1','明日は早いんでしょ。夜ふかししないで、ちゃんと寝なさいね。');return;}
  if(PH==='rooms0'||PH==='rooms0pad'){await say('mom1','レオ、さっきから停電みたいにネットが切れてるけど、大丈夫？');await say('leo','うん、ちょっとボルトと調べてくる。');return;}
  await say('mom1','いってらっしゃい。モリーちゃんによろしくね。');}
-async function talkOmma(){if(PH==='rooms1'){if(!FL.omma){await say('mom2','모리야（モリー）、明日レオくん来るんだって？　迎えは何時？');await say('molly','10時35分着だから……早起きしなきゃ。');await say('mom2','じゃあ、これ持っていきな。ヤックァ（약과）。日本の子の口に合うかねぇ。');await say('molly','オンマ……ありがとう。レオ、きっと喜ぶよ。');await say('sys','レオへのおみやげ「ヤックァ」を受け取った。');FL.omma=1;SFX('chip');updRooms1();return;}
+async function talkOmma(){if(PH==='rooms1'){if(!FL.omma){await say('mom2','모리야（モリー）、明日レオくん来るんだって？　迎えは何時？');await say('molly','10時35分着だから……早起きしなきゃ。');await say('mom2','じゃあ、これ持っていきな。ヤックァ（약과）。日本の子の口に合うかねぇ。');await say('molly','オンマ……ありがとう。レオ、きっと喜ぶよ。');await say('sys','レオへのおみやげ「ヤックァ」を受け取った。');FL.omma=1;phoneSend('molly','オンマがレオにヤックァ持ってけって！');SFX('chip');updRooms1();return;}
   await say('mom2','早く寝な。目の下にクマつくって会うつもり？');return;}
  if(PH==='rooms0'||PH==='rooms0pad'){await say('mom2','あら、ネットが切れた？　テレビでもニュースやってるよ。');await say('molly','うん……ミストと調べてみる。');return;}
  await say('mom2','気をつけて行っといで。');}
@@ -1121,12 +1125,12 @@ async function storyStart(){$('gear').classList.remove('hide');ACT='leo';placeHu
  await say('sys','レオ（静岡）とモリー（ウルサン）は、それぞれ自分の部屋でしか動けない。Xキーで操作するキャラを切り替えられる。');
  PH='rooms0';objective2('それぞれの部屋のPCで、通信が切れた原因を調べよう');tryLock();}
 async function talkPC(who){
- if(PH==='rooms1'){if(who==='leo'){await say('sys','【eチケット】静岡 08:05 発 → 金海 10:35 着　KE2708便');if(!FL.ticket){await say('leo','着くのは10時35分か。モリーに伝えなきゃ。');await say('sys','「10時35分着」――モリーの目覚まし時計のヒントだ。');FL.ticket=1;SFX('chip');updRooms1();}}else await say('molly','通話画面のレオが、スーツケースと格闘してる。……ふふっ。');return;}
+ if(PH==='rooms1'){if(who==='leo'){await say('sys','【eチケット】静岡 08:05 発 → 金海 10:35 着　KE2708便');if(!FL.ticket){await say('leo','着くのは10時35分か。モリーに伝えなきゃ。');await say('sys','「10時35分着」――モリーの目覚まし時計のヒントだ。');FL.ticket=1;phoneSend('leo','eチケット見た！　静岡空港 08:05発 → 金海 10:35着（KE2708便）');SFX('chip');updRooms1();}}else await say('molly','通話画面のレオが、スーツケースと格闘してる。……ふふっ。');return;}
  if(PH!=='rooms0'){await say('sys','PCは静かにスリープしている。');return;}
  if(FL['pc_'+who]){await say(who==='leo'?'volt':'mist',who==='leo'?'モリーのほうでも、原因を調べてもらわねーとな。（Xでモリーに切り替え）':'レオさんの側の準備を待ちましょう。（Xでレオに切り替え）');return;}
  if(who==='leo'){await say('leo','通話アプリ……「相手のネットワークに接続できません」。');await say('volt','レオ、ちょっと中を見てくる！　……うわ、日本と韓国をつなぐケーブルのネットが、ノイズでぐちゃぐちゃだ。');await say('volt','しかも日本側の入口だけじゃ、アクセス権が足りねえ。向こう側からも同時に入らねえと……。');}
  else{await say('molly','レオ……？　通話、切れちゃった……。');await say('mist','モリー、原因がわかりました。海底ケーブルのネットに、強いノイズが入り込んでいます。');await say('mist','ケーブルの管理ネットは、日本側と韓国側から同時にアクセスしないと開きません。');await say('molly','レオと同時に……？　でも通話もできないのに、どうやって合わせるの？');await say('mist','テキストなら、まだ少しだけ届きます。送ってみます。');}
- FL['pc_'+who]=1;SFX('chip');objective2('それぞれの部屋のPCで、通信が切れた原因を調べよう<br>レオのPC：'+(FL.pc_leo?'✔':'まだ')+'　モリーのPC：'+(FL.pc_molly?'✔':'まだ'));
+ FL['pc_'+who]=1;phoneSend(who,who==='leo'?'ケーブルのネットがノイズだらけ。こっちだけじゃ入れない、そっちからも同時に入らないとダメっぽい':'原因わかった！　ケーブル管理ネットは、日本と韓国から同時に入らないと開かないって');SFX('chip');objective2('それぞれの部屋のPCで、通信が切れた原因を調べよう<br>レオのPC：'+(FL.pc_leo?'✔':'まだ')+'　モリーのPC：'+(FL.pc_molly?'✔':'まだ'));
  if(FL.pc_leo&&FL.pc_molly){await say('leo','（ピコン）……モリーからだ！「PCの前で、せーので入ろう」');await say('molly','（ピコン）レオから返事！「了解。せーの、で」……うん！');
   PH='rooms0pad';objective2('2人とも、PCの前の光るパネルに立とう（Xでキャラ切替）');setPads([ROOMS.leo.pad,ROOMS.molly.pad],diveNet1);SFX('bust');}}
 async function diveNet1(){await say('leo','（ピコン）「いくぞ、モリー」');await say('molly','（ピコン）「うん。せーの……」');
@@ -1150,17 +1154,17 @@ async function talkSuitcase(){if(PH==='rooms0'||PH==='rooms0pad'||PH==='intro'){
  if(FL.lock){await say('sys','パッキング完了。あとは明日を待つだけだ。');return;}
  if(!FL.photo){await say('leo','ダイヤル錠の番号……忘れた。たしか、モリーとの記念日にしたんだけど……。');await say('volt','モリーに聞いてみろよ。向こうの部屋に何かヒントがあるかもな。（Xで切り替え）');return;}
  const r=await choose('ダイヤル錠の番号は？',['1403','0314','3141','やめる']);
- if(r===1){SFX('bust');await say('sys','ガチャッ！　鍵が開いた！');await say('leo','着替えよし、充電器よし。……おみやげのキーホルダーも、よし！'+(FL.passport?'':'　……あれ、パスポートは？'));FL.lock=1;FL.gift=1;updRooms1();}
+ if(r===1){SFX('bust');await say('sys','ガチャッ！　鍵が開いた！');await say('leo','着替えよし、充電器よし。……おみやげのキーホルダーも、よし！'+(FL.passport?'':'　……あれ、パスポートは？'));FL.lock=1;phoneSend('leo','スーツケース開いた！　荷造り完了！');FL.gift=1;updRooms1();}
  else if(r<3){SFX('hurt');await say('sys','カチッ……開かない。');await say('volt','「3月14日」だろ？　月・日の順に4ケタで入れてみろよ。');}}
 async function talkClock(){if(PH!=='rooms1'){await say('sys',FL.alarm?'目覚ましは 7:30 にセットされている。':'モリーの目覚まし時計。');return;}
  if(FL.alarm){await say('sys','目覚ましは 7:30 にセットされている。');return;}
  if(!FL.ticket){await say('molly','目覚まし、何時にしよう……。レオの飛行機って、何時に着くんだっけ？');await say('mist','レオさんに聞いてみましょう。eチケットを見ればわかるはずです。（Xで切り替え）');return;}
  await say('molly','レオが着くのは10時35分。金海空港まではリムジンバスで1時間。支度にも1時間はかかるし……。');
  const r=await choose('目覚ましを何時にセットする？',['7:30','9:30','10:30','やめる']);
- if(r===0){SFX('bust');await say('molly','7時半。これなら10時35分に、ちゃんと到着口にいられる！');FL.alarm=1;updRooms1();}
+ if(r===0){SFX('bust');await say('molly','7時半。これなら10時35分に、ちゃんと到着口にいられる！');FL.alarm=1;phoneSend('molly','目覚まし7時半にした！　ぜったい寝坊しない！');updRooms1();}
  else if(r<3){SFX('hurt');await say('mist','それだと、空港に着くのが到着時刻より遅くなってしまいます。支度に1時間、バスで1時間……です。');}}
 async function talkPhoto(){await say('sys','写真立て。はじめて2人が通話した日のスクリーンショットだ。すみに、手書きで「3.14」。');
- if(PH==='rooms1'&&!FL.photo){await say('molly','3月14日……はじめてレオと話した日。そういえばレオ、「スーツケースの番号、あの日にした」って言ってた。');await say('sys','「3月14日」――レオのスーツケースのヒントだ。');FL.photo=1;SFX('chip');updRooms1();return;}
+ if(PH==='rooms1'&&!FL.photo){await say('molly','3月14日……はじめてレオと話した日。そういえばレオ、「スーツケースの番号、あの日にした」って言ってた。');await say('sys','「3月14日」――レオのスーツケースのヒントだ。');FL.photo=1;phoneSend('molly','写真立てのすみに「3.14」って書いてある。はじめて話した日だね。');SFX('chip');updRooms1();return;}
  await say('molly','3月14日。……あの日から、ずっと画面ごし。');}
 async function talkBed(who){await say(who,who==='leo'?'まだ寝てる場合じゃない。':'まだ眠れないよ。');}
 async function talkWindow(who){if(who==='leo'){await say('leo','天竜川と、夜の山なみ。……この山の向こう、海の向こうに、モリーがいる。');await say('volt','ウルサンまで780km。ネットなら一瞬なのにな。');}else{await say('molly','ウルサンの夜。港の灯りが、今日はやけにきれい。……明日、レオに会えるんだ。');await say('mist','きっと、レオさんも同じ空を見ていますよ。');}}
@@ -1179,20 +1183,20 @@ function updAir(){const t=(k,s)=>(FL[k]?'✔ ':'・ ')+s;objective2('それぞ�
 async function talkJStaff(){if(PH==='end'){await say('jstaff','いってらっしゃいませ！');return;}
  if(!FL.jstaff){await say('jstaff','申し訳ございません。KE2708便は出発を見合わせております。管制システムに原因不明のノイズが……。');await say('leo','やっぱり……。何かできることはありませんか？');
   await say('jstaff','管制端末は静岡と金海で二重認証になっていて、復旧には「金海側の到着ゲート番号」が必要なんです。でも、向こうのシステムも止まっていて……。');
-  await say('volt','レオ、あの管制端末からならダイブできそうだ。金海側のゲート番号、モリーに調べてもらおうぜ！');FL.jstaff=1;SFX('chip');updAir();return;}
+  await say('volt','レオ、あの管制端末からならダイブできそうだ。金海側のゲート番号、モリーに調べてもらおうぜ！');FL.jstaff=1;phoneSend('leo','管制端末を動かすには、金海側の「到着ゲート番号」がいるらしい。調べられる？');SFX('chip');updAir();return;}
  await say('jstaff','金海側の到着ゲート番号がわかれば、奥の管制端末で認証できます。');}
 async function talkKStaff(){if(!FL.kstaff){await say('kstaff','안녕하세요！　……日本語で大丈夫ですよ。今日は管制システムのトラブルで、すべての便が止まっていて。');await say('molly','静岡からのKE2708便も……？　わたし、その便を待ってるんです。');
-  await say('kstaff','到着ゲートは、あちらの案内ボードに出ています。管制端末は奥のほうですが、静岡側と同時に認証しないと動かないんです。');await say('mist','モリー、案内ボードを見てみましょう。ゲート番号がわかるはずです。');FL.kstaff=1;SFX('chip');updAir();return;}
+  await say('kstaff','到着ゲートは、あちらの案内ボードに出ています。管制端末は奥のほうですが、静岡側と同時に認証しないと動かないんです。');await say('mist','モリー、案内ボードを見てみましょう。ゲート番号がわかるはずです。');FL.kstaff=1;phoneSend('molly','到着ゲートは案内ボードに出てるって。見てくる！');SFX('chip');updAir();return;}
  await say('kstaff','案内ボードは、ロビーの奥の壁ですよ。');}
 async function talkBoard(which){if(which==='hnd'){await say('sys','【出発】KE2708　金海行き　08:05　'+(FL.airFixed?'搭乗手続き中':'見合わせ'));return;}
  await say('sys','【到着】KE2708　静岡発　10:35　ゲート B24　'+(FL.airFixed?'定刻':'DELAYED 遅延'));
- if(!FL.board){if(!FL.kstaff)await say('molly','ゲート……B24。これが何かの役に立つのかな？');await say('molly','KE2708便の到着ゲートは「B24」。レオに伝えなきゃ！');await say('sys','「B24」――レオの管制端末のヒントだ。');FL.board=1;SFX('chip');updAir();}}
+ if(!FL.board){if(!FL.kstaff)await say('molly','ゲート……B24。これが何かの役に立つのかな？');await say('molly','KE2708便の到着ゲートは「B24」。レオに伝えなきゃ！');await say('sys','「B24」――レオの管制端末のヒントだ。');FL.board=1;phoneSend('molly','KE2708便の到着ゲートは「B24」だって！');SFX('chip');updAir();}}
 async function talkTermL(){if(FL.airFixed){await say('sys','管制端末。「SYSTEM ONLINE」');return;}
  if(!FL.jstaff){await say('sys','管制端末。赤い警告が点滅している。');await say('leo','まずはスタッフさんに話を聞こう。');return;}
  if(FL.gate){await say('sys','「B24 認証済み。金海側の同時接続を待っています」――赤いパネルに2人で立とう。');return;}
  if(!FL.board){await say('sys','「接続先の金海側 到着ゲート番号を入力してください」');await say('leo','ゲート番号……モリーに調べてもらわないと。（Xで切り替え）');return;}
  const r=await choose('金海側の到着ゲート番号を入力',['A12','B24','C07','やめる']);
- if(r===1){SFX('bust');await say('sys','ピピッ！「B24　認証OK。金海側の同時認証を待っています」');FL.gate=1;updAir();}
+ if(r===1){SFX('bust');await say('sys','ピピッ！「B24　認証OK。金海側の同時認証を待っています」');FL.gate=1;phoneSend('leo','B24で認証した！　赤いパネルで待ってる');updAir();}
  else if(r<3){SFX('hurt');await say('sys','ブブー！「ゲート番号が一致しません」');await say('volt','モリーが見た番号、もう一回確認しようぜ。');}}
 async function talkTermR(){if(FL.airFixed){await say('sys','管制端末。「SYSTEM ONLINE」');return;}if(!FL.gate){await say('sys','「静岡側の認証を待っています」');await say('molly','レオの側の入力を待たなきゃ。');return;}await say('sys','赤いパネルに2人で立つと、同時にダイブできる。');}
 async function diveNet3(){await say('leo','モリー、いくぞ。せーの……！');await say('molly','せーの！');await say('leo','リンク・ダイブ！');
@@ -1272,7 +1276,7 @@ function hostOnMsg(o){switch(o.t){
  case 'interact':hostGuestInteract();break;
  case 'choice':if(NET.waitChoice){const f=NET.waitChoice;NET.waitChoice=null;f(o.i);}break;
  case 'closeBust':break;
- case 'fire':if(MODE==='play'&&!M.down){const c=!!o.c;fireAt(M,o.a,c?{side:'P',sp:32,dmg:36,col:'#3fd0ff',r:.32,kb:1,remote:1}:{side:'P',sp:34,dmg:4,col:'#bff4ff',r:.12,remote:1});if(M.is3d)charOneShot(M,'Pistol_Shoot',c?.9:1.6);}break;
+ case 'fire':if(MODE==='play'&&!M.down){const c=!!o.c;fireAt(M,o.a,c?{side:'P',sp:32,dmg:36,col:'#3fd0ff',r:.32,kb:1,remote:1,charged:1}:{side:'P',sp:34,dmg:4,col:'#bff4ff',r:.12,remote:1});if(M.is3d)charOneShot(M,'Pistol_Shoot',c?.9:1.6);}break;
  case 'chip':if(MODE==='play'&&!M.down&&CH[o.id])castChip(o.id,M,o.a,V);break;
  case 'skill':if(MODE==='play'&&!M.down&&NET.skillCD<=0){NET.skillCD=13;if(V.hp<V.max*.5){heal(V,35);heal(M,20);popup(M.x,2.3,M.z,'リンクヒール','#7dff9a',18);SFX('heal');}else{const e=liveEn().sort((a,b)=>Math.hypot(a.x-M.x,a.z-M.z)-Math.hypot(b.x-M.x,b.z-M.z))[0];popup(M.x,2.3,M.z,'フリーズショット','#9fe8ff',18);SFX('chip');if(e)fireAt(M,{x:e.x,y:(e.y||0)+.8,z:e.z},{side:'P',sp:22,dmg:15,freeze:1,col:'#9fe8ff',r:.3});}if(M.is3d)charOneShot(M,'Spell_Simple_Shoot',1.5);}break;}}
 async function hostGuestInteract(){if(MODE!=='room'||DLGS||CHOICE)return;if(busyStory){NET.send({t:'call',f:'banner',a:['レオが調べものをしています…','#9fe8ff']});return;}const sa=ACT,sc=ACTC;ACT='molly';ACTC=MOLLY;const it=nearInter();ACT=sa;ACTC=sc;if(!it)return;busyStory=true;NET.actor='molly';try{await it.fn();}finally{busyStory=false;NET.actor=null;}}
@@ -1324,6 +1328,7 @@ function guestOnMsg(o){switch(o.t){
  case 'dlgHide':DLGS=null;$('dlg').classList.add('hide');break;
  case 'choose':choose(o.q,o.o).then(i=>NET.send({t:'choice',i}));break;
  case 'bust':$('bust').innerHTML=o.h;$('bust').onclick=()=>{$('bust').classList.add('hide');tryLock();};$('bust').classList.remove('hide');if(document.pointerLockElement)document.exitPointerLock();break;
+ case 'phone':{const m={from:o.from,text:o.text};PHONE.push(m);phoneShow(m);break;}
  case 'bustHide':$('bust').classList.add('hide');tryLock();break;}}
 function gSay(who,text){const d=DLG[who]||DLG.sys;$('dlg').classList.remove('hide');const im=$('dlgimg');im.style.visibility=d.img?'visible':'hidden';if(d.img)im.src='sprites/'+d.img+'.webp';$('dlgn').textContent=d.n;$('dlgn').style.color=d.col||'#9ab';$('dlgt').textContent='';$('dlgm').style.visibility='hidden';DLGS={full:text,i:0,res:()=>{},g:1};}
 function guestCall(f,a){try{
@@ -1339,7 +1344,7 @@ function guestCall(f,a){try{
  if(f==='ringWaveHz'){ringWaveHz(a[0],a[1],a[2],a[3],0);return;}
  if(typeof window[f]==='function')window[f](...a);}catch(e){console.warn('guestCall',f,e);}}
 function guestHUD(){if(MODE==='play')['gauge','chips'].forEach(id=>$(id).classList.remove('hide'));$('help').textContent='左クリック バスター（長押しでチャージ）　1〜4／右クリック チップ　ホイール チップ選択　Tab カスタム　E ミストのスキル　Space ジャンプ　C スライディング';
- $('roomhelp').textContent='WASD 移動　マウス 視点　F／左クリック 調べる　Shift ダッシュ　（あなたは モリー＆ミスト）';renderHP();}
+ $('roomhelp').textContent='WASD 移動　マウス 視点　F／左クリック 調べる　P スマホ　Shift ダッシュ　（あなたは モリー＆ミスト）';renderHP();}
 function guestInit(){NET.on=true;renderHP();ACT='molly';ACTC=MOLLY;$('gear').classList.remove('hide');MODE='room';SCN='room';enterRoomScene();guestHUD();tryLock();}
 function lerpA(a,b,k){let d=b-a;d=Math.atan2(Math.sin(d),Math.cos(d));return a+d*k;}
 function guestApply(dt){const s=NET.snap;if(!s)return;const k=Math.min(1,dt*12);
@@ -1407,6 +1412,23 @@ async function netJoin(id){NET.guest=true;NET.host=false;$('modebtns').classList
    await new Promise(r=>peer.on('open',r));const c=NET.conn=peer.connect(id,{reliable:true});c.on('data',onNetData);c.on('close',onNetClose);await new Promise(r=>c.on('open',r));}
   netStatus('つながりました！　読み込み中…');await bootGame(true);netStatus('準備OK！　ホスト（レオ側）が「ふたりで はじめる」を押すのを待っています…');NET.send({t:'gready'});};}
 
+
+const PHONE=[];
+function phoneSend(from,text){const m={from,text};PHONE.push(m);phoneShow(m);if(NET.on&&NET.host)NET.send({t:'phone',from,text});}
+function phoneShow(m){renderPhoneLog();const me=NET.on?(NET.guest?'molly':'leo'):null;if(me&&m.from===me)return;const d=document.createElement('div');d.className='ph';d.innerHTML='<b>📱 '+(m.from==='leo'?'レオ':'モリー')+'からメッセージ</b>'+m.text;$('phonebox').appendChild(d);(NET.raw&&NET.raw.SFX||SFX)('chip');setTimeout(()=>d.classList.add('out'),6000);setTimeout(()=>d.remove(),6600);}
+function renderPhoneLog(){$('phl').innerHTML=PHONE.length?PHONE.map(m=>'<div class="pl"><b>'+(m.from==='leo'?'レオ':'モリー')+'</b>'+m.text+'</div>').join(''):'<div class="pl" style="opacity:.6">まだメッセージはありません</div>';}
+function togglePhone(){const el=$('phonelog');renderPhoneLog();el.classList.toggle('hide');}
+$('phonelog').onclick=()=>$('phonelog').classList.add('hide');
+
+function crossCheck(e,from){if(e.dead||NET.guest)return;e.cx=e.cx||{};e.cx[from===V?'v':'m']=T;if(e.cx.v!=null&&e.cx.m!=null&&Math.abs(e.cx.v-e.cx.m)<.9){e.cx={};flashScreen(.35);shakeT=.45;cutin(['volt_e0','mist_e0'],'クロスバスター');ringFx(e.x,e.z,3.2,'#ffe14d',.5);burst(e.x,1,e.z,'#ffe14d',24,6);if(e.k==='boss'&&e.binv>0)return;e.binv=0;hurtEnemy(e,150,from,{ignoreShield:1,breakShield:1,kb:2});banner('クロスバスター！！','#ffe14d');}}
+function coreStep(){const b=EN.find(x=>x.k==='boss'&&x.zone.act);if(!b)return;const cs=EN.filter(x=>x.k==='ncore'&&x.zone===b.zone);if(!cs.length)return;
+ if(b.dead){cs.forEach(c=>{if(!c.dead){c.dead=true;c.deadT=0;}});return;}
+ const d=cs.filter(c=>c.dead);
+ if(d.length===cs.length){cs.forEach(c=>{clearCharge(c);scene.remove(c.g);c.bar.remove();c.hpn&&c.hpn.remove();});EN=EN.filter(x=>!cs.includes(x));b.dazed=4.5;b.tele=0;b.dash=null;clearCharge(b);banner('ツインコア破壊！　今がチャンス！','#ffe14d');flashScreen(.4);shakeT=.5;SFX('bust');return;}
+ const win=NET.on?4:7;d.forEach(c=>{if(T-(c.deathT||T)>win){c.dead=false;c.deadT=0;c.hp=c.max;c.g.visible=true;glow(c.x,1,c.z,'#ff4f7a',3,.4,1);popup(c.x,2.2,c.z,'コア再生！','#ff4f7a',20);SFX('phase');}});}
+function spawnCores(b){EN.filter(x=>x.k==='ncore'&&x.zone===b.zone).forEach(c=>{scene.remove(c.g);c.bar.remove();c.hpn&&c.hpn.remove();});EN=EN.filter(x=>!(x.k==='ncore'&&x.zone===b.zone));
+ [0,Math.PI].forEach(a=>{const c=spawnEnemy('ncore',b.zone,b.x+Math.sin(a)*5.5,b.z+Math.cos(a)*5.5);c.oa=a;if(!NET.on){c.hp=c.max=90;}});
+ banner('ツインコア出現！　左右のコアを'+(NET.on?'4':'7')+'秒以内に両方こわせ！','#ff9ab0');}
 // ---------- loop ----------
 let last=performance.now(),T=0;
 function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);
@@ -1416,7 +1438,7 @@ function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);
  if(MODE==='room'&&!paused){T+=dt;roomStep(dt);}
  if(MODE==='play'&&(!paused||NET.on)&&!DLGS){
   if(hitstop>0){hitstop-=dt;dt=0;}if(slowT>0){slowT-=dt;dt*=.35;}
-  T+=dt;playerStep(dt,T);if(NET.on)mistRemoteStep(dt);else mistStep(dt);EN.forEach(e=>enemyStep(e,dt));petStep(dt);projStep(dt);waveStep(dt);hazStep(dt);wallStep(dt);ZONES.forEach(z=>{symbolStep(z,dt);if(z.act&&!z.clear){confine(V,z);if(!M.down)confine(M,z);}});
+  T+=dt;playerStep(dt,T);if(NET.on)mistRemoteStep(dt);else mistStep(dt);EN.forEach(e=>enemyStep(e,dt));coreStep();petStep(dt);projStep(dt);waveStep(dt);hazStep(dt);wallStep(dt);ZONES.forEach(z=>{symbolStep(z,dt);if(z.act&&!z.clear){confine(V,z);if(!M.down)confine(M,z);}});
   gaugeV=Math.min(1,gaugeV+dt/10);
   pickupStep(dt);ZONES.forEach(z=>{if(z.act&&!z.clear&&EN.filter(e=>e.zone===z).every(e=>e.dead)){z.clear=true;wallOff(z);onZoneClear(z);if(!$('custom').classList.contains('hide')){$('custom').classList.add('hide');paused=false;}CHIPS_IN=[];hand=[];selSlot=0;renderChips();flashScreen(.2);setTimeout(()=>{if(MODE==='play')showBust(z);},1100);banner('ALL DELETED!','#7dff9a');gaugeV=1;}});
   const allClear=ZONES.every(z=>z.clear);gate.material.color.set(allClear?'#ffd24a':'#555a70');gateIn.material.opacity=allClear?.25+.15*Math.sin(T*4):.05;
