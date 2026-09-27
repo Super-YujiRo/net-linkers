@@ -971,7 +971,7 @@ async function talkOmma(){if(PH==='rooms1'){if(!FL.omma){await say('mom2','모�
  if(PH==='rooms0'||PH==='rooms0pad'){await say('mom2','あら、ネットが切れた？　テレビでもニュースやってるよ。');await say('molly','うん……ミストと調べてみる。');return;}
  await say('mom2','気をつけて行っといで。');}
 async function talkTV(who){if(PH==='rooms0'||PH==='rooms0pad'){await say('news',who==='leo'?'日本と韓国を結ぶ海底ケーブルで、大規模な通信障害が発生しています。':'한일 해저 케이블에서 대규모 통신 장애가 발생했습니다。（日韓の海底ケーブルで大規模な通信障害）');return;}
- await say('news',who==='leo'?'通信障害は復旧しました。明日の静岡県東部は晴れ。富士山もよく見えるでしょう。':'통신이 복구되었습니다。（通信は復旧しました）明日のウルサンは快晴です。');}
+ await say('news',who==='leo'?'通信障害は復旧しました。明日の静岡県西部は晴れ。天竜川の川霧に注意してください。':'통신이 복구되었습니다。（通信は復旧しました）明日のウルサンは快晴です。');}
 async function talkFridge(who){if(who==='leo'){await say('leo','プリンがある。……明日の朝食べよう。');return;}await say('molly','キムチ冷蔵庫。オンマの漬けたキムチが、ぎっしり入ってる。');await say('mist','レオさんが辛いものが平気か、確認しておきましょうか。');}
 
 // ---------- real 3D outside ----------
@@ -986,12 +986,28 @@ function fuji(x,y0,z,R,H){const c=document.createElement('canvas');c.width=256;c
  const m=new THREE.Mesh(new THREE.CylinderGeometry(R*.07,R,H,48,1,true),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),fog:false}));m.position.set(x,y0+H/2,z);scene.add(m);
  const cap=new THREE.Mesh(new THREE.CircleGeometry(R*.07,24),new THREE.MeshBasicMaterial({color:'#e8f0ff',fog:false}));cap.rotation.x=-Math.PI/2;cap.position.set(x,y0+H,z);scene.add(cap);}
 function house(x,y0,z){const w=rnd(3,5),h=rnd(2.5,5),d=rnd(3,5);bld(x,y0,z,w,h,d);const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(w,d)*.75,1.4,4),new THREE.MeshBasicMaterial({color:['#2a2a38','#3a2e2a','#243040'][ri(0,2)]}));roof.rotation.y=Math.PI/4;roof.position.set(x,y0+h+.7,z);scene.add(roof);}
-function buildTokyoOutside(){const cx=-215,cz=-30;skyDome(cx,cz,85,[[0,'#050a1e'],[.45,'#0f1638'],[.5,'#2a2450'],[.53,'#1a1428'],[1,'#07060c']],1);
- const Y=-14;const gnd=new THREE.Mesh(new THREE.PlaneGeometry(170,170),new THREE.MeshBasicMaterial({color:'#0a0c14'}));gnd.rotation.x=-Math.PI/2;gnd.position.set(cx,Y,cz);scene.add(gnd);
- // streets with lights
- for(let i=0;i<6;i++){const s=new THREE.Mesh(new THREE.PlaneGeometry(150,.5),new THREE.MeshBasicMaterial({color:'#e8b060'}));s.rotation.x=-Math.PI/2;s.position.set(cx,Y+.05,cz-8-i*11);scene.add(s);}
- for(let i=0;i<120;i++){const x=cx+rnd(-60,60),z=cz+rnd(-40,12);if(z>cz-14&&Math.abs(x-cx)<30)continue;if(Math.random()<.85)house(x,Y,z);else bld(x,Y,z,rnd(5,9),rnd(8,14),rnd(5,8));}
- fuji(cx+8,Y,cz-68,42,30);const moon=new THREE.Mesh(new THREE.CircleGeometry(3,24),new THREE.MeshBasicMaterial({color:'#fff6d8',fog:false}));moon.position.set(cx-30,34,cz-72);moon.lookAt(cx,0,cz+20);scene.add(moon);}
+function buildTokyoOutside(){const cx=-215,cz=-30;skyDome(cx,cz,85,[[0,'#050a1e'],[.45,'#101a3a'],[.5,'#26305a'],[.53,'#121a24'],[1,'#07090c']],1);
+ const Y=-6;const gnd=new THREE.Mesh(new THREE.PlaneGeometry(170,170),new THREE.MeshBasicMaterial({color:'#0b100e'}));gnd.rotation.x=-Math.PI/2;gnd.position.set(cx,Y,cz);scene.add(gnd);
+ // 天竜川
+ const rz=cz-20;const river=new THREE.Mesh(new THREE.PlaneGeometry(170,11),new THREE.MeshBasicMaterial({color:'#0d1a30'}));river.rotation.x=-Math.PI/2;river.position.set(cx,Y+.03,rz);scene.add(river);
+ for(let i=0;i<60;i++){const m=new THREE.Mesh(new THREE.PlaneGeometry(rnd(.8,3),.1),new THREE.MeshBasicMaterial({color:Math.random()<.7?'#c8a060':'#7aa8d8',transparent:true,opacity:.55}));m.rotation.x=-Math.PI/2;m.position.set(cx+rnd(-70,70),Y+.05,rz+rnd(-4.5,4.5));scene.add(m);}
+ [cz-14.3,cz-25.7].forEach(z=>{const bank=new THREE.Mesh(new THREE.BoxGeometry(170,.6,1.2),new THREE.MeshBasicMaterial({color:'#1c2420'}));bank.position.set(cx,Y+.3,z);scene.add(bank);});
+ // bridge with lights
+ const bx=cx+6;const deck=new THREE.Mesh(new THREE.BoxGeometry(3,.6,16),new THREE.MeshBasicMaterial({color:'#2a3040'}));deck.position.set(bx,Y+2.4,rz);scene.add(deck);
+ for(let i=0;i<5;i++){const pier=new THREE.Mesh(new THREE.BoxGeometry(.6,2.4,.6),new THREE.MeshBasicMaterial({color:'#20242e'}));pier.position.set(bx,Y+1.2,rz-6+i*3);scene.add(pier);}
+ const arch=[];for(let i=0;i<=20;i++){const t=i/20;arch.push(new THREE.Vector3(bx+1.6,Y+2.7+Math.sin(t*Math.PI)*3,rz-8+t*16));}[1.6,-1.6].forEach(o=>{const pts=arch.map(v=>new THREE.Vector3(bx+o,v.y,v.z));scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),30,.13,5),new THREE.MeshBasicMaterial({color:'#c84a3a'})));});
+ for(let i=0;i<9;i++){const l=new THREE.Mesh(new THREE.BoxGeometry(.25,.25,.25),new THREE.MeshBasicMaterial({color:'#ffe0a0'}));l.position.set(bx+1.4,Y+3,rz-8+i*2);scene.add(l);}
+ // streets + town
+ for(let i=0;i<3;i++){const st=new THREE.Mesh(new THREE.PlaneGeometry(150,.4),new THREE.MeshBasicMaterial({color:'#d8a860'}));st.rotation.x=-Math.PI/2;st.position.set(cx,Y+.05,cz+8-i*6);scene.add(st);}
+ for(let i=0;i<90;i++){const x=cx+rnd(-60,60),z=cz+rnd(-12,14);if(z>cz-2&&Math.abs(x-cx)<28)continue;house(x,Y,z);}
+ for(let i=0;i<30;i++){const x=cx+rnd(-60,60),z=cz+rnd(-40,-28);house(x,Y,z);}
+ // railway (天浜線) light line
+ const rail=new THREE.Mesh(new THREE.BoxGeometry(150,.2,.4),new THREE.MeshBasicMaterial({color:'#5a6070'}));rail.position.set(cx,Y+.2,cz-10);scene.add(rail);
+ // mountains (two ridges)
+ const ridge=(z0,col,hmin,hmax,n)=>{for(let i=0;i<n;i++){const x=cx-75+i*(150/(n-1))+rnd(-6,6),h=rnd(hmin,hmax),r=rnd(16,26);const m=new THREE.Mesh(new THREE.ConeGeometry(r,h,7),new THREE.MeshBasicMaterial({color:col,fog:false}));m.position.set(x,Y+h/2,z0+rnd(-6,6));m.rotation.y=rnd(0,3);scene.add(m);}};
+ ridge(cz-72,'#1c2638',22,34,9);ridge(cz-52,'#102018',14,24,10);
+ for(let i=0;i<24;i++){const l=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshBasicMaterial({color:'#ffd98a'}));l.position.set(cx+rnd(-60,60),Y+rnd(1,6),cz-45+rnd(-4,4));scene.add(l);}
+ const moon=new THREE.Mesh(new THREE.CircleGeometry(3,24),new THREE.MeshBasicMaterial({color:'#fff6d8',fog:false}));moon.position.set(cx-30,40,cz-74);moon.lookAt(cx,0,cz+20);scene.add(moon);}
 function buildUlsanOutside(){const cx=-215,cz=220;skyDome(cx,cz,85,[[0,'#060a1c'],[.45,'#101a3a'],[.5,'#243058'],[.53,'#0c1830'],[1,'#050810']],1);
  const Y=-14;const sea=new THREE.Mesh(new THREE.PlaneGeometry(170,170),new THREE.MeshBasicMaterial({color:'#0a1830'}));sea.rotation.x=-Math.PI/2;sea.position.set(cx,Y,cz);scene.add(sea);
  for(let i=0;i<70;i++){const m=new THREE.Mesh(new THREE.PlaneGeometry(rnd(1,4),.12),new THREE.MeshBasicMaterial({color:Math.random()<.7?'#c8a060':'#6aa0d0',transparent:true,opacity:.6}));m.rotation.x=-Math.PI/2;m.position.set(cx+rnd(-60,60),Y+.03,cz+rnd(-60,-10));scene.add(m);}
@@ -1079,11 +1095,11 @@ async function storyStart(){$('gear').classList.remove('hide');ACT='leo';placeHu
  await say('volt','いてて……ご、ごめん！　前見てなかった！');await say('mist','……いえ、こちらこそ。あなたは？');
  await say('volt','オレはボルト！　静岡のレオのバディだ！');await say('mist','わたしはミスト。ウルサンのモリーのバディです。');
  await say('leo','（通信）ボルト、だれかいるのか？　……もしもし？');await say('molly','（通信）여보세요？　……え、日本語？');
- await say('leo','オレ、レオ。静岡の沼津。……ネットサーフィンしてたら、なんか出会っちゃった。');
+ await say('leo','オレ、レオ。静岡の浜松の天竜。……ネットサーフィンしてたら、なんか出会っちゃった。');
  await say('molly','わたしはモリー。ウルサン。……ふふっ、へんなの。でも、なんだか楽しい。');
  await say('sys','その日から、2人と2体は、毎晩ネットの交差点で待ち合わせるようになった。');
  await chapter('CHAPTER 1','途切れた通話');
- await say('sys','――それから、2年。870km はなれた2つの街で、2人は毎晩ビデオ通話をしている。');
+ await say('sys','――それから、2年。780km はなれた2つの街で、2人は毎晩ビデオ通話をしている。');
  await say('sys','レオの部屋には2匹のボーダーコリー。モリーの部屋には5匹のトカゲ。画面の向こうの家族も、もうおなじみだ。');
  await say('leo','モリー、聞こえる？');await say('molly','들려！　聞こえてるよ、レオ。');
  await say('leo','あした、いよいよだな。静岡空港から朝イチの便で、そっちに行く。');
@@ -1140,7 +1156,7 @@ async function talkPhoto(){await say('sys','写真立て。はじめて2人が�
  if(PH==='rooms1'&&!FL.photo){await say('molly','3月14日……はじめてレオと話した日。そういえばレオ、「スーツケースの番号、あの日にした」って言ってた。');await say('sys','「3月14日」――レオのスーツケースのヒントだ。');FL.photo=1;SFX('chip');updRooms1();return;}
  await say('molly','3月14日。……あの日から、ずっと画面ごし。');}
 async function talkBed(who){await say(who,who==='leo'?'まだ寝てる場合じゃない。':'まだ眠れないよ。');}
-async function talkWindow(who){if(who==='leo'){await say('leo','月明かりの富士山。……この山の向こう、海の向こうに、モリーがいる。');await say('volt','ウルサンまで870km。ネットなら一瞬なのにな。');}else{await say('molly','ウルサンの夜。港の灯りが、今日はやけにきれい。……明日、レオに会えるんだ。');await say('mist','きっと、レオさんも同じ空を見ていますよ。');}}
+async function talkWindow(who){if(who==='leo'){await say('leo','天竜川と、夜の山なみ。……この山の向こう、海の向こうに、モリーがいる。');await say('volt','ウルサンまで780km。ネットなら一瞬なのにな。');}else{await say('molly','ウルサンの夜。港の灯りが、今日はやけにきれい。……明日、レオに会えるんだ。');await say('mist','きっと、レオさんも同じ空を見ていますよ。');}}
 async function talkDogs(){SFX('jump');await say('dog','クゥーン……ワフッ！');await say('leo','おまえらも心配してくれてんのか。……大丈夫、ちゃんと帰ってくるって。');}
 async function talkLizards(){await say('molly','みんな、びっくりしたね。……大丈夫、大丈夫。');await say('sys','5匹のトカゲが、そろってモリーのほうを見上げている。');}
 async function goodNight(){await say('leo','じゃあ……おやすみ、モリー。');await say('molly','잘 자, レオ。……明日、空港で。');await say('volt','ミスト、また明日な！');await say('mist','はい。明日は、4人で。');
@@ -1182,7 +1198,7 @@ async function bossTalk(){await say('zero','……キタカ。チイサナ バ�
  await say('zero','ツナガッテモ、イツカ 途切レル。ナラバ 最初カラ ツナガラナケレバイイ。');
  await say('zero','国境ヲ越エテ 出会ッタ オマエタチガ、イチバン 目障リダ。');
  await say('mist','……途切れるのが怖いのは、わたしたちも同じです。');await say('volt','でもな。途切れたら、またつなげばいいんだよ！　オレたち、ずっとそうしてきた！');
- await say('mist','870kmなんて、わたしたちが縮めてみせます。');await say('volt','レオとモリーが、やっと会えるんだ。ジャマはさせねえ！');
+ await say('mist','780kmなんて、わたしたちが縮めてみせます。');await say('volt','レオとモリーが、やっと会えるんだ。ジャマはさせねえ！');
  await say('leo','（端末ごしに）いけー！　ボルト！');await say('molly','（端末ごしに）ミスト、がんばって！');}
 async function bossDefeated(){busyStory=true;await wait(1800);
  await say('zero','バ、バカナ……。ナゼ……ハナレテイテモ……ソコマデ……。');await say('mist','会いたい人が、いるからです。');await say('sys','ノイズ・ゼロをデリートした！');
@@ -1190,11 +1206,11 @@ async function bossDefeated(){busyStory=true;await wait(1800);
  ROOMS.hnd.boardTex.dispose();ROOMS.hnd.board.material.map=boardTex([['FLIGHT    TO/FROM    TIME   STATUS','#9fe8ff'],['KE2708   GIMHAE    08:05  搭乗中','#7dff9a'],['NH0861   SEOUL      09:10  定刻','#7dff9a']]);ROOMS.icn.board.material.map=boardTex([['FLIGHT    TO/FROM    TIME   STATUS','#9fe8ff'],['KE2708   SHIZUOKA   10:35  ON TIME','#7dff9a'],['GATE B24 / KE2708 ARRIVAL','#ffd24a']]);
  await say('announce','【ご案内】管制システムが復旧いたしました。KE2708便 金海行き、まもなく搭乗を開始いたします。');
  await say('jstaff','お客さま、お待たせいたしました！　ご搭乗いただけます！');await say('leo','モリー、今から行く！');await say('molly','うん。……待ってる。ずっと、待ってたんだから。');await say('volt','飛べ、レオ！');
- fade(true);await wait(700);await say('sys','（――静岡から金海へ。雲の上を、飛行機はまっすぐ進んでいく）');await say('sys','（静岡とウルサンのあいだ、870km。画面ごしに何百回も越えてきた距離を、今日ははじめて体で越える）');
+ fade(true);await wait(700);await say('sys','（――静岡から金海へ。雲の上を、飛行機はまっすぐ進んでいく）');await say('sys','（静岡とウルサンのあいだ、780km。画面ごしに何百回も越えてきた距離を、今日ははじめて体で越える）');
  arrivalStart();}
 // ---------- chapter 3: arrival ----------
 async function arrivalStart(){PH='arrival';placeHuman(LEO,'arr',-8,0,Math.PI/2);placeHuman(MOLLY,'arr',9,1,-Math.PI/2);ACT='leo';enterRoomScene();yaw=-Math.PI/2;fade(false);
- await chapter('CHAPTER 3','870kmの向こう側');
+ await chapter('CHAPTER 3','780kmの向こう側');
  await say('announce','金海国際空港へようこそ。김해국제공항에 오신 것을 환영합니다。');
  await say('leo','着いた……！　モリーはどこだ？');await say('molly','KE2708便、到着……！　レオ、どこ……？');
  objective2('到着ロビーで、おたがいを見つけよう（Xでモリーに切り替えもできる）');busyStory=false;tryLock();}
@@ -1204,7 +1220,7 @@ async function reunionScene(){SFX('bust');PADS=[];
  yaw=a+Math.PI/2;pitch=.2;dist=3.2;await wait(1200);
  await say('leo','……モリー！');await say('molly','レオ！');
  await say('leo','……画面の外のモリー、思ってたより……。');await say('molly','思ってたより？');await say('leo','……ずっと、近い。');
- await say('molly','ばか。……보고 싶었어。ずっと、会いたかった。');await say('leo','オレも。870km、やっと来たよ。');
+ await say('molly','ばか。……보고 싶었어。ずっと、会いたかった。');await say('leo','オレも。780km、やっと来たよ。');
  if(FL.gift){await say('leo','あ、これ。おみやげ。……2つで1セットのキーホルダー。');await say('molly','わあ……！　고마워。ありがとう、レオ。片方ずつ、だね。');}
  if(FL.omma){await say('molly','それとこれ、オンマから。ヤックァっていうお菓子。');await say('leo','うまそう！　……オレも、ママからうなぎパイあずかってきた。');await say('molly','ふふっ。おみやげ交換だね。');}
  await say('volt','ミスト！　見ろよ、2人がおんなじ場所にいるぜ！');await say('mist','はい。通信ラグ、ゼロです。');
@@ -1212,7 +1228,7 @@ async function reunionScene(){SFX('bust');PADS=[];
  await say('molly','今度はボーダーコリーたちにも会わせてね。');await say('leo','モリーのトカゲ5匹にもな。');
  await say('molly','行こっか。ウルサン、案内するね。ここからバスで1時間だよ。');await say('leo','うん。……今日は、画面ごしじゃない。');
  PH='end';fade(true);await wait(900);MODE='end';if(document.pointerLockElement)document.exitPointerLock();
- showResult('THE END','<div style="font-size:20px;font-weight:900;margin:8px 0">NET LINKERS ― 870kmの向こう側</div>レオ ＆ ボルト　／　モリー ＆ ミスト<br>2匹のボーダーコリーと、5匹のトカゲ<br><br><span style="opacity:.7;font-size:13px">3Dモデル：VRoid Studio サンプルモデル（CC0）／モーション：Quaternius Universal Animation Library（CC0）</span><br><br>遊んでくれてありがとう！',()=>location.reload());fade(false);}
+ showResult('THE END','<div style="font-size:20px;font-weight:900;margin:8px 0">NET LINKERS ― 780kmの向こう側</div>レオ ＆ ボルト　／　モリー ＆ ミスト<br>2匹のボーダーコリーと、5匹のトカゲ<br><br><span style="opacity:.7;font-size:13px">3Dモデル：VRoid Studio サンプルモデル（CC0）／モーション：Quaternius Universal Animation Library（CC0）</span><br><br>遊んでくれてありがとう！',()=>location.reload());fade(false);}
 // ---------- start ----------
 async function buildHome(){LEO=await makeChar('hmale',{height:1.74,civ:'leo'});MOLLY=await makeChar('shibu',{height:1.6,civ:'molly'});
  try{MOM1=await makeChar('shino',{height:1.6,civ:'mom1'});MOM2=await makeChar('dark',{height:1.6,civ:'mom2'});}catch(e){console.warn(e);}
