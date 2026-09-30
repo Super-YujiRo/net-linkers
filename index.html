@@ -595,12 +595,13 @@ function makeSymbol(zn){const k=zn.list[0][0];const d=EDEF[k];const u=makeUnit(d
  const ring=new THREE.Mesh(new THREE.RingGeometry(.8,1.05,32),new THREE.MeshBasicMaterial({color:zn.boss?'#ff3b5c':'#ff5ad8',transparent:true,opacity:.7,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;u.g.add(ring);u.ring=ring;u.wt=0;u.wx=zn.hx;u.wz=zn.hz;zn.sym=u;}
 function symbolStep(zn,dt){const u=zn.sym;if(!u)return;const locked=zn.need!=null&&!ZONES[zn.need].clear;u.tint=locked?'#777':'#ffb0c0';u.ring.visible=!locked;
  u.ring.material.opacity=.45+.3*Math.sin(T*6);u.ring.scale.setScalar(1+.1*Math.sin(T*6));
- const dx=V.x-u.x,dz=V.z-u.z,d=Math.hypot(dx,dz);u.moving=false;
- if(!locked&&!zn.boss&&d<8&&MODE==='play'){const s=3.2*dt;const nx=u.x+dx/d*s,nz=u.z+dz/d*s;if(walk(nx,nz)){u.x=nx;u.z=nz;}u.face=Math.atan2(dx,dz);u.moving=true;if(Math.random()<.05)popup(u.x,u.h+.6,u.z,'！','#ff4f7a',22);}
+ const dx=V.x-u.x,dz=V.z-u.z,d=Math.hypot(dx,dz);u.moving=false;const busyB=inBattleNow();
+ if(!locked&&!zn.boss&&!busyB&&d<8&&MODE==='play'){const s=3.2*dt;const nx=u.x+dx/d*s,nz=u.z+dz/d*s;if(walk(nx,nz)){u.x=nx;u.z=nz;}u.face=Math.atan2(dx,dz);u.moving=true;if(Math.random()<.05)popup(u.x,u.h+.6,u.z,'！','#ff4f7a',22);}
  else if(!zn.boss){u.wt-=dt;if(u.wt<=0){u.wt=rnd(1.5,3);u.wx=zn.hx+rnd(-4,4);u.wz=zn.hz+rnd(-4,4);}const wx=u.wx-u.x,wz=u.wz-u.z,wd=Math.hypot(wx,wz);if(wd>.2){const nx=u.x+wx/wd*1.4*dt,nz=u.z+wz/wd*1.4*dt;if(walk(nx,nz)){u.x=nx;u.z=nz;u.moving=true;u.face=Math.atan2(wx,wz);}else u.wt=0;}}
- if(!locked&&d<1.3&&V.y<.8&&MODE==='play'&&!paused&&!DLGS&&!busyStory){const behind=Math.cos(Math.atan2(-dx,-dz)-u.face)<0;startEncounter(zn,V.slide>0||behind);}
+ if(!busyB&&!locked&&d<1.3&&V.y<.8&&MODE==='play'&&!paused&&!DLGS&&!busyStory){const behind=Math.cos(Math.atan2(-dx,-dz)-u.face)<0;startEncounter(zn,V.slide>0||behind);}
  else if(NET.on&&!locked&&!M.down&&MODE==='play'&&!paused&&!DLGS&&!busyStory&&Math.hypot(M.x-u.x,M.z-u.z)<1.3&&(M.y||0)<.8){startEncounter(zn,M.slide>0,M);}}
-function startEncounter(zn,pre,who){who=who||V;if(zn.act||zn.clear)return;if(zn.boss&&!FL.bossTalk&&typeof bossTalk==='function'){FL.bossTalk=1;busyStory=true;bossTalk().then(()=>{busyStory=false;startEncounter(zn,false,who);});return;}shuffleDeck();hand=[];CHIPS_IN=[];renderChips();const u=zn.sym;zn.sym=null;
+let BATTLE_END=-9;const inBattleNow=()=>ZONES.some(z=>z.act&&!z.clear);
+function startEncounter(zn,pre,who){who=who||V;if(inBattleNow()||T-BATTLE_END<2.5)return;if(zn.act||zn.clear)return;if(zn.boss&&!FL.bossTalk&&typeof bossTalk==='function'){FL.bossTalk=1;busyStory=true;bossTalk().then(()=>{busyStory=false;startEncounter(zn,false,who);});return;}shuffleDeck();hand=[];CHIPS_IN=[];renderChips();const u=zn.sym;zn.sym=null;
  let cx=who.x,cz=who.z;zn.x=cx;zn.z=cz;scene.remove(u.g);
  zn.act=true;zn.t0=T;SFX('enc');zn.hits=0;zn.counters=0;zn.deaths=[];wallOn(zn);flashScreen(.5);shakeT=.4;hitstop=.15;
  zn.list.forEach(([k,ox,oz],i)=>{let x=cx+ox,z=cz+oz;const a=Math.atan2(u.x-who.x,u.z-who.z);
@@ -1794,7 +1795,7 @@ function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);
   if(hitstop>0){hitstop-=dt;dt=0;}if(slowT>0){slowT-=dt;dt*=.35;}
   T+=dt;playerStep(dt,T);if(NET.on)mistRemoteStep(dt);else mistStep(dt);EN.forEach(e=>enemyStep(e,dt));coreStep();petStep(dt);projStep(dt);waveStep(dt);hazStep(dt);wallStep(dt);ZONES.forEach(z=>{symbolStep(z,dt);if(z.act&&!z.clear){confine(V,z);if(!M.down)confine(M,z);}});
   gaugeV=Math.min(1,gaugeV+dt/10);
-  pickupStep(dt);ZONES.forEach(z=>{if(z.act&&!z.clear&&EN.filter(e=>e.zone===z).every(e=>e.dead)){z.clear=true;wallOff(z);onZoneClear(z);if(!$('custom').classList.contains('hide')){$('custom').classList.add('hide');paused=false;}CHIPS_IN=[];hand=[];selSlot=0;renderChips();flashScreen(.2);setTimeout(()=>{if(MODE==='play')showBust(z);},1100);banner('ALL DELETED!','#7dff9a');gaugeV=1;}});
+  pickupStep(dt);ZONES.forEach(z=>{if(z.act&&!z.clear&&EN.filter(e=>e.zone===z).every(e=>e.dead)){z.clear=true;BATTLE_END=T;wallOff(z);onZoneClear(z);if(!$('custom').classList.contains('hide')){$('custom').classList.add('hide');paused=false;}CHIPS_IN=[];hand=[];selSlot=0;renderChips();flashScreen(.2);setTimeout(()=>{if(MODE==='play')showBust(z);},1100);banner('ALL DELETED!','#7dff9a');gaugeV=1;}});
   const allClear=ZONES.every(z=>z.clear);gate.material.color.set(allClear?'#ffd24a':'#555a70');gateIn.material.opacity=allClear?.25+.15*Math.sin(T*4):.05;
   if(false){MODE='end';showResult('第1章 クリア','ケーブル管理ネットのノイズは消えた。<br>――でも、ノイズはどこから来たのか？<br><br>（つづく）',()=>location.reload());}
   $('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:'ウイルスの群れ 残り '+ZONES.filter(z=>z.net===NETCUR&&!z.clear).length;
