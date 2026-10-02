@@ -197,7 +197,7 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <div id="chips" class="hide"></div>
 <div id="bossbar" class="hide"><div id="bbn">NOISE ZERO</div><div class="bar" style="height:14px"><i id="bbf" style="width:100%;background:linear-gradient(90deg,#ff2a4a,#ff9ab0)"></i></div><div id="bbp"></div></div>
 <div id="cross" class="hide"></div><canvas id="chg" width="80" height="80" class="hide"></canvas>
-<div id="help" class="hide">左クリック バスター（長押しチャージ）　右クリック/1〜4 チップ　ホイール チップ選択　Tab カスタム　Q ロックオン　Space ジャンプ　C スライディング　P スマホ　Shift ダッシュ</div>
+<div id="help" class="hide">左クリック バスター（長押しチャージ）　右クリック/1〜4 チップ　ホイール チップ選択　Tab カスタム　F フォルダ／ショップ　Q ロックオン　Space ジャンプ　C スライディング　P スマホ　Shift ダッシュ</div>
 <div id="area" class="hide"></div>
 <div id="clickme" class="hide">画面をクリックして操作開始</div>
 <div id="dlg" class="hide"><img id="dlgimg"><div class="dlgb"><div id="dlgn"></div><div id="dlgt"></div><div id="dlgm">▼</div></div></div>
@@ -619,7 +619,7 @@ RECTS.forEach(([x0,z0,x1,z1])=>{const w=x1-x0,d=z1-z0;const t=GRID.clone();t.nee
  const cx=(x0+x1)/2,cz=(z0+z1)/2,EM=new THREE.MeshBasicMaterial({color:'#5ee8ff'}),EM2=new THREE.MeshBasicMaterial({color:'#2a6bff'});
  [[w,.07,.09,cx,z0],[w,.07,.09,cx,z1]].forEach(([a,b,c,x,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),EM);m.position.set(x,.02,z);field.add(m);const m2=new THREE.Mesh(new THREE.BoxGeometry(a,.05,.06),EM2);m2.position.set(x,-1.5,z);field.add(m2);});
  [[.09,.07,d,x0,cz],[.09,.07,d,x1,cz]].forEach(([a,b,c,x,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),EM);m.position.set(x,.02,z);field.add(m);const m2=new THREE.Mesh(new THREE.BoxGeometry(.06,.05,c),EM2);m2.position.set(x,-1.5,z);field.add(m2);});
- const st=scanTex.clone();st.needsUpdate=true;st.repeat.set(1,d/30);const sc=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:scanTex,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false}));sc.rotation.x=-Math.PI/2;sc.position.set(cx,.012,cz);field.add(sc);});
+ if(w*d<150)return;const st=scanTex.clone();st.needsUpdate=true;st.repeat.set(1,d/30);const sc=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:scanTex,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false}));sc.rotation.x=-Math.PI/2;sc.position.set(cx,.012,cz);field.add(sc);});
 const R3=[[394,-6,406,6],[398,6,402,16],[390,16,410,30],[398,30,402,38],[388,38,412,56]];
 const inRect=(x,z)=>ALLRECTS.some(([x0,z0,x1,z1])=>x>x0&&x<x1&&z>z0&&z<z1)&&!lgBlock(x,z);
 let SCN='net';const walk=(x,z,m)=>{m=m==null?.35:m;if(SCN==='room')return walkRoom(x,z,m);return inRect(x-m,z-m)&&inRect(x+m,z-m)&&inRect(x-m,z+m)&&inRect(x+m,z+m);};
@@ -679,8 +679,9 @@ function floorRect([x0,z0,x1,z1],tex,edge,side,rep){const w=x1-x0,d=z1-z0;const 
  const EM=new THREE.MeshBasicMaterial({color:edge});[[w,.07,.1,(x0+x1)/2,z0],[w,.07,.1,(x0+x1)/2,z1],[.1,.07,d,x0,(z0+z1)/2],[.1,.07,d,x1,(z0+z1)/2]].forEach(([a,b,c,x,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),EM);m.position.set(x,.02,z);field.add(m);});return top;}
 const WANIM=[];// {f(dt,t)}
 function wbox(w,h,d,col,x,y,z,parent,op){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshBasicMaterial(Object.assign({color:col},op||{})));m.position.set(x,y,z);(parent||field).add(m);return m;}
-function envRing(cx,cz,rmin,rmax,n,cols,hmin,hmax){for(let i=0;i<n;i++){const a=rnd(0,Math.PI*2),r=rnd(rmin,rmax),h=rnd(hmin,hmax),w=rnd(4,10);const t=WT[i%3].clone();t.needsUpdate=true;t.repeat.set(w/6,h/12);
- const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,w),new THREE.MeshBasicMaterial({map:t,color:cols[0]}));b.position.set(cx+Math.cos(a)*r,h/2-18,cz+Math.sin(a)*r);field.add(b);wbox(w*1.02,.4,w*1.02,cols[1+(i%(cols.length-1))],b.position.x,h-18,b.position.z);}}
+const ENVM={};const ENVG=new THREE.BoxGeometry(1,1,1);
+function envRing(cx,cz,rmin,rmax,n,cols,hmin,hmax){for(let i=0;i<n;i++){const a=rnd(0,Math.PI*2),r=rnd(rmin,rmax),h=rnd(hmin,hmax),w=rnd(4,10);const mk=(i%3)+cols[0];if(!ENVM[mk]){const t=WT[i%3].clone();t.needsUpdate=true;t.repeat.set(1,4);ENVM[mk]=new THREE.MeshBasicMaterial({map:t,color:cols[0]});}
+ const b=new THREE.Mesh(ENVG,ENVM[mk]);b.scale.set(w,h,w);b.position.set(cx+Math.cos(a)*r,h/2-18,cz+Math.sin(a)*r);field.add(b);const tk='t'+cols[1+(i%(cols.length-1))];if(!ENVM[tk])ENVM[tk]=new THREE.MeshBasicMaterial({color:cols[1+(i%(cols.length-1))]});const tp=new THREE.Mesh(ENVG,ENVM[tk]);tp.scale.set(w*1.02,.4,w*1.02);tp.position.set(b.position.x,h-18,b.position.z);field.add(tp);}}
 function streamsAt(cx,cz,rmin,rmax,n,cols){for(let i=0;i<n;i++){const h=rnd(1.5,6);const a=rnd(0,6.28),r=rnd(rmin,rmax);const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(ALLRECTS.some(([x0,z0,x1,z1])=>x>x0-2&&x<x1+2&&z>z0-2&&z<z1+2))continue;const m=new THREE.Mesh(new THREE.BoxGeometry(.06,h,.06),new THREE.MeshBasicMaterial({color:cols[i%cols.length],transparent:true,opacity:rnd(.4,.9)}));m.position.set(x,rnd(-10,30),z);m.userData.v=rnd(4,12);scene.add(m);STREAMS.push(m);}}
 function planeAt(tex,w,d,x,y,z,op,blend){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:op==null?.9:op,blending:blend?THREE.AdditiveBlending:THREE.NormalBlending,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,y,z);field.add(m);return m;}
 function noteMesh(col){const g=new THREE.Group();const M_=new THREE.MeshBasicMaterial({color:col});const h=new THREE.Mesh(new THREE.SphereGeometry(.45,14,10),M_);h.scale.set(1.25,.9,.8);g.add(h);const s=new THREE.Mesh(new THREE.BoxGeometry(.1,2,.1),M_);s.position.set(.5,1,0);g.add(s);const f=new THREE.Mesh(new THREE.BoxGeometry(.6,.14,.1),M_);f.position.set(.78,1.9,0);f.rotation.z=-.5;g.add(f);return g;}
@@ -710,8 +711,8 @@ let __wn=field.children.length;
  [[17.5],[32.5]].forEach(([z])=>{const lane=floorRect([46,z-1.4,86,z+1.4],TX.road,'#555','#0c0d18',6);lane.position.y=-.3;});
  const lg=signMesh([['LINK GATE','#ffd24a'],['日本側 ⇄ 韓国側','#fff',26]],512,170,'#1a1400','#ffd24a',6,2);lg.position.set(88,5,15.9);field.add(lg);
  const ring=new THREE.Mesh(new THREE.TorusGeometry(4.2,.22,10,48),new THREE.MeshBasicMaterial({color:'#ffd24a'}));ring.position.set(124,2.8,25);ring.rotation.y=Math.PI/2;field.add(ring);WANIM.push((dt)=>{ring.rotation.x+=dt*.8;});
- streamsAt(45,20,30,110,150,['#3fd0ff','#ff5ad8']);
- envRing(45,20,105,170,90,['#ffffff','#3fd0ff','#ff5ad8','#7dff9a'],12,70);
+ streamsAt(45,20,30,110,70,['#3fd0ff','#ff5ad8']);
+ envRing(45,20,105,170,50,['#ffffff','#3fd0ff','#ff5ad8','#7dff9a'],12,70);
 }
 wgroup('jp',__wn);__wn=field.children.length;
 // ===== KR world decor =====
@@ -734,8 +735,8 @@ wgroup('jp',__wn);__wn=field.children.length;
  const bsg=signMesh([['부산 게이트','#ffe6f6'],['BUSAN GATE → LINK','#ff5ad8',24]],512,150,'#2a0b2e','#ff5ad8',8,2.2);bsg.position.set(0,7.2,-447.65);bsg.rotation.y=Math.PI;field.add(bsg);
  for(let i=0;i<8;i++){const l=new THREE.Mesh(new THREE.SphereGeometry(.4,12,10),new THREE.MeshBasicMaterial({color:i%2?'#ff4f7a':'#ffd24a'}));l.position.set(-11+i*3.1,3.6,-440.6);field.add(l);WANIM.push((dt,t)=>{l.position.y=3.6+Math.sin(t*1.5+i)*.12;});}
  const kring=new THREE.Mesh(new THREE.TorusGeometry(4.2,.22,10,48),new THREE.MeshBasicMaterial({color:'#ff5ad8'}));kring.position.set(0,2.8,-405);field.add(kring);WANIM.push((dt)=>{kring.rotation.z+=dt*.8;});
- envRing(-10,-470,110,170,70,['#ffe0f0','#3fffd0','#ff5ad8','#ffd24a'],10,60);
- streamsAt(-10,-470,40,90,90,['#3fffd0','#ff5ad8']);
+ envRing(-10,-470,110,170,40,['#ffe0f0','#3fffd0','#ff5ad8','#ffd24a'],10,60);
+ streamsAt(-10,-470,40,90,50,['#3fffd0','#ff5ad8']);
 }
 wgroup('kr',__wn);__wn=field.children.length;
 // ===== Cable =====
@@ -817,7 +818,7 @@ function lgPanelStep(side){const A=side==='j'?V:M;const want=FL[side==='j'?'lcJ'
 function popupNet(x,y,z,s,c){popup(x,y,z,s,c,16);}
 function linkStep(dt){if(NETCUR!=='net1'||MODE!=='play'||busyStory||DLGS)return;
  if(!FL.lcJ){const r=()=>[0,1,2,3].sort(()=>Math.random()-.5).slice(0,3);FL.lcJ=r();FL.lcK=r();}
- const jReady=ZONES.filter(z=>z.world==='jp'&&z.req).every(z=>z.clear),kReady=ZONES.filter(z=>z.world==='kr'&&z.req).every(z=>z.clear);
+ const jReady=ZONES.filter(z=>z.net==='net1'&&z.world==='jp'&&z.req).every(z=>z.clear),kReady=ZONES.filter(z=>z.net==='net1'&&z.world==='kr'&&z.req).every(z=>z.clear);
  if(jReady&&!FL.lg_j0){FL.lg_j0=1;naviSay('volt','日本側のウイルス、片付いたぜ！　ハイウェイの先のリンクゲートが開いた！');SFX('bust');}
  if(kReady&&!FL.lg_k0){FL.lg_k0=1;if(NET.on){naviSay('mist','韓国側も片付きました。釜山ゲートへ向かいます。');}}
  if(NET.on){lgPanelStep('j');lgPanelStep('k');}else{lgPanelStep('j');soloMist(dt);}
@@ -833,7 +834,7 @@ function linkStep(dt){if(NETCUR!=='net1'||MODE!=='play'||busyStory||DLGS)return;
  MDS.forEach(d=>{if(PROG.md[d.id]||(d.ex&&!FL.ex))return;if(lgOnPad(V,d.x,d.z,1.1))mdOpen(d.id,'V');else if(NET.on&&lgOnPad(M,d.x,d.z,1.1))mdOpen(d.id,'M');});}
 // solo: CPU ミスト runs her side
 function soloMist(dt){const S=LGS.solo;S.t=(S.t||0)+dt;
- if(!S.arr&&wOf(V)==='jp'&&V.x>82.5){S.arr=1;S.t=0;naviSay('mist','ボルトさん、こちら韓国側。わたしも釜山ゲートに着きました。造船所のクレーンナビもノイズから助けておきました。');MDS.filter(d=>d.id[0]==='k').forEach(d=>mdOpen(d.id,'M'));if(!FL.krNavi){FL.krNavi=1;folderAdd(['hammer','W']);hpUpGive('M');}}
+ if(!S.arr&&wOf(V)==='jp'&&V.x>82.5){S.arr=1;S.t=0;naviSay('mist','ボルトさん、こちら韓国側。わたしも釜山ゲートに着きました。造船所のクレーンナビもノイズから助けておきました。');MDS.filter(d=>d.id[0]==='k').forEach(d=>mdOpen(d.id,'M'));if(!FL.krNavi){FL.krNavi=1;folderAdd(['cranek','C']);hpUpGive('M');}}
  if(S.arr===1&&S.t>2.5){S.arr=2;const c=FL.lcJ;naviSay('mist','こちらの画面に、日本側パネル用のコードが出ています。「'+c.map(i=>LG_CN[i]).join(' → ')+'」です！　足元の色パネルを、その順に踏んでください。');}
  if(S.arr>=1&&!S.read&&Math.hypot(V.x-LGMON.j[0],V.z-LGMON.j[1])<5){S.read=1;S.rt=S.t;naviSay('volt','ミスト、こっちのコードは「'+FL.lcK.map(i=>LG_CN[i]).join(' → ')+'」だ！');}
  if(S.read&&!FL.lg_j1&&S.t-S.rt>2.5){FL.lg_j1=1;SFX('bust');banner('日本側のゲートが開いた！','#7dff9a');naviSay('mist','コード入力OK！　ボルトさん、そちらのゲートが開いたはずです！');}
@@ -990,9 +991,9 @@ function animNavi3D(u,t,P,tk,tele){const walk=u.moving||u.dash?t*8:0;const sw=u.
  P.visor.material.color.set(tele&&Math.floor(t*16)%2?'#ffffff':(u.k==='dam'?'#9fd8ff':'#ffe08a'));P.aura.scale.setScalar(1+.08*Math.sin(t*4)+tk*.4);P.aura.material.color.set(u.hp<u.max*.4?'#ff4f7a':(u.k==='dam'?'#7fc8ff':'#ffb040'));}
 const NAVI_TALK={
  dam:{pre:[['dam','……ダム……マモル……。ミズ、ミンナノ……。'],['volt','こいつ、天竜ダムの管理ナビか！？　ノイズにやられてる！'],['dam','ジャマ……スルナ……！　ゲートハ……アケナイ……！'],['volt','目をさませ！　今ラクにしてやる！']],
-  post:[['dam','……ハッ。わ、わたしは何を……。'],['dam','ありがとう、小さなナビくん。ノイズに飲まれて、水門を閉めっぱなしにしていた。'],['volt','へへっ。天竜の川、ちゃんと流してやってくれよ！'],['dam','お礼にこれを。……むこう側の友だちにも、よろしくな。']],reward:['wave','W'],rn:'ショックウェーブ W'},
+  post:[['dam','……ハッ。わ、わたしは何を……。'],['dam','ありがとう、小さなナビくん。ノイズに飲まれて、水門を閉めっぱなしにしていた。'],['volt','へへっ。天竜の川、ちゃんと流してやってくれよ！'],['dam','お礼にこれを。……むこう側の友だちにも、よろしくな。']],reward:['damk','D'],rn:'ダムキーパー D'},
  crane:{pre:[['crane','ツミアゲル……ツミアゲル……スベテ、フサグ……。'],['mist','造船所のクレーン管理ナビ……！　ノイズで暴走しています。'],['crane','コンテナデ……ミチヲ……フサグ……！'],['mist','その道は、わたしが通ります。……ごめんなさい！']],
-  post:[['crane','……う、うう……。おや、嬢ちゃん……助けてくれたのかい。'],['crane','港じゅうにコンテナを積みあげちまった。こりゃ片付けが大変だ。'],['mist','お仕事、がんばってください。わたし、行くところがあるので。'],['crane','そうかい。じゃあこいつを持っていきな！']],reward:['hammer','W'],rn:'ブレイクハンマー W'}};
+  post:[['crane','……う、うう……。おや、嬢ちゃん……助けてくれたのかい。'],['crane','港じゅうにコンテナを積みあげちまった。こりゃ片付けが大変だ。'],['mist','お仕事、がんばってください。わたし、行くところがあるので。'],['crane','そうかい。じゃあこいつを持っていきな！']],reward:['cranek','C'],rn:'クレーンガイスト C'}};
 async function naviPre(zn){const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.pre)await say(w,x);}
 async function naviPost(zn){busyStory=true;await wait(1600);const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.post)await say(w,x);folderAdd(T_.reward);hpUpGive(zn.navi==='dam'?'V':'M');
  await say('sys','チップ「'+CH[T_.reward[0]].n+' '+T_.reward[1]+'」と HPメモリ を手に入れた！');busyStory=false;tryLock();}
@@ -1013,7 +1014,9 @@ Object.assign(CH,{
  quake:{n:'クエイク',ic:'chip_hammer',f:'hue-rotate(60deg) saturate(1.6)',d:'足元から地割れ 周囲に60（浮いてる敵には×）'},
  recov80:{n:'リカバリー80',ic:'chip_heal',f:'hue-rotate(40deg)',d:'HP80回復（相棒も40）'},
  recov150:{n:'リカバリー150',ic:'chip_heal',f:'hue-rotate(80deg) saturate(1.8)',d:'HP150回復（相棒も75）'},
- invis:{n:'インビジブル',ic:'chip_barrier',f:'hue-rotate(200deg) saturate(.5) brightness(1.3)',d:'3秒間 無敵になる'}
+ invis:{n:'インビジブル',ic:'chip_barrier',f:'hue-rotate(200deg) saturate(.5) brightness(1.3)',d:'3秒間 無敵になる'},
+ damk:{n:'ダムキーパー',ic:'chip_wave',f:'hue-rotate(20deg) saturate(2.2) brightness(.9)',d:'ナビチップ：3本の大波 各70'},
+ cranek:{n:'クレーンガイスト',ic:'chip_hammer',f:'hue-rotate(-30deg) saturate(2.4)',d:'ナビチップ：ねらった所にコンテナ落下 120'}
 });
 const chipStyle=id=>CH[id]&&CH[id].f?' style="filter:'+CH[id].f+'"':'';
 function castChipX(id,C,aim,P){const melee=(R,ang,dmg,opt)=>{arcFx(C,R,ang,opt&&opt.col||'#fff');for(const e of liveEn()){const dx=e.x-C.x,dz=e.z-C.z,d=Math.hypot(dx,dz);if(d>R+.4)continue;let a=Math.atan2(dx,dz)-C.aimFace;a=Math.atan2(Math.sin(a),Math.cos(a));if(Math.abs(a)<=ang/2||d<.9)hurtEnemy(e,dmg,C,Object.assign({kb:1},opt));}};
@@ -1027,6 +1030,8 @@ function castChipX(id,C,aim,P){const melee=(R,ang,dmg,opt)=>{arcFx(C,R,ang,opt&&
   case 'quake':{ringFx(C.x,C.z,4.2,'#c8a060',.5);burst(C.x,.3,C.z,'#c8a060',24,6);shakeT=.4;for(const e of liveEn()){if(e.float)continue;if(Math.hypot(e.x-C.x,e.z-C.z)<4.2)hurtEnemy(e,60,C,{ignoreShield:1,kb:1});}return true;}
   case 'recov80':heal(C,80);if(P)heal(P,40);return true;
   case 'recov150':heal(C,150);if(P)heal(P,75);return true;
+  case 'damk':{const fx=Math.sin(C.aimFace),fz=Math.cos(C.aimFace);cutin([],'ダムキーパー');[-1.7,0,1.7].forEach(o=>addWave({side:'P',x:C.x+fz*o,z:C.z-fx*o,dx:fx,dz:fz,sp:13,dmg:70,life:1.6,col:'#5ab8ff'}));shakeT=.3;return true;}
+  case 'cranek':{cutin([],'クレーンガイスト');const tx=aim.x,tz=aim.z;const c=new THREE.Mesh(new THREE.BoxGeometry(3,1.4,1.4),new THREE.MeshBasicMaterial({color:'#86501a'}));c.position.set(tx,14,tz);scene.add(c);HAZ.push({t:0,step(dt){c.position.y-=dt*36;if(c.position.y<=.7){this.done=true;scene.remove(c);ringFx(tx,tz,2.8,'#c8a060',.4);burst(tx,.4,tz,'#c8a060',16,5);shakeT=.35;for(const e of liveEn())if(Math.hypot(e.x-tx,e.z-tz)<2.8)hurtEnemy(e,120,{x:tx,z:tz},{ignoreShield:1,kb:1});}}});return true;}
   case 'invis':C.inv=Math.max(C.inv||0,3);popup(C.x,2.4,C.z,'インビジブル','#bff4ff',18);glow(C.x,1,C.z,'#bff4ff',3,.5,1);return true;}
  return false;}
 // ---- pack / library ----
@@ -2284,7 +2289,7 @@ function guestCall(f,a){try{
  if(f==='markHz'){markHz(a[0],a[1],a[2],a[3],0);return;}
  if(f==='ringWaveHz'){ringWaveHz(a[0],a[1],a[2],a[3],0);return;}
  if(typeof window[f]==='function')window[f](...a);}catch(e){console.warn('guestCall',f,e);}}
-function guestHUD(){if(MODE==='play')['gauge','chips'].forEach(id=>$(id).classList.remove('hide'));$('help').textContent='左クリック バスター（長押しでチャージ）　1〜4／右クリック チップ　ホイール チップ選択　Tab カスタム　E ミストのスキル　Space ジャンプ　C スライディング';
+function guestHUD(){if(MODE==='play')['gauge','chips'].forEach(id=>$(id).classList.remove('hide'));$('help').textContent='左クリック バスター（長押しでチャージ）　1〜4／右クリック チップ　ホイール チップ選択　Tab カスタム　F フォルダ／ショップ　E ミストのスキル　Space ジャンプ　C スライディング';
  $('roomhelp').textContent='WASD 移動　マウス 視点　F／左クリック 調べる　P スマホ　Shift ダッシュ　（あなたは モリー＆ミスト）';renderHP();}
 function guestInit(){NET.on=true;renderHP();ACT='molly';ACTC=MOLLY;$('gear').classList.remove('hide');MODE='room';SCN='room';enterRoomScene();guestHUD();tryLock();}
 function lerpA(a,b,k){let d=b-a;d=Math.atan2(Math.sin(d),Math.cos(d));return a+d*k;}
@@ -2374,7 +2379,7 @@ function spawnCores(b){EN.filter(x=>x.k==='ncore'&&x.zone===b.zone).forEach(c=>{
 // ---------- loop ----------
 let last=performance.now(),T=0;
 function cusUI(){const op=cusOpenH();let w=false,t='';if(NET.on&&MODE==='play'){if(NET.host){w=!op&&!!NET.cusG;t=NET.cusG?'モリー：チップを選んでいます…':'モリー：選択OK！';}else{w=!op&&!!NET.fz;t=NET.hc?'レオ：チップを選んでいます…':'レオ：選択OK！';}}$('cwait').classList.toggle('hide',!w);const cp=$('cpart');if(cp.textContent!==(NET.on?t:''))cp.textContent=NET.on?t:'';}
-function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);cusUI();if(window.SKYD){if(SCN==='net'&&NETCUR==='net1')SKYD.position.copy(camera.position);else SKYD.position.set(0,0,0);}worldVis();if(SCN==='net'&&(NETCUR==='net1'||NETCUR==='net3')&&(MODE==='play'||MODE==='dead')){worldVisual(dt);shopVisual(dt);}else if($('shopHint'))$('shopHint').classList.add('hide');
+function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);cusUI();if(window.SKYD){if(SCN==='net'&&(NETCUR==='net1'||NETCUR==='net3'))SKYD.position.copy(camera.position);else SKYD.position.set(0,0,0);}worldVis();if(SCN==='net'&&(NETCUR==='net1'||NETCUR==='net3')&&(MODE==='play'||MODE==='dead')){worldVisual(dt);shopVisual(dt);}else if($('shopHint'))$('shopHint').classList.add('hide');
  if(NET.on&&NET.guest){guestApply(dt);if(MODE==='room'){T+=dt;guestRoomStep(dt);}if(MODE==='play'||MODE==='dead'){T+=dt;if(!paused&&!NET.fz)gaugeV=Math.min(1,gaugeV+dt/10);$('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';if(!NET.fz){guestPlayerStep(dt);projStep(dt);waveStep(dt);hazStep(dt);}else{M.moving=false;M.holding=false;}wallStep(dt);enVel(dt);guestVisualStep(dt);$('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:'ウイルスの群れ 残り '+ZONES.filter(z=>z.net===NETCUR&&!z.clear).length;$('clickme').classList.toggle('hide',locked()||plFail);}
   const nw=performance.now();if(nw-NET.lastSt>50){NET.lastSt=nw;guestSendState();}}
  else{if(NET.on){hostApplyGuest(dt);const nw=performance.now();if(nw-NET.lastSnap>66){NET.lastSnap=nw;hostSnap();}}
