@@ -152,7 +152,7 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <b>バトルが始まると自動でカスタム画面</b>が開く。戦闘中もゲージが溜まれば <kbd>Tab</kbd> でもう一度：配られた6枚から、<b>同じコード</b>か<b>同じ名前</b>のチップを最大4枚選ぶ（<b>＊</b>はどのコードとも組める）<br>
 <b style="color:#ff7bf0">プログラムアドバンス</b>：ソード→ワイドソード→ロングソード（コードS）の順で選ぶと「ドリームソード」。キャノンA→B→Cで「ギガキャノン」<br><b>ペットチップ</b>：「コリーダッシュ」でレオの犬2匹が突進、「トカゲガード」でモリーのトカゲ5匹が周りを回って敵の弾を消す（どちらもコード＊）</div>
 <div class="box"><b>敵の攻撃</b>　敵は光を溜めてから攻撃する（技名が出る）。溜め中にチャージショットやチップを当てると<b>カウンター</b>で止められる<br>ビーム：地面に赤い線→線から横に逃げる／赤い円：その中から出る／地面を走る波・広がる輪：ジャンプ／弾：横移動かスライディング（無敵）<br>シールダーは正面を盾で防ぐ→突進の後か横・後ろから、またはブレイクハンマー。最後にボスがいます</div>
-<div id="modebtns"><button class="big" id="start">ひとりで遊ぶ</button>　<button class="big" id="onl" style="background:linear-gradient(90deg,#ff8fc8,#3fd0ff)">ふたりで遊ぶ（オンライン）</button><div style="font-size:12px;opacity:.75;margin-top:6px">オンライン：URLを送るだけで、相手は登録なしで参加できます（あなた＝レオ＆ボルト／相手＝モリー＆ミスト）</div></div><div id="lobby" class="hide box" style="text-align:center"></div>
+<div id="modebtns"><button class="big" id="start">ひとりで遊ぶ</button>　<button class="big" id="onl" style="background:linear-gradient(90deg,#ff8fc8,#3fd0ff)">ふたりで遊ぶ（オンライン）</button><div style="font-size:12px;opacity:.75;margin-top:6px">オンライン：URLを送るだけで、相手は登録なしで参加できます（どっちのキャラで遊ぶか選べます）</div></div><div id="lobby" class="hide box" style="text-align:center"></div>
 </div></div>
 <div id="loading" class="ov hide"><div class="card" style="max-width:420px;text-align:center"><h1 style="font-size:22px">NOW LOADING</h1><div id="ldt" style="margin:8px 0">3Dキャラを読み込み中…</div><div class="bar" style="height:10px"><i id="ldb" style="width:0;background:#3fd0ff"></i></div></div></div>
 <div id="custom" class="ov hide"><div class="card" style="max-width:860px">
@@ -792,9 +792,9 @@ function projStep(dt){for(const p of PROJ){p.t+=dt;
  p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.m.position.set(p.x,p.y,p.z);if(p.sh)p.sh.position.set(p.x,.03,p.z);p.tr=(p.tr||0)+dt;if(p.tr>.025){p.tr=0;glow(p.x,p.y,p.z,p.col||'#fff',(p.r||.15)*3.2,.18,-.6);}
  if(p.lob&&p.y<=.1){explode(p);p.dead=true;continue;}
  if(p.side==='P'){const bar=liveEn().some(x=>x.k==='ncore');for(const e of liveEn()){if(p.hit.has(e))continue;if(bar&&e.k==='boss'){if(Math.hypot(e.x-p.x,e.z-p.z)<1.4&&(!e.cmsg||T-e.cmsg>1.2)){e.cmsg=T;popup(e.x,e.h+.2,e.z,'バリア！ 先にコアをねらえ','#ff9ab0',16);}continue;}const ey=(e.y||0)+(e.float?1:.7);if(Math.hypot(e.x-p.x,e.z-p.z)<(e.k==='ncore'?1.15:e.k==='boss'?1.4:.7)&&Math.abs(ey-p.y)<(e.k==='boss'?2:1.1)){p.hit.add(e);
-   if(p.splash){explode(p);p.dead=true;break;}hurtEnemy(e,p.dmg,p.from,{freeze:p.freeze,kb:p.kb});if(p.charged)crossCheck(e,p.from);if(!p.pierce){p.dead=true;break;}}}}
+   if(p.splash){explode(p);p.dead=true;break;}if(p.mist){if(!p.local)mistBurst(p);else mistBurst(Object.assign({},p,{dmg:0}));p.dead=true;break;}if(p.local){p.dead=true;break;}hurtEnemy(e,p.dmg,p.from,{freeze:p.freeze,kb:p.kb});if(p.chain&&!NET.guest)chainBolt(e,p.from,p);if(p.charged)crossCheck(e,p.from);if(!p.pierce){p.dead=true;break;}}}}
  else{for(const a of [V,M]){if(a.down||p.hit.has(a))continue;if(Math.hypot(a.x-p.x,a.z-p.z)<.55&&Math.abs(a.y+.8-p.y)<.9){p.hit.add(a);hurtAlly(a,p.dmg,p);p.dead=true;break;}}}
- if(p.t>(p.life||2.5))p.dead=true;}
+ if(p.t>(p.life||2.5)){if(p.mist&&!p.dead)mistBurst(p.local?Object.assign({},p,{dmg:0}):p);p.dead=true;}}
  PROJ=PROJ.filter(p=>{if(p.dead){scene.remove(p.m);if(p.sh)scene.remove(p.sh);}return !p.dead;});}
 function explode(p){SFX('boom');const R=p.R||2.5;glow(p.x,.8,p.z,'#ffb13c',R*2.2,.35,.8);sparks(p.x,.6,p.z,'#ffcf3a',20,7);flashScreen(.12);ringFx(p.x,p.z,R,'#ffa53c',.4);burst(p.x,.5,p.z,'#ffa53c',18,5);shakeT=.2;for(const e of liveEn()){if(Math.hypot(e.x-p.x,e.z-p.z)<R)hurtEnemy(e,p.dmg,{x:p.x,z:p.z},{ignoreShield:1,kb:.8});}}
 // ground waves
@@ -868,14 +868,28 @@ function playerStep(dt,t){const L=V;if(paused){L.moving=false;L.holding=false;L.
  // buster
  L.shotCD=Math.max(0,L.shotCD-dt);
  const inBattle=ZONES.some(z=>z.act&&!z.clear);if(!inBattle&&MS.fire&&!L.noFireMsg){L.noFireMsg=1.5;popup(L.x,2.2,L.z,'バトル中だけ撃てる','#9ab',14);}L.noFireMsg=Math.max(0,(L.noFireMsg||0)-dt);
- if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){busterShot(false);L.shotCD=.13;}}else L.chg+=dt;}
- if(L.holding&&L.chg>.2&&Math.random()<(L.chg>=1.1?.9:.5)){const a=rnd(0,6.28),r=L.chg>=1.1?1.1:1.4;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=1.1?'#ff5a5f':'#ffcf3a',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}
- else if(L.holding){L.holding=false;if(L.chg>=1.1)busterShot(true);L.chg=0;}
+ if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){busterShot(false);L.shotCD=BUSTER.volt.cd;}}else L.chg+=dt;}
+ if(L.holding&&L.chg>.2&&Math.random()<(L.chg>=BUSTER.volt.chg?.9:.5)){const a=rnd(0,6.28),r=L.chg>=BUSTER.volt.chg?1.1:1.4;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=BUSTER.volt.chg?'#ffe14d':'#fff3a0',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}
+ else if(L.holding){L.holding=false;if(L.chg>=BUSTER.volt.chg)busterShot(true);L.chg=0;}
  // lock-on camera assist
  if(lockT&&!lockT.dead){const ty=Math.atan2(V.x-lockT.x,V.z-lockT.z);let d=ty-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*Math.min(1,dt*5);}else if(lockT)lockT=null;
 }
-function busterShot(charged){SFX(charged?'charge':'shot');if(V.is3d&&!V.moving)charOneShot(V,'Pistol_Shoot',charged?.9:1.6);if(charged){glow(V.x,1,V.z,'#ff5a5f',3,.25,1.2);flashScreen(.08);}const aim=aimInfo();V.aimFace=Math.atan2(aim.x-V.x,aim.z-V.z);V.face=V.aimFace;V.faceHold=.4;
- fireAt(V,aim,charged?{side:'P',sp:32,dmg:40,col:'#ff5a5f',r:.35,kb:1,pierce:0,charged:1}:{side:'P',sp:34,dmg:4,col:'#fff',r:.12});if(charged){shakeT=.1;burst(V.x,1,V.z,'#ff5a5f',8,3);}}
+const BUSTER={volt:{nm:'サンダーバスター',cd:.12,chg:1.1,cc:'#ffe14d',n:{sp:38,dmg:4,col:'#fff3a0',r:.12},c:{sp:40,dmg:32,col:'#ffe14d',r:.34,kb:.6,pierce:1,charged:1,chain:1,life:1.2}},
+ mist:{nm:'ミストバスター',cd:.22,chg:.85,cc:'#7fe6ff',n:{sp:27,dmg:3,col:'#c8f6ff',r:.11,life:.5,spread:1},c:{sp:17,dmg:30,col:'#7fe6ff',r:.5,charged:1,mist:1,R:2.8,life:1.4}}};
+function busterFire(C,aim,charged,extra){const B=C===M?BUSTER.mist:BUSTER.volt;const o=Object.assign({side:'P'},charged?B.c:B.n,extra||{});
+ if(o.spread){const a0=Math.atan2(aim.x-C.x,aim.z-C.z),d=Math.hypot(aim.x-C.x,aim.z-C.z)||1;[-.14,0,.14].forEach(da=>{const a=a0+da;fireAt(C,{x:C.x+Math.sin(a)*d,y:aim.y,z:C.z+Math.cos(a)*d},Object.assign({},o));});}
+ else fireAt(C,aim,o);
+ if(charged){glow(C.x,1,C.z,B.cc,3,.25,1.2);burst(C.x,1,C.z,B.cc,8,3);}}
+function chainBolt(e,from,p){let best=null,bd=5.5;for(const x of liveEn()){if(x===e||p.hit.has(x))continue;const d=Math.hypot(x.x-e.x,x.z-e.z);if(d<bd){bd=d;best=x;}}
+ const draw=(a,b)=>{const pts=[];const n=7;for(let i=0;i<=n;i++){const t=i/n;pts.push(new THREE.Vector3(a.x+(b.x-a.x)*t+(i&&i<n?rnd(-.3,.3):0),1+(i&&i<n?rnd(-.3,.3):0),a.z+(b.z-a.z)*t+(i&&i<n?rnd(-.3,.3):0)));}
+  const m=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:'#fff7b0',transparent:true}));scene.add(m);FX.push({m,fade:1,t:0,life:.25});};
+ if(!e.dead&&!(e.k==='boss')){e.stun=Math.max(e.stun||0,.5);}
+ if(best){draw(e,best);p.hit.add(best);hurtEnemy(best,16,from,{});if(!best.dead&&best.k!=='boss')best.stun=Math.max(best.stun||0,.6);glow(best.x,1,best.z,'#ffe14d',1.6,.2,1);}}
+function mistBurst(p){const R=p.R||2.8;SFX('boom');glow(p.x,.8,p.z,'#7fe6ff',R*2,.4,.8);ringFx(p.x,p.z,R,'#9fefff',.45);burst(p.x,.6,p.z,'#c8f6ff',20,4);
+ for(let k=0;k<10;k++){const m=new THREE.Mesh(new THREE.SphereGeometry(rnd(.4,.8),10,8),new THREE.MeshBasicMaterial({color:'#bff4ff',transparent:true,opacity:.35,depthWrite:false}));m.position.set(p.x+rnd(-R*.6,R*.6),rnd(.3,1.2),p.z+rnd(-R*.6,R*.6));scene.add(m);FX.push({m,fade:1,t:0,life:rnd(.8,1.4)});}
+ if(NET.guest)return;for(const e of liveEn()){if(Math.hypot(e.x-p.x,e.z-p.z)<R){hurtEnemy(e,p.dmg,{x:p.x,z:p.z},{ignoreShield:1,kb:.4});if(!e.dead){e.slowT=4;popup(e.x,e.h+.9,e.z,'スロウ','#9fefff',14);}}}}
+function busterShot(charged){SFX(charged?'charge':'shot');if(V.is3d&&!V.moving)charOneShot(V,'Pistol_Shoot',charged?.9:1.6);if(charged){flashScreen(.08);}const aim=aimInfo();V.aimFace=Math.atan2(aim.x-V.x,aim.z-V.z);V.face=V.aimFace;V.faceHold=.4;
+ busterFire(V,aim,charged);if(charged){shakeT=.1;}}
 // ---------- Mist CPU ----------
 function mistStep(dt){const F=M;F.faceHold=Math.max(0,(F.faceHold||0)-dt);F.inv=Math.max(0,F.inv-dt);F.slide=Math.max(0,(F.slide||0)-dt);F.shotCD=Math.max(0,F.shotCD-dt);F.skillCD-=dt;
  if(F.jumpAt>0){F.jumpAt-=dt;if(F.jumpAt<=0&&F.y<=0)F.vy=7.5;}if(F.y>0||F.vy>0){F.vy-=20*dt;F.y=Math.max(0,F.y+F.vy*dt);if(F.y<=0)F.vy=0;}
@@ -887,7 +901,7 @@ function mistStep(dt){const F=M;F.faceHold=Math.max(0,(F.faceHold||0)-dt);F.inv=
   // dodge incoming ground waves / projectiles
   for(const w of WAVES)if(w.side==='E'&&Math.hypot(w.x-F.x,w.z-F.z)<2.2&&F.y<=0)F.vy=7.5;
   for(const p of PROJ)if(p.side==='E'&&Math.hypot(p.x-F.x,p.z-F.z)<2.5&&!F.slide){F.slide=.35;F.sdx=-p.vz/Math.hypot(p.vx,p.vz);F.sdz=p.vx/Math.hypot(p.vx,p.vz);}
-  if(F.shotCD<=0){F.face=Math.atan2(e.x-F.x,e.z-F.z);F.faceHold=.5;fireAt(F,{x:e.x,y:(e.y||0)+(e.float?1:.8),z:e.z},{side:'P',sp:26,dmg:3,col:'#8fe8ff',r:.12});F.shotCD=.45;}
+  if(F.shotCD<=0){F.face=Math.atan2(e.x-F.x,e.z-F.z);F.faceHold=.5;F.burstN=(F.burstN||0)+1;busterFire(F,{x:e.x,y:(e.y||0)+(e.float?1:.8),z:e.z},F.burstN%6===0);F.shotCD=F.burstN%6===0?.9:.45;}
   if(F.skillCD<=0){F.skillCD=rnd(16,22);
    if(V.hp<V.max*.4){heal(V,35);heal(F,20);popup(F.x,2.3,F.z,'リンクヒール','#7dff9a',18);if(F.is3d)charOneShot(F,'Interact',1.5);SFX('heal');}
    else{popup(F.x,2.3,F.z,'フリーズショット','#9fe8ff',18);if(F.is3d)charOneShot(F,'Spell_Simple_Shoot',1.5);SFX('chip');fireAt(F,{x:e.x,y:(e.y||0)+.8,z:e.z},{side:'P',sp:22,dmg:15,freeze:1,col:'#9fe8ff',r:.3});}}
@@ -907,6 +921,7 @@ function enemyStep(e,dt){
  const zn=e.zone;if(!zn.act)return;
  e.bar.classList.remove('hide');
  if(e.k==='ncore'){const b=EN.find(x=>x.k==='boss'&&x.zone===zn);if(b){const a=e.oa+T*.45;const nx=b.x+Math.sin(a)*5.5,nz=b.z+Math.cos(a)*5.5;e.x=nx;e.z=nz;e.y=Math.sin(T*2+e.oa)*.3;}e.moving=false;return;}
+ if(e.slowT>0){e.slowT-=dt;dt*=.55;if(Math.random()<.15)glow(e.x,rnd(.4,1.4),e.z,'#bff4ff',.35,.4,-.3);}
  e.open=Math.max(0,e.open-dt);if(e.binv>0)e.binv-=dt;if(e.dazed>0){e.dazed-=dt;e.moving=false;if(e.tele>0){e.tele=0;clearCharge(e);}return;}
  if(e.frozen>0||e.stun>0){if(e.frozen>0)e.frozen-=dt;else e.stun-=dt;if(e.tele>0){e.tele=0;clearCharge(e);}if(e.y>0)e.y=Math.max(0,e.y-dt*6);return;}
  const tgt=nearestAlly(e);if(!tgt)return;const dx=tgt.x-e.x,dz=tgt.z-e.z,d=Math.hypot(dx,dz)||1;
@@ -1736,19 +1751,29 @@ function peerOpts(){const o={debug:0};if(QS.get('ph')){o.host=QS.get('ph');o.por
 function onNetData(raw){let o;try{o=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){return;}if(NET.host)hostOnMsg(o);else guestOnMsg(o);}
 function onNetClose(){if(!NET.on&&!NET.ready&&!NET.gReady){netStatus('接続が切れました。ページを読み込み直してください。');return;}
  NET.cusG=false;if(NET.host){if(NET.gSayRes){const f=NET.gSayRes;NET.gSayRes=null;f();}if(NET.waitChoice){const f=NET.waitChoice;NET.waitChoice=null;f(NET.waitChoiceN||0);}NET.on=false;NET.conn=null;if(MODE!=='title'){banner('2Pとの接続が切れました（ミストはCPUが操作します）','#ffb0b0');}else netStatus('2Pとの接続が切れました。もう一度URLを送ってください。');}
- else{NET.on=false;if(document.pointerLockElement)document.exitPointerLock();showResult('接続が切れました','ホスト（レオ側）との接続が切れました。<br>ホストに新しいURLをもらって、もう一度参加してください。',()=>location.reload());}}
-async function netHost(){NET.host=true;NET.guest=false;const rid='nl'+Math.random().toString(36).slice(2,9);const url=location.origin+location.pathname+'?join='+rid+(QS.get('bc')?'&bc=1':'')+(QS.get('ph')?'&ph='+QS.get('ph')+'&pp='+(QS.get('pp')||9000):'');
- const showInv=()=>netStatus('<b>① このURLを相手に送ってください</b><br><input id="invite" readonly value="'+url+'" style="width:100%;margin:8px 0;padding:8px;font-size:14px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"><button id="copyInv">URLをコピー</button><div id="lstat" style="margin-top:10px">相手の参加を待っています…（あなたは レオ＆ボルト）</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');
- if(QS.get('bc')){NET.bc=new BroadcastChannel(rid);NET.bc.onmessage=ev=>{if(ev.data.from==='g')onNetData(ev.data.d);};showInv();}
+ else{NET.on=false;if(document.pointerLockElement)document.exitPointerLock();showResult('接続が切れました','相手との接続が切れました。<br>ページを読み込み直して、新しいURLでもう一度つないでください。',()=>location.reload());}}
+const ROLE_TX={leo:'<b style="color:#9fe8ff">レオ＆ボルト</b>（天竜側）',molly:'<b style="color:#ff8fc8">モリー＆ミスト</b>（ウルサン側）'};
+function bcListen(id){NET.bc=new BroadcastChannel(id);NET.bc.onmessage=ev=>{if(ev.data.from!==(NET.host?'h':'g'))onNetData(ev.data.d);};}
+function hostLogicStart(){NET.ready=false;const st=$('lstat');if(st)st.textContent='つながりました！　読み込み中…';bootGame(true).then(()=>{NET.ready=true;hostMaybeReady();});}
+async function guestLogicStart(){if(NET.gStarted)return;NET.gStarted=true;netStatus('つながりました！　読み込み中…');await bootGame(true);netStatus('準備OK！　レオ側の人が「ふたりで はじめる」を押すのを待っています…');NET.send({t:'gready'});}
+function pickRole(){netStatus('<b>どっちで遊ぶ？</b><div style="font-size:13px;opacity:.8;margin:4px 0 10px">相手はもう一方のキャラになります</div><button class="big" id="rleo" style="margin:4px">レオ＆ボルト<br><span style="font-size:12px">天竜・静岡</span></button> <button class="big" id="rmol" style="margin:4px;background:linear-gradient(90deg,#ff8fc8,#ffb0d8)">モリー＆ミスト<br><span style="font-size:12px">ウルサン・韓国</span></button>');
+ $('rleo').onclick=()=>netHost('leo');$('rmol').onclick=()=>netHost('molly');}
+async function netHost(role){role=role||'leo';const me=role==='molly'?'molly':'leo';NET.host=me==='leo';NET.guest=!NET.host;NET.creator=true;
+ const rid='nl'+Math.random().toString(36).slice(2,9);const url=location.origin+location.pathname+'?join='+rid+(me==='molly'?'&r=m':'')+(QS.get('bc')?'&bc=1':'')+(QS.get('ph')?'&ph='+QS.get('ph')+'&pp='+(QS.get('pp')||9000):'');
+ const other=me==='leo'?'molly':'leo';
+ const showInv=()=>netStatus('<b>① このURLを相手に送ってください</b><br><input id="invite" readonly value="'+url+'" style="width:100%;margin:8px 0;padding:8px;font-size:14px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"><button id="copyInv">URLをコピー</button><div id="lstat" style="margin-top:10px">相手の参加を待っています…<br>あなた＝'+ROLE_TX[me]+'　／　相手＝'+ROLE_TX[other]+'</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');
+ const onPeer=()=>{if(NET.host){NET.send({t:'hello'});hostLogicStart();}else guestLogicStart();};
+ if(QS.get('bc')){bcListen(rid);showInv();NET.awaitHello=true;}
  else{netStatus('部屋を作っています…');try{await loadPeer();}catch(e){netStatus('オンラインの準備に失敗しました：'+e.message+'<br>ネットにつながっているか確認してください。');return;}
   const peer=NET.peer=new Peer(rid,peerOpts());peer.on('open',()=>showInv());peer.on('error',e=>{netStatus('オンラインの準備に失敗しました（'+(e.type||e)+'）。ページを読み込み直して、もう一度お試しください。');});
-  peer.on('connection',c=>{if(NET.conn&&NET.conn.open){c.close();return;}NET.conn=c;c.on('data',onNetData);c.on('close',onNetClose);c.on('open',()=>{NET.send({t:'hello'});});});}
+  peer.on('connection',c=>{if(NET.conn&&NET.conn.open){c.close();return;}NET.conn=c;c.on('data',onNetData);c.on('close',onNetClose);c.on('open',onPeer);});}
  const cp=()=>{const b=$('copyInv');if(b)b.onclick=()=>{const i=$('invite');i.select();try{navigator.clipboard.writeText(i.value);}catch(e){document.execCommand('copy');}b.textContent='コピーしました！';};};setTimeout(cp,50);setTimeout(cp,1500);
- bootGame(true).then(()=>{NET.ready=true;hostMaybeReady();});}
-function hostMaybeReady(){const b=$('hstart'),st=$('lstat');if(!st)return;if(NET.gReady&&NET.ready){st.textContent='つながりました！　モリー＆ミストが参加しています。';b.classList.remove('hide');b.onclick=()=>{$('title').classList.add('hide');NET.on=true;renderHP();NET.send({t:'go'});startStory();};}
+ bootGame(true);if(NET.host&&QS.get('bc'))hostLogicStart();}
+function hostMaybeReady(){const b=$('hstart'),st=$('lstat');if(!st)return;if(NET.gReady&&NET.ready){st.textContent='つながりました！　相手（モリー＆ミスト）の準備ができました。';b.classList.remove('hide');b.onclick=()=>{$('title').classList.add('hide');NET.on=true;renderHP();NET.send({t:'go'});startStory();};}
  else if(NET.gReady)st.textContent='つながりました！　こちらの読み込みを待っています…';}
 function hostOnMsg(o){switch(o.t){
  case 'gready':NET.gReady=true;hostMaybeReady();break;
+ case 'hi':break;
  case 'st':NET.rs=o;break;
  case 'cusReq':if(MODE==='play')cusStart();break;
  case 'cusDone':if(o.n===NET.cusN)NET.cusG=false;break;
@@ -1757,7 +1782,7 @@ function hostOnMsg(o){switch(o.t){
  case 'interact':hostGuestInteract();break;
  case 'choice':if(NET.waitChoice){const f=NET.waitChoice;NET.waitChoice=null;f(o.i);}break;
  case 'closeBust':break;
- case 'fire':if(MODE==='play'&&!M.down){const c=!!o.c;fireAt(M,o.a,c?{side:'P',sp:32,dmg:36,col:'#3fd0ff',r:.32,kb:1,remote:1,charged:1}:{side:'P',sp:34,dmg:4,col:'#bff4ff',r:.12,remote:1});if(M.is3d)charOneShot(M,'Pistol_Shoot',c?.9:1.6);}break;
+ case 'fire':if(MODE==='play'&&!M.down){const c=!!o.c;busterFire(M,o.a,c,{remote:1});if(M.is3d)charOneShot(M,'Pistol_Shoot',c?.9:1.6);}break;
  case 'chip':if(MODE==='play'&&!M.down&&CH[o.id])castChip(o.id,M,o.a,V);break;
  case 'skill':if(MODE==='play'&&!M.down&&NET.skillCD<=0){NET.skillCD=13;if(V.hp<V.max*.5){heal(V,35);heal(M,20);popup(M.x,2.3,M.z,'リンクヒール','#7dff9a',18);SFX('heal');}else{const e=liveEn().sort((a,b)=>Math.hypot(a.x-M.x,a.z-M.z)-Math.hypot(b.x-M.x,b.z-M.z))[0];popup(M.x,2.3,M.z,'フリーズショット','#9fe8ff',18);SFX('chip');if(e)fireAt(M,{x:e.x,y:(e.y||0)+.8,z:e.z},{side:'P',sp:22,dmg:15,freeze:1,col:'#9fe8ff',r:.3});}if(M.is3d)charOneShot(M,'Spell_Simple_Shoot',1.5);}break;}}
 async function hostGuestInteract(){if(MODE!=='room'||DLGS||CHOICE)return;if(busyStory){NET.send({t:'call',f:'banner',a:['レオが調べものをしています…','#9fe8ff']});return;}const sa=ACT,sc=ACTC;ACT='molly';ACTC=MOLLY;const it=nearInter();ACT=sa;ACTC=sc;if(!it)return;busyStory=true;NET.actor='molly';try{await it.fn();}finally{busyStory=false;NET.actor=null;}}
@@ -1802,7 +1827,7 @@ function mistRemoteStep(dt){const F=M;F.inv=Math.max(0,F.inv-dt);F.steal=Math.ma
  if(F.down){F.moving=false;F.tint='#666';if(Math.hypot(V.x-F.x,V.z-F.z)<1.6){F.rev+=dt;if(F.rev>=2){F.down=false;F.tint=null;F.hp=Math.round(F.max*.4);if(F.is3d){F.lockT=0;F.cur=null;}F.inv=1.5;popup(F.x,2,F.z,'復活！','#7dff9a',22);renderHP();}}else F.rev=Math.max(0,F.rev-dt);}}
 // ---- guest ----
 function guestOnMsg(o){switch(o.t){
- case 'hello':netStatus('つながりました！　読み込み中…');break;
+ case 'hello':if(NET.awaitHello){NET.awaitHello=false;guestLogicStart();}break;
  case 'go':$('title').classList.add('hide');guestInit();break;
  case 's':NET.snap=o;NET.snapT=performance.now();break;
  case 'call':guestCall(o.f,o.a);break;
@@ -1871,11 +1896,11 @@ function guestPlayerStep(dt){const L=M;L.busy=Math.max(0,(L.busy||0)-dt);if(L.do
  if(ml){mx/=ml;mz/=ml;const sp=L.slide>0?12:K.ShiftLeft||K.ShiftRight?7.5:4.8;const nx=L.x+mx*sp*dt,nz=L.z+mz*sp*dt;if(walk(nx,nz)){L.x=nx;L.z=nz;}else if(walk(nx,L.z))L.x=nx;else if(walk(L.x,nz))L.z=nz;if(!(L.faceHold>0))L.face=Math.atan2(mx,mz);L.sprint=!!(K.ShiftLeft||K.ShiftRight);}
  ZONES.forEach(z=>{if(z.act&&!z.clear)confine(L,z);});
  L.shotCD=Math.max(0,(L.shotCD||0)-dt);const inBattle=ZONES.some(z=>z.act&&!z.clear);
- if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){guestShot(false);L.shotCD=.13;}}else L.chg+=dt;}
- else if(L.holding){L.holding=false;if(L.chg>=1.1)guestShot(true);L.chg=0;}
- if(L.holding&&L.chg>.2&&Math.random()<.6){const a=rnd(0,6.28),r=1.2;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=1.1?'#3fd0ff':'#bff4ff',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}}
+ if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){guestShot(false);L.shotCD=BUSTER.mist.cd;}}else L.chg+=dt;}
+ else if(L.holding){L.holding=false;if(L.chg>=BUSTER.mist.chg)guestShot(true);L.chg=0;}
+ if(L.holding&&L.chg>.2&&Math.random()<.6){const a=rnd(0,6.28),r=1.2;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=BUSTER.mist.chg?'#3fd0ff':'#bff4ff',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}}
 function guestShot(c){SFX(c?'charge':'shot');const aim=aimInfo();M.face=Math.atan2(aim.x-M.x,aim.z-M.z);M.faceHold=.4;if(M.is3d&&!M.moving)charOneShot(M,'Pistol_Shoot',c?.9:1.6);
- fireAt(M,aim,c?{side:'P',sp:32,dmg:0,col:'#3fd0ff',r:.32}:{side:'P',sp:34,dmg:0,col:'#bff4ff',r:.12});NET.send({t:'fire',c:c?1:0,a:{x:r2(aim.x),y:r2(aim.y),z:r2(aim.z)}});}
+ busterFire(M,aim,c,{dmg:0,local:1});NET.send({t:'fire',c:c?1:0,a:{x:r2(aim.x),y:r2(aim.y),z:r2(aim.z)}});}
 function guestSkill(){if(NET.skillCD>0){popup(M.x,2.2,M.z,'スキル準備中 '+Math.ceil(NET.skillCD)+'秒','#9ab',14);return;}NET.skillCD=13;NET.send({t:'skill'});}
 function guestRoomStep(dt){roomLight(ROOM_OF.molly);
  if(!NET.lock&&!DLGS&&!CHOICE)humanStep(MOLLY,dt,true);else if(MOLLY)MOLLY.auto=null;
@@ -1887,14 +1912,15 @@ function guestRoomStep(dt){roomLight(ROOM_OF.molly);
  if(ROOMS.molly.terLight)ROOMS.molly.terLight.material.color.set(FL.terOff&&!FL.pc_molly?'#333':'#c8b070');
  ['hnd','icn'].forEach(k=>{const R=ROOMS[k];if(R.term)R.term.material.color.set(FL.airFixed?'#7dff9a':(Math.floor(T*2)%2?'#ff4f7a':'#5a1a2a'));});}
 function guestSendState(){const o={t:'st',seq:NET.gseq||0};if(MODE==='room'&&MOLLY)o.r=[r2(MOLLY.x),r2(MOLLY.z),r2(MOLLY.face),MOLLY.moving?1:0,MOLLY.sprint?1:0];if(MODE==='play'||MODE==='dead')o.n=[r2(M.x),r2(M.z),r2(M.y||0),r2(M.face),M.moving?1:0,M.slide>0?1:0,M.sprint?1:0];NET.send(o);}
-async function netJoin(id){NET.guest=true;NET.host=false;$('modebtns').classList.add('hide');
- netStatus('<b>オンラインのゲームに参加します</b><br>あなたは <b style="color:#ff8fc8">モリー＆ミスト</b>（ウルサン側）です。<br><button class="big" id="gjoin" style="margin-top:10px">参加する</button>');
- $('gjoin').onclick=async()=>{audioInit();netStatus('ホストに接続しています…');
-  if(QS.get('bc')){NET.bc=new BroadcastChannel(id);NET.bc.onmessage=ev=>{if(ev.data.from==='h')onNetData(ev.data.d);};}
+async function netJoin(id){const me=QS.get('r')==='m'?'leo':'molly';NET.host=me==='leo';NET.guest=!NET.host;$('modebtns').classList.add('hide');
+ netStatus('<b>オンラインのゲームに参加します</b><br>あなたは '+ROLE_TX[me]+' です。<br><button class="big" id="gjoin" style="margin-top:10px">参加する</button>');
+ $('gjoin').onclick=async()=>{audioInit();netStatus('相手に接続しています…');
+  if(QS.get('bc')){bcListen(id);}
   else{try{await loadPeer();}catch(e){netStatus('接続に失敗しました：'+e.message);return;}
-   const peer=NET.peer=new Peer(peerOpts());peer.on('error',e=>{netStatus('接続に失敗しました（'+(e.type==='peer-unavailable'?'部屋が見つかりません。ホストのページが開いたままか確認して、新しいURLをもらってください':(e.type||e))+'）');});
+   const peer=NET.peer=new Peer(peerOpts());peer.on('error',e=>{netStatus('接続に失敗しました（'+(e.type==='peer-unavailable'?'部屋が見つかりません。URLを送った人のページが開いたままか確認して、新しいURLをもらってください':(e.type||e))+'）');});
    await new Promise(r=>peer.on('open',r));const c=NET.conn=peer.connect(id,{reliable:true});c.on('data',onNetData);c.on('close',onNetClose);await new Promise(r=>c.on('open',r));}
-  netStatus('つながりました！　読み込み中…');await bootGame(true);netStatus('準備OK！　ホスト（レオ側）が「ふたりで はじめる」を押すのを待っています…');NET.send({t:'gready'});};}
+  if(NET.host){netStatus('<div id="lstat">つながりました！　読み込み中…</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');NET.send({t:'hello'});hostLogicStart();}
+  else{NET.send({t:'hi'});guestLogicStart();}};}
 
 
 const PHONE=[];
@@ -1955,7 +1981,7 @@ let BOOTED=null;function bootGame(quiet){if(BOOTED)return BOOTED;BOOTED=(async()
 
  initWorld();if(USE3D)await buildHome();$('loading').style.visibility='';})();return BOOTED;}
 $('start').onclick=async()=>{audioInit();$('title').classList.add('hide');await bootGame();if(USE3D){startStory();}else{MODE='play';['hp','gauge','chips','cross','help','area','gear'].forEach(id=>$(id).classList.remove('hide'));tryLock();banner('ウイルスにぶつかるとバトル開始！','#ffe14d');}};
-$('onl').onclick=()=>{audioInit();$('modebtns').classList.add('hide');netHost();};
+$('onl').onclick=()=>{audioInit();$('modebtns').classList.add('hide');pickRole();};
 if(QS.get('join'))netJoin(QS.get('join'));
 netInstallWraps();requestAnimationFrame(frame);
 window.__t={get NET(){return NET},guestShot,guestSkill,get ACT(){return ACT},get NETCUR(){return NETCUR},get busy(){return busyStory},get LEO(){return LEO},get MOLLY(){return MOLLY},dlgNext,get PH(){return PH},FL,ROOMS,switchHuman,roomInteract,get DLGS(){return DLGS},get CHOICE(){return CHOICE},coreEvent,bossDefeated,setCam:(y,p,d)=>{yaw=y;pitch=p;dist=d;},CHARS,get USE3D(){return USE3D},showBust,closeBust,get HAZ(){return HAZ},get V(){return V},get M(){return M},get EN(){return EN},ZONES,openCustom,closeCustom,togglePick,useChip,get CHIPS_IN(){return CHIPS_IN},get hand(){return hand},MS,aimInfo,get MODE(){return MODE}};
