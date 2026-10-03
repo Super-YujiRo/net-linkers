@@ -301,7 +301,7 @@ async function makeChar(key,opt){
  meshes.forEach(o=>{o.frustumCulled=false;const conv=m=>{const blend=m.transparent||m.alphaTest>0;const tex=m.userData&&m.userData.tex?modelTex(m.userData.tex):m.map;const nm=new THREE.MeshToonMaterial({map:tex,color:0xffffff,gradientMap:toonGrad,skinning:!!o.isSkinnedMesh,transparent:m.transparent,alphaTest:m.alphaTest||(m.transparent?0:0),side:m.side,depthWrite:m.depthWrite});
   const SUIT={volt:{Tops:'#e03040',Bottoms:'#1c2348',Shoes:'#ffc633',Accessory:'#ffc633'},mist:{Tops:'#ffffff',Bottoms:'#49b8ff',Shoes:'#ffd24a',Accessory:'#5ee8ff'},boss:{Tops:'#231a35',Bottoms:'#120c1e',Shoes:'#ff2a4a',Accessory:'#ff2a4a'}}[opt.navi];
   {const CV={leo:{Tops:'#3b6fb6',Bottoms:'#2b2d3a'},mom1:{Tops:'#d9956a',Bottoms:'#4a4450',Shoes:'#6a5040'},suit:{Tops:'#34383f',Bottoms:'#2a2c33',Shoes:'#15161a'},casual:{Tops:'#5a7a4a',Bottoms:'#3a4a6a',Shoes:'#e8e4dc'},mom2:{Tops:'#6f9a86',Bottoms:'#3a3446',Shoes:'#5a4a40'}}[opt.civ];if(opt.civ==='mom1'&&/HAIR/i.test(m.name||''))nm.color.set('#5a3826');if(opt.civ==='suit'&&/HAIR/i.test(m.name||''))nm.color.set('#2a2a30');if(opt.civ==='casual'&&/HAIR/i.test(m.name||''))nm.color.set('#9a6a3a');if(CV)for(const part in CV)if(new RegExp(part,'i').test(m.name||'')){nm.map=null;nm.color.set(CV[part]);}}
-  if(SUIT&&/Body_00_SKIN/i.test(m.name||'')){nm.map=null;nm.color.set(opt.navi==='volt'?'#1c2348':opt.navi==='boss'?'#0e0a18':'#dfe8ff');nm.userData.suit='Body';}
+  if(SUIT&&/Body_00_SKIN/i.test(m.name||'')){nm.map=null;nm.color.set(opt.navi==='volt'?'#1c2348':opt.navi==='boss'?'#0e0a18':'#24345e');nm.userData.suit='Body';}
   if(SUIT&&/HAIR/i.test(m.name||'')){nm.visible=false;}
   if(SUIT){for(const part of ['Tops','Bottoms','Shoes','Accessory']){if(new RegExp(part,'i').test(m.name||'')){nm.map=null;nm.color.set(SUIT[part]);nm.userData.suit=part;}}}nm.name=m.name;nm.userData.blend=blend;return nm;};
   o.material=Array.isArray(o.material)?o.material.map(conv):conv(o.material);
@@ -348,15 +348,17 @@ function decorateNavi(tb,kind){const P=b=>b.getWorldPosition(new THREE.Vector3()
  tb.Head.parent.updateMatrixWorld(true);tb.Head.updateMatrixWorld(true);
  const head=P(tb.Head),neck=P(tb.Neck),chest=P(tb.UpperChest),hips=P(tb.Hips);
  const hs=1.22,hc=head.clone().add(new THREE.Vector3(0,.085*hs,-.005));const R=.118*hs;
- const V=kind==='volt'||kind==='boss',BS=kind==='boss',cA=BS?'#2a2140':V?'#e03040':'#ffffff',cB=BS?'#120c1e':V?'#1c2348':'#49b8ff',cG=BS?'#ff2a4a':V?'#ffd23a':'#5ee8ff',cT=BS?'#ff2a4a':V?'#ffd23a':'#ffd24a';
+ const V=kind==='volt'||kind==='boss',BS=kind==='boss',cA=BS?'#2a2140':V?'#e03040':'#e2e8f2',cB=BS?'#120c1e':V?'#1c2348':'#49b8ff',cG=BS?'#ff2a4a':V?'#ffd23a':'#5ee8ff',cT=BS?'#ff2a4a':V?'#ffd23a':'#ffd24a';
  const T=(bone,geo,col,x,y,z,glow,rot)=>{const m=new THREE.Mesh(geo,naviMat(col,glow));if(rot)m.rotation.set(rot[0],rot[1],rot[2]);return attachTo(bone,m,x,y,z,glow);};
  // ---- helmet (covers hair, face stays visible) ----
  const shell=new THREE.Mesh(new THREE.SphereGeometry(R,32,20,0,Math.PI*2,0,Math.PI*.56),naviMat(cA));shell.rotation.x=-.32;attachTo(tb.Head,shell,hc.x,hc.y,hc.z-.012,false);
  const back=new THREE.Mesh(new THREE.SphereGeometry(R*.99,28,16,Math.PI*.25,Math.PI*.5,Math.PI*.35,Math.PI*.45),naviMat(cA));back.rotation.y=Math.PI;attachTo(tb.Head,back,hc.x,hc.y,hc.z-.012,false);
  const band=new THREE.Mesh(new THREE.TorusGeometry(R*1.0,.011,8,40,Math.PI*1.25),naviMat(cT,true));band.rotation.set(-.32-Math.PI/2+Math.PI/2,0,0);band.rotation.set(0,0,0);band.rotation.x=Math.PI/2-.32;band.rotation.z=Math.PI*.875;attachTo(tb.Head,band,hc.x,hc.y+R*.18,hc.z,true);
  // ear pods
- [-1,1].forEach(sd=>{T(tb.Head,new THREE.CylinderGeometry(.052*hs,.052*hs,.05,24),cA,hc.x+sd*R*.98,hc.y-R*.28,hc.z,false,[0,0,Math.PI/2]);
-  T(tb.Head,new THREE.CircleGeometry(.034*hs,24),cG,hc.x+sd*(R*.98+.026),hc.y-R*.28,hc.z,true,[0,sd*Math.PI/2,0]);
+ [-1,1].forEach(sd=>{T(tb.Head,new THREE.CylinderGeometry(.066*hs,.06*hs,.06,28),cA,hc.x+sd*R*.98,hc.y-R*.28,hc.z,false,[0,0,Math.PI/2]);
+  T(tb.Head,new THREE.CircleGeometry(.044*hs,24),cB,hc.x+sd*(R*.98+.031),hc.y-R*.28,hc.z,false,[0,sd*Math.PI/2,0]);
+  T(tb.Head,new THREE.TorusGeometry(.046*hs,.007,6,28),cG,hc.x+sd*(R*.98+.032),hc.y-R*.28,hc.z,true,[0,sd*Math.PI/2,0]);
+  T(tb.Head,new THREE.CircleGeometry(.018*hs,16),cG,hc.x+sd*(R*.98+.033),hc.y-R*.28,hc.z,true,[0,sd*Math.PI/2,0]);
   if(V)T(tb.Head,new THREE.ConeGeometry(.02,.12,8),cT,hc.x+sd*R*.95,hc.y-R*.05,hc.z-.03,false,[-.5,0,-sd*.5]);
   else T(tb.Head,new THREE.ConeGeometry(.045,.1,4),cA,hc.x+sd*R*.6,hc.y+R*.9,hc.z-.01,false,[0,0,-sd*.35]);});
  if(BS){[-1,1].forEach(sd=>{T(tb.Head,new THREE.ConeGeometry(.035,.22,8),cA,hc.x+sd*R*.55,hc.y+R*1.1,hc.z-.02,false,[-.3,0,-sd*.55]);T(tb.Head,new THREE.ConeGeometry(.012,.12,6),cG,hc.x+sd*R*.62,hc.y+R*1.18,hc.z,true,[-.3,0,-sd*.55]);});T(tb.Head,new THREE.BoxGeometry(R*1.5,.02,.02),cG,hc.x,hc.y-R*.02,hc.z+R*.92,true);}
@@ -389,6 +391,40 @@ function decorateNavi(tb,kind){const P=b=>b.getWorldPosition(new THREE.Vector3()
  [-1,1].forEach(sd=>T(tb.UpperChest,new THREE.CylinderGeometry(.025,.03,.2,12),cA,chest.x+sd*.07,chest.y-.03,chest.z-.19,false));
  [-1,1].forEach(sd=>T(tb.UpperChest,new THREE.CircleGeometry(.022,12),cG,chest.x+sd*.07,chest.y-.14,chest.z-.19,true,[Math.PI/2,0,0]));
  if(!V||BS)[-1,1].forEach(sd=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(BS?.4:.26,BS?.55:.36),new THREE.MeshBasicMaterial({color:BS?'#ff2a4a':'#5ee8ff',transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false}));w.rotation.set(0,sd*.7,sd*.45);attachTo(tb.UpperChest,w,chest.x+sd*.2,chest.y+.08,chest.z-.2,true);});
+ if(!BS)naviExe(tb,kind,{P,T,hc,R,hs,chest,hips,cA,cB,cG,cT,V});
+}
+function naviExe(tb,kind,o){const {P,T,hc,R,hs,chest,hips,cA,cB,cG,cT,V}=o;const ln=new THREE.Vector3();
+ const line=(bone,p0,p1,off,r,col)=>{const a=p0.clone().add(off),b=p1.clone().add(off);const d=b.clone().sub(a),len=d.length();const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,6),naviMat(col||cG,true));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());const c=a.clone().lerp(b,.5);return attachTo(bone,m,c.x,c.y,c.z,true);};
+ // forehead gem + brow plate (PET-navi style)
+ T(tb.Head,new THREE.OctahedronGeometry(.03*hs),cG,hc.x,hc.y+R*.5,hc.z+R*.88,true,[0,0,0]).scale.set(1,1.3,.6);
+ T(tb.Head,new THREE.BoxGeometry(R*1.1,.022,.03),cA,hc.x,hc.y+R*.36,hc.z+R*.9,false,[-.25,0,0]);
+ // helmet seam lines
+ // chin guard / collar
+ const nk=P(tb.Neck);T(tb.Neck,new THREE.CylinderGeometry(.07,.085,.07,20,1,true),cB,nk.x,nk.y-.01,nk.z,false);
+ T(tb.Neck,new THREE.TorusGeometry(.083,.007,6,24),cG,nk.x,nk.y-.045,nk.z,true,[Math.PI/2,0,0]);
+ ['L','R'].forEach(S=>{const sd=S==='L'?1:-1;
+  const ua=P(tb[S+'_UpperArm']),la=P(tb[S+'_LowerArm']),hd=P(tb[S+'_Hand']),ul=P(tb[S+'_UpperLeg']),ll=P(tb[S+'_LowerLeg']),ft=P(tb[S+'_Foot']);
+  // glowing body lines
+  line(tb[S+'_UpperArm'],ua.clone().lerp(la,.18),la,new THREE.Vector3(0,.012,.04),.006);
+  line(tb[S+'_UpperLeg'],ul.clone().lerp(ll,.12),ll.clone().lerp(ul,.12),new THREE.Vector3(sd*.02,0,.068),.007);
+  line(tb.UpperChest,ua.clone().add(new THREE.Vector3(-sd*.06,-.06,.085)),new THREE.Vector3(chest.x+sd*.035,chest.y-.13,chest.z+.11),new THREE.Vector3(),.006);
+  // gloves
+  const gl=new THREE.Mesh(new THREE.SphereGeometry(.05,16,12),naviMat(V&&S==='R'?cB:cA));gl.scale.set(1.05,.85,1.05);const gp=hd.clone().lerp(la,-.12);attachTo(tb[S+'_Hand'],gl,gp.x,gp.y,gp.z,false);
+  // boots: toe cap + glowing cuff
+  const toe=new THREE.Mesh(new THREE.SphereGeometry(.07,16,10),naviMat(cA));toe.scale.set(1,.55,1.45);attachTo(tb[S+'_Foot'],toe,ft.x,ft.y-.03,ft.z+.07,false);
+  const cp=ll.clone().lerp(ft,.32);T(tb[S+'_LowerLeg'],new THREE.TorusGeometry(.079,.009,6,24),cG,cp.x,cp.y,cp.z,true,[Math.PI/2,0,0]);
+  T(tb[S+'_LowerLeg'],new THREE.BoxGeometry(.03,.09,.012),cT,ll.x,cp.y-.1,ll.z+.082,true);
+  // shoulder fins
+  T(tb[S+'_UpperArm'],new THREE.BoxGeometry(.012,.05,.1),cG,ua.x+sd*.06,ua.y+.07,ua.z,true,[0,0,-sd*.5]);});
+ // back navi mark
+ const em=new THREE.Mesh(new THREE.CircleGeometry(.055,24),new THREE.MeshBasicMaterial({map:emblemTex(kind),transparent:true,depthWrite:false}));em.rotation.y=Math.PI;attachTo(tb.UpperChest,em,chest.x,chest.y-.02,chest.z-.185,true);
+ // belt buckle emblem
+ T(tb.Hips,new THREE.TorusGeometry(.03,.006,6,18),cG,hips.x,hips.y+.07,hips.z+.17,true);
+ if(V){// Volt: lightning side-blades on helmet + charge coils on buster arm
+  [-1,1].forEach(sd=>T(tb.Head,new THREE.BoxGeometry(.012,.11,.035),cT,hc.x+sd*R*1.08,hc.y+R*.2,hc.z-.02,false,[.3,0,-sd*.25]));
+  const la=P(tb.R_LowerArm),hd=P(tb.R_Hand);[.55,.7].forEach(k=>{const p=la.clone().lerp(hd,k);T(tb.R_LowerArm,new THREE.BoxGeometry(.02,.03,.03),cG,p.x,p.y+.075,p.z,true);});}
+ else{// Mist: visor band + flowing mist ribbons
+   [-1,1].forEach(sd=>{const rb=new THREE.Mesh(new THREE.PlaneGeometry(.07,.42),new THREE.MeshBasicMaterial({color:'#7fe6ff',transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false}));rb.rotation.set(.35,sd*.3,sd*.12);attachTo(tb.Hips,rb,hips.x+sd*.12,hips.y-.12,hips.z-.12,true);});}
 }
 // ===== sound (WebAudio synth) =====
 const SND={ctx:null,master:null,se:null,bgm:null,seq:null,mode:null};
@@ -1233,6 +1269,14 @@ const AK={
  lantern(A,x,y,z,col){const l=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.45,10),new THREE.MeshBasicMaterial({color:col||'#ff4f5f'}));l.position.set(A.o[0]+x,y,A.o[1]+z);field.add(l);const ph=rnd(0,6);WANIM.push((dt,t)=>{l.position.y=y+Math.sin(t*1.6+ph)*.08;});return l;},
  water(A,x,z,w,d,y){const t=TX.water.clone();t.needsUpdate=true;t.repeat.set(w/10,d/10);const m=planeAt(t,w,d,A.o[0]+x,y==null?-1:y,A.o[1]+z,.95);WANIM.push(dt=>{t.offset.x+=dt*.03;});return m;}
 };
+// ---- route tiles: main path = gold chevron panels flowing forward / side paths = dim dotted panels ----
+const ROUTE_TEX=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.strokeStyle='#fff';g.lineWidth=16;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(26,86);g.lineTo(64,44);g.lineTo(102,86);g.stroke();g.lineWidth=4;g.strokeRect(6,6,116,116);return new THREE.CanvasTexture(c);})();
+const SIDE_TEX=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.fillStyle='#fff';for(let i=0;i<3;i++)for(let j=0;j<3;j++){g.beginPath();g.arc(28+i*36,28+j*36,6,0,7);g.fill();}g.lineWidth=3;g.strokeStyle='rgba(255,255,255,.6)';g.strokeRect(6,6,116,116);return new THREE.CanvasTexture(c);})();
+const ROUTE_GEO=new THREE.PlaneGeometry(1.5,1.5);
+AK.route=function(A,pts,col,side){const o=A.o;let k=0;const mats=[];for(let i=0;i<4;i++)mats.push(new THREE.MeshBasicMaterial({map:side?SIDE_TEX:ROUTE_TEX,color:col||(side?'#8a7aa8':'#ffd24a'),transparent:true,opacity:side?.3:.45,depthWrite:false}));
+ for(let s=0;s<pts.length-1;s++){const [x0,z0]=pts[s],[x1,z1]=pts[s+1];const L=Math.hypot(x1-x0,z1-z0),n=Math.max(1,Math.floor(L/2.4));const ang=Math.atan2(x1-x0,z1-z0);
+  for(let i=0;i<n;i++){const t=(i+.5)/n;const m=new THREE.Mesh(ROUTE_GEO,mats[k%4]);m.rotation.set(-Math.PI/2,0,ang+Math.PI);m.position.set(o[0]+x0+(x1-x0)*t,.035,o[1]+z0+(z1-z0)*t);field.add(m);k++;}}
+ if(!side)WANIM.push((dt,t)=>{mats.forEach((m,i)=>{const w=((t*1.6-i*.5)%2+2)%2;m.opacity=.35+.45*Math.max(0,1-Math.abs(w-.5)*2);});});};
 function addMD(d){MDS.push(d);const g=new THREE.OctahedronGeometry(.42);const grp=new THREE.Group();grp.position.set(d.x,0,d.z);field.add(grp);const col=d.c.hp?'#3fa8ff':d.c.pu?'#ff8a3a':'#5cff8a';const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85}));m.position.y=.9;grp.add(m);const w=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#fff',wireframe:true}));w.scale.setScalar(1.25);m.add(w);const r=new THREE.Mesh(new THREE.RingGeometry(.55,.7,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.y=.06;grp.add(r);MDV[d.id]={grp,m};if(PROG.md[d.id])grp.visible=false;}
 function addHeal(x,z){const m=new THREE.Mesh(new THREE.OctahedronGeometry(.35),new THREE.MeshBasicMaterial({color:'#7dff9a'}));m.position.set(x,1,z);scene.add(m);const ring=new THREE.Mesh(new THREE.RingGeometry(.5,.6,28),new THREE.MeshBasicMaterial({color:'#7dff9a',transparent:true,opacity:.6,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.set(x,.05,z);scene.add(ring);HEALPT.push({x,z,m,ring,used:false});}
 function addZone(A,z){const zn=Object.assign({net:'inet',world:A.id,act:false,clear:false},z);zn.x=A.o[0]+z.x;zn.z=A.o[1]+z.z;zn.hx=zn.x;zn.hz=zn.z;ZONES.push(zn);return zn;}
@@ -1284,9 +1328,10 @@ defArea('seoul',[300,1500],{n:'ソウル ネオンストリート',spawn:[0,-2],
  AK.sign(A,[['서울','#fff'],['SEOUL NEON STREET','#ff5ad8',24]],0,3,6.05,Math.PI,5,1.5,'#14081e','#ff5ad8');
  for(let i=0;i<10;i++)AK.tree(A,(i%2?1:-1)*rnd(9,12.5),rnd(52,70),rnd(.9,1.3),'#c86a9a');
  envRing(A.o[0],A.o[1]+30,100,160,40,['#e0d0ff','#ff5ad8','#7fd8ff'],10,60);
+ AK.route(A,[[0,-3],[0,49],[0,58]]);AK.route(A,[[5,20],[20,20],[30,21]],null,1);AK.route(A,[[-5,28],[-18,28],[-24,29]],null,1);
  addGate(A,0,-5,'hub','ネットスクエアへ','#ffd24a');
  addZone(A,{req:1,x:0,z:16,r:8,list:[['bitton',-3,2],['sparkle',3,2],['phantom',0,-2],['medic',0,3]]});
- addZone(A,{req:1,x:28,z:21,r:7.5,list:[['shielder',0,1],['driller',-3,-1],['bitton',3,-1]]});
+ addZone(A,{x:28,z:21,r:7.5,list:[['shielder',0,1],['driller',-3,-1],['bitton',3,-1]]});
  addZone(A,{x:-24,z:29,r:6,list:[['phantom',-2,0],['phantom',2,0],['sparkle',0,2]]});
  addZone(A,{req:1,x:0,z:33,r:7,list:[['driller',-3,0],['driller',3,0],['medic',0,2],['sparkle',0,-2]]});
  addZone(A,{req:1,navi:'neon',x:0,z:62,r:9,list:[['neon',0,3]]});
@@ -1310,10 +1355,11 @@ defArea('tokyo',[-300,1500],{n:'トーキョー シブヤネット',spawn:[0,-2]
  for(let i=0;i<8;i++)AK.tree(A,(i%2?1:-1)*rnd(9,11.5),rnd(44,60),rnd(.9,1.2),'#e89ab8');
  AK.sign(A,[['センター街','#ffd24a']],-29,3.2,26.05,Math.PI,3.6,1,'#140a04','#ffd24a');
  envRing(A.o[0]+10,A.o[1]+30,100,160,40,['#d8e8ff','#3fd0ff','#ff6b6b'],12,70);
+ AK.route(A,[[0,-3],[0,17],[16,17],[49,17],[53,18]],'#3fd0ff');AK.route(A,[[0,31],[0,50]],null,1);AK.route(A,[[-14,17],[-29,17]],null,1);
  addGate(A,0,-5,'hub','ネットスクエアへ','#ffd24a');
  addZone(A,{req:1,x:0,z:18,r:9,list:[['bitton',-3,2],['bitton',3,2],['shielder',0,-2],['sparkle',0,3]]});
  addZone(A,{req:1,x:30,z:17,r:6,list:[['driller',-3,0],['driller',3,0],['phantom',0,0]]});
- addZone(A,{req:1,x:0,z:52,r:8,list:[['shielder',-2,1],['phantom',2,1],['medic',0,-2],['sparkle',0,3]]});
+ addZone(A,{x:0,z:52,r:8,list:[['shielder',-2,1],['phantom',2,1],['medic',0,-2],['sparkle',0,3]]});
  addZone(A,{x:-29,z:17,r:6,list:[['sparkle',-2,0],['bitton',2,0],['medic',0,2]]});
  addZone(A,{req:1,navi:'liner',x:55,z:18,r:8,list:[['liner',0,3]]});
  addMD({id:'t_cross',x:A.o[0]+12,z:A.o[1]+28,c:{chip:['firesword','F']}});addMD({id:'t_alley',x:A.o[0]-32,z:A.o[1]+24,c:{pu:'c'}});addMD({id:'t_tower',x:A.o[0]+10,z:A.o[1]+60,c:{z:800}});addMD({id:'t_plat',x:A.o[0]+44,z:A.o[1]+15.5,c:{hp:'V'}});
@@ -1356,7 +1402,7 @@ async function p2Dive(){await say('leo','ボルト、いくぞ！');await say('m
  await chapter('NET AREA','インターネット ネットスクエア');
  await say('volt','うおお……！　ここがネットスクエアか！　でっけえ！');await say('mist','日本も韓国も、世界中のネットがここに集まっています。');
  await say('volt','しかも今日は最初から、ミストといっしょだ！');await say('mist','はい。……レオさんとモリーが、同じ部屋にいるからですね。');
- await say('sys','ネットスクエア：まわりのゲートから各地のネットへ行ける。ショップ、回復データもある。F キーでフォルダ／依頼ボード。');
+ await say('sys','ネットスクエア：まわりのゲートから各地のネットへ行ける。ショップ、回復データもある。F キーでフォルダ／依頼ボード。');await say('sys','床のパネルに注目！　光って流れる矢印パネルが「正規ルート」。点々のパネルは寄り道（アイテムや強い敵がいることも）。');
  objective2('ソウルのゲート（ピンク）から、明洞の街頭ビジョンのネットへ');tryLock();}
 const AREA_INTRO={
  seoul:async()=>{await say('mist','ソウル……！　ネオンがいっぱいです。');await say('volt','看板の文字が、ぜんぶ「トドカナカッタ」になってる……。');await say('mist','奥のナムサンタワー前に、強い反応があります。');objective2('ソウル：ウイルスをデリートしながら、奥のナムサンタワー前へ');},
