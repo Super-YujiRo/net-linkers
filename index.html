@@ -157,6 +157,11 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 .fc:hover{border-color:#ffd24a}.fc img{width:38px;height:38px;display:block;margin:2px auto 0}.fc .fn{display:block;font-size:9px;line-height:1.1;white-space:nowrap;overflow:hidden}.fc .fcd{position:absolute;top:1px;right:3px;font-family:Orbitron;font-size:11px;color:#ffd24a;font-weight:900}
 #flib{display:flex;flex-wrap:wrap;gap:3px}.lb{width:30px;height:30px;display:grid;place-items:center;background:#0a1028;border:1px solid #233;color:#456;font-weight:900}.lb.on{border-color:#3fd0ff}.lb img{width:26px;height:26px}
 @media (max-width:640px){.fcols{grid-template-columns:1fr}}
+.bu{display:flex;gap:18px;flex-wrap:wrap;font-weight:800}.bu b{color:#ffd24a;letter-spacing:2px}.bu i{color:#445;font-style:normal}
+.qlist{display:flex;flex-direction:column;gap:4px}.qi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 10px;background:#0e1636;border-left:3px solid #ffd24a}.qi small{display:block;opacity:.75;font-size:12px}.qi.qd{opacity:.45;border-left-color:#445}
+.qp{font-family:Orbitron,sans-serif;font-weight:900;white-space:nowrap}.qbtn{background:linear-gradient(90deg,#ffb13c,#ffd24a);border:none;padding:6px 12px;font-weight:900;cursor:pointer;font-family:inherit}
+#mg{position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:11;min-width:min(420px,90vw);padding:10px 18px;background:rgba(8,14,36,.92);border:1px solid #ffd24a;color:#fff;font-weight:800;text-align:center;pointer-events:none}#mg small{display:block;font-weight:500;opacity:.8;margin-top:4px}
+.mgbar{position:relative;height:14px;margin-top:6px;background:#0a1028;outline:1px solid #ffffff55}.mgbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3fd0ff,#ffd24a,#ff5a5f)}.mgok{position:absolute;right:0;top:-2px;bottom:-2px;width:10%;border:2px solid #7dff9a}
 </style></head><body>
 <div id="title" class="ov"><div class="card">
 <h1>NET LINKERS ― アクション試作</h1>
@@ -178,11 +183,12 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <div style="display:flex;gap:10px;justify-content:center"><button class="big" id="cok">OK</button><button class="big" id="cclr" style="background:#2a3c7a;color:#fff">選び直す</button></div>
 </div></div>
 <div id="areaName" class="hide"></div>
+<div id="mg" class="hide"></div>
 <div id="shopHint" class="hide">F：ネットショップ</div>
 <div id="shop" class="ov hide"><div class="card" style="max-width:640px;width:92vw;max-height:94vh;overflow:auto"><h1 style="font-size:22px;display:flex;justify-content:space-between"><span id="shopt">ネットショップ</span><span id="shopz" style="color:#ffd24a"></span></h1><div style="font-size:13px;opacity:.8;margin-bottom:8px">いらっしゃい！ 欲しいチップをクリック。（F／Esc で閉じる）</div><div id="shopl"></div><div id="shopmsg" style="min-height:20px;margin-top:8px;color:#9fe8ff"></div><div style="text-align:center"><button class="big" onclick="closeShop()">とじる</button></div></div></div>
 <div id="folder" class="ov hide"><div class="card" style="max-width:900px;width:94vw;max-height:94vh;overflow:auto"><h1 style="font-size:22px">フォルダ編集</h1><div id="fhead"></div><div style="font-size:12px;opacity:.75;margin:4px 0 8px">チップをクリックで フォルダ⇄パック を入れ替え。フォルダは15〜30枚、同じチップは4枚まで。（F／Esc で閉じる）</div>
 <div class="fcols"><div><div class="fcap">フォルダ</div><div id="ffold" class="fgrid"></div></div><div><div class="fcap">パック</div><div id="fpack" class="fgrid"></div></div></div>
-<div class="fcap" style="margin-top:8px">チップライブラリ</div><div id="flib"></div><div id="fmsg" style="min-height:18px;color:#ffb0b0"></div><div style="text-align:center"><button class="big" onclick="closeFolder()">とじる</button></div></div></div>
+<div class="fcap" style="margin-top:8px">チップライブラリ</div><div id="flib"></div><div id="fextra"></div><div id="fmsg" style="min-height:18px;color:#ffb0b0"></div><div style="text-align:center"><button class="big" onclick="closeFolder()">とじる</button></div></div></div>
 <div id="cwait" class="hide" style="position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:30;padding:14px 26px;border-radius:12px;background:rgba(8,14,32,.86);border:1px solid #3fd0ff;color:#dff6ff;font-size:17px;font-weight:700;letter-spacing:.05em;box-shadow:0 0 24px rgba(63,208,255,.35);pointer-events:none">相手がチップを選んでいます…</div>
 <div id="bust" class="ov hide"><div class="card" style="max-width:440px;text-align:center">
 <div style="font-size:14px;letter-spacing:.3em;color:#9ef;font-weight:900">BATTLE RESULT</div>
@@ -585,7 +591,7 @@ document.addEventListener('pointerlockchange',()=>{if(locked())uaFail=0;});
 document.addEventListener('pointerlockerror',()=>{if(uaOK&&performance.now()-uaT<1500)return;plFail=true;});
 function look(dx,dy){yaw-=dx*.0025*SET.sens;pitch=clamp(pitch+dy*.002*SET.sens*(SET.invY?-1:1),-.15,1.1);}
 const MS={fire:false};
-cvEl.addEventListener('mousedown',e=>{if(CHOICE)return;if(DLGS){dlgNext();return;}if(NET.on&&NET.guest){$('settings').classList.add('hide');if(!locked()&&!plFail){tryLock();return;}if(!$('bust').classList.contains('hide')){$('bust').classList.add('hide');tryLock();return;}if(MODE==='room'){if(e.button===0&&!NET.lock)NET.send({t:'interact'});return;}if(MODE==='play'&&!paused){if(e.button===0)MS.fire=true;if(e.button===2||e.button===1){e.preventDefault();useChip(selSlot);}}return;}if(MODE==='room'&&!paused){$('settings').classList.add('hide');if(!locked()&&!plFail){tryLock();return;}if(e.button===0)roomInteract();return;}if(MODE!=='play'||paused)return;$('settings').classList.add('hide');
+cvEl.addEventListener('mousedown',e=>{if(CHOICE)return;if(DLGS){dlgNext();return;}if(NET.on&&NET.guest){$('settings').classList.add('hide');if(!locked()&&!plFail){tryLock();return;}if(!$('bust').classList.contains('hide')){$('bust').classList.add('hide');tryLock();return;}if(MODE==='room'){if(e.button===0&&!NET.lock)NET.send({t:'interact'});return;}if(MODE==='play'&&!paused){if(e.button===0)MS.fire=true;if(e.button===2||e.button===1){e.preventDefault();useChip(selSlot);}}return;}if(MODE==='room'&&!paused){$('settings').classList.add('hide');if(!locked()&&!plFail){tryLock();return;}if(e.button===0){if(MG&&MG.k==='fetch'&&MG.phase==='aim'){MG.thrown=true;MG.phase='fly';}else roomInteract();}return;}if(MODE!=='play'||paused)return;$('settings').classList.add('hide');
  if(!locked()&&!plFail){tryLock();return;}
  if(e.button===0)MS.fire=true;if(e.button===2)useChip(selSlot);if(e.button===1){e.preventDefault();useChip(selSlot);}});
 addEventListener('mouseup',e=>{if(e.button===0)MS.fire=false;});
@@ -778,17 +784,18 @@ function drawMon(k){const V_=LGV.mon[k];const code=FL[k==='j'?'lcK':'lcJ'];const
  g.fillStyle='#fff';g.font='700 22px "M PLUS Rounded 1c",sans-serif';g.fillText(k==='j'?'↑ この順番を ミストに伝えよう':'↑ この順番を ボルトに伝えよう',256,226);V_.t.needsUpdate=true;}
 // ---------- mystery data ----------
 const MDS=[
- {id:'j_islet',x:-34,z:13,c:{hp:'V'}},{id:'j_tenryu',x:8,z:28,c:{chip:['cannon','B']}},{id:'j_music',x:34,z:53,c:{chip:['long','S']}},{id:'j_hw',x:70,z:22,c:{z:400}},{id:'j_gate',x:92.5,z:32.5,c:{chip:['spread','A']}},
- {id:'k_port',x:10,z:-466,c:{z:400}},{id:'k_crane',x:-43,z:-437,c:{hp:'M'}},{id:'k_ship',x:-51,z:-460,c:{chip:['wide','S']}},{id:'k_busan',x:-10,z:-442,c:{chip:['bomb','B']}},
+ {id:'j_islet',x:-34,z:13,c:{hp:'V'}},{id:'j_tenryu',x:8,z:28,c:{chip:['cannon','B']}},{id:'j_music',x:34,z:53,c:{chip:['long','S']}},{id:'j_hw',x:70,z:22,c:{pu:'r'}},{id:'j_gate',x:92.5,z:32.5,c:{chip:['spread','A']}},
+ {id:'k_port',x:10,z:-466,c:{pu:'a'}},{id:'k_crane',x:-43,z:-437,c:{hp:'M'}},{id:'k_ship',x:-51,z:-460,c:{chip:['wide','S']}},{id:'k_busan',x:-10,z:-442,c:{chip:['bomb','B']}},
  {id:'c_hall',x:810,z:5,c:{chip:['hammer','W']}},
  {id:'x_islet',ex:1,x:-36,z:28,c:{chip:['recov150','*']}},{id:'x_music',ex:1,x:40,z:46,c:{chip:['mcannon','B']}},{id:'x_hw',ex:1,x:79,z:27.5,c:{z:2000}},{id:'x_port',ex:1,x:-10,z:-484,c:{chip:['quake','Q']}},{id:'x_ship',ex:1,x:-30,z:-492,c:{z:2000}},{id:'x_cable',ex:1,x:812,z:42,c:{chip:['invis','*']}},
- {id:'n3_jp',x:408,z:27.5,c:{chip:['firesword','F']}},{id:'n3_k1',x:446,z:-463,c:{hp:'M'}},{id:'n3_k2',x:391.5,z:-482,c:{z:600}},{id:'n3_core',x:410,z:54,c:{chip:['mcannon','A']}}];
+ {id:'n3_jp',x:408,z:27.5,c:{chip:['firesword','F']}},{id:'n3_k1',x:446,z:-463,c:{hp:'M'}},{id:'n3_k2',x:391.5,z:-482,c:{pu:'c'}},{id:'n3_core',x:410,z:54,c:{chip:['mcannon','A']}}];
 const MDV={};let PROG={md:{}};
 { const g=new THREE.OctahedronGeometry(.42);MDS.forEach(d=>{const grp=new THREE.Group();grp.position.set(d.x,0,d.z);field.add(grp);const col=d.c.hp?'#3fa8ff':'#5cff8a';const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85}));m.position.y=.9;grp.add(m);const w=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#fff',wireframe:true}));w.scale.setScalar(1.25);m.add(w);
   const r=new THREE.Mesh(new THREE.RingGeometry(.55,.7,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.y=.06;grp.add(r);MDV[d.id]={grp,m};});}
-function mdOpen(id,who){if(PROG.md[id])return;const d=MDS.find(x=>x.id===id);if(!d)return;PROG.md[id]=1;const v=MDV[id];if(v)v.grp.visible=false;const A=who==='M'?M:V;
+function mdOpen(id,who){if(PROG.md[id])return;const d=MDS.find(x=>x.id===id);if(!d)return;PROG.md[id]=1;const v=MDV[id];if(v)v.grp.visible=false;const A=who==='M'?M:V;qAdd('md');
  let msg='';if(d.c.chip){folderAddLocal(d.c.chip);msg='チップ「'+CH[d.c.chip[0]].n+' '+d.c.chip[1]+'」をゲット！（フォルダに追加）';}
  else if(d.c.z){if(!NET.on||NET.guest===(who==='M'))zenny+=d.c.z;msg=d.c.z+' ゼニー ゲット！';}
+ else if(d.c.pu){if(!NET.guest)buUp(who,d.c.pu);msg='パワーアップデータ！ '+(who==='M'?'ミスト':'ボルト')+'のバスター'+BU_NAMES[d.c.pu]+'+1！';}
  else if(d.c.hp){if(!NET.guest)hpUpGive(d.c.hp);msg='HPメモリ！ '+(d.c.hp==='M'?'ミスト':'ボルト')+'の最大HPが20アップ！';renderHP();}
  if(v){glow(d.x,1,d.z,'#5cff8a',2.5,.4,1);burst(d.x,1,d.z,'#5cff8a',14,3);}
  const mine=!NET.on||(NET.guest?who==='M':who==='V');if(mine){rawSFX('chip');rawBanner('ミステリーデータ','#5cff8a');naviToast(who==='M'?'mist':'volt',msg);}}
@@ -995,7 +1002,7 @@ const NAVI_TALK={
  crane:{pre:[['crane','ツミアゲル……ツミアゲル……スベテ、フサグ……。'],['mist','造船所のクレーン管理ナビ……！　ノイズで暴走しています。'],['crane','コンテナデ……ミチヲ……フサグ……！'],['mist','その道は、わたしが通ります。……ごめんなさい！']],
   post:[['crane','……う、うう……。おや、嬢ちゃん……助けてくれたのかい。'],['crane','港じゅうにコンテナを積みあげちまった。こりゃ片付けが大変だ。'],['mist','お仕事、がんばってください。わたし、行くところがあるので。'],['crane','そうかい。じゃあこいつを持っていきな！']],reward:['cranek','C'],rn:'クレーンガイスト C'}};
 async function naviPre(zn){const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.pre)await say(w,x);}
-async function naviPost(zn){busyStory=true;await wait(1600);const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.post)await say(w,x);folderAdd(T_.reward);hpUpGive(zn.navi==='dam'?'V':'M');
+async function naviPost(zn){busyStory=true;qAdd('navi');await wait(1600);const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.post)await say(w,x);folderAdd(T_.reward);hpUpGive(zn.navi==='dam'?'V':'M');
  await say('sys','チップ「'+CH[T_.reward[0]].n+' '+T_.reward[1]+'」と HPメモリ を手に入れた！');busyStory=false;tryLock();}
 
 let HAZ=[];
@@ -1045,17 +1052,17 @@ function zennyAdd(z,zn){if(!NET.on||!zn||zoneHas(zn,V))zenny+=z;if(NET.on&&zn&&z
 const SAVEK='nl_save_v1';let SAVE={chap:0,rec:{},hpUp:{V:0,M:0}};
 const CHAPS_EX={k:'extra',n:'★ EXTRA 裏ネット（クリア後）'};
 const CHAPS=[{k:'intro',n:'はじめから（プロローグ）'},{k:'net1',n:'第1章 海底ケーブル管理ネット'},{k:'rooms1',n:'第1章 出発の準備'},{k:'air',n:'第2章 止まった空'},{k:'net3',n:'第2章 空港管制ネット'},{k:'arrival',n:'第3章 780kmの向こう側'}];
-function saveGame(){try{const o={v:1,folder:FOLDER,pack:PACK,zenny,lib:[...LIB],md:PROG.md,chap:SAVE.chap,rec:SAVE.rec,hpUp:SAVE.hpUp,clear:SAVE.clear||0};localStorage.setItem(SAVEK,JSON.stringify(o));}catch(e){}}
-function loadGame(){try{const o=JSON.parse(localStorage.getItem(SAVEK)||'null');if(!o)return false;if(Array.isArray(o.folder)&&o.folder.length>=FOLDER_MIN){FOLDER.length=0;o.folder.forEach(c=>FOLDER.push(c));}PACK=o.pack||[];zenny=o.zenny||0;(o.lib||[]).forEach(id=>LIB.add(id));PROG.md=o.md||{};SAVE.chap=o.chap||0;SAVE.rec=o.rec||{};SAVE.hpUp=o.hpUp||{V:0,M:0};SAVE.clear=o.clear||0;return true;}catch(e){return false;}}
+function saveGame(){try{const o={v:1,fetchBest:SAVE.fetchBest||0,fetchChip:SAVE.fetchChip||0,cricketBest:SAVE.cricketBest||0,cricketChip:SAVE.cricketChip||0,folder:FOLDER,pack:PACK,zenny,lib:[...LIB],md:PROG.md,chap:SAVE.chap,rec:SAVE.rec,hpUp:SAVE.hpUp,clear:SAVE.clear||0,shopHp:SAVE.shopHp||{},exBest:SAVE.exBest||0,exClear:SAVE.exClear||0,bu:SAVE.bu||null,q:SAVE.q||null};localStorage.setItem(SAVEK,JSON.stringify(o));}catch(e){}}
+function loadGame(){try{const o=JSON.parse(localStorage.getItem(SAVEK)||'null');if(!o)return false;if(Array.isArray(o.folder)&&o.folder.length>=FOLDER_MIN){FOLDER.length=0;o.folder.forEach(c=>FOLDER.push(c));}PACK=o.pack||[];zenny=o.zenny||0;(o.lib||[]).forEach(id=>LIB.add(id));PROG.md=o.md||{};SAVE.chap=o.chap||0;SAVE.rec=o.rec||{};SAVE.hpUp=o.hpUp||{V:0,M:0};SAVE.clear=o.clear||0;SAVE.shopHp=o.shopHp||{};SAVE.exBest=o.exBest||0;SAVE.exClear=o.exClear||0;['fetchBest','fetchChip','cricketBest','cricketChip'].forEach(k=>SAVE[k]=o[k]||0);if(o.bu)SAVE.bu=o.bu;if(o.q)SAVE.q=o.q;return true;}catch(e){return false;}}
 function chapReached(k){const i=CHAPS.findIndex(c=>c.k===k);if(i>SAVE.chap){SAVE.chap=i;}saveGame();}
 function applyHpUps(){if(!V||!M)return;V.max=P0.volt.max+(SAVE.hpUp.V||0)*20;M.max=P0.mist.max+(SAVE.hpUp.M||0)*20;V.hp=Math.min(V.hp,V.max);M.hp=Math.min(M.hp,M.max);renderHP();}
 function hpUpGive(who){SAVE.hpUp[who]=(SAVE.hpUp[who]||0)+1;const A=who==='M'?M:V;A.max+=20;A.hp=Math.min(A.max,A.hp+20);renderHP();saveGame();}
 function progSync(md){PROG.md=md||{};MDS.forEach(d=>{if(PROG.md[d.id]&&MDV[d.id])MDV[d.id].grp.visible=false;});}
 // ---- shops ----
 const SHOPS=[
- {id:'jp',x:43.5,z:35.5,face:Math.PI*1.25,n:'浜松ネットショップ',items:[['hicannon','A',600],['firesword','F',900],['minibomb','B',400],['recov80','*',500],['invis','*',1500],['hp','',2000]]},
- {id:'kr',x:-9.5,z:-466.5,face:Math.PI*.75,n:'蔚山ネットショップ',items:[['heatshot','H',700],['thunder','T',800],['quake','Q',1200],['recov80','*',500],['mcannon','A',1600],['hp','',2000]]},
- {id:'cb',x:790.5,z:5.5,face:Math.PI*.75,n:'ケーブル中継ショップ',items:[['recov150','*',1000],['mcannon','B',1600],['invis','*',1500],['firesword','F',900],['thunder','T',800]]}];
+ {id:'jp',x:43.5,z:35.5,face:Math.PI*1.25,n:'浜松ネットショップ',items:[['hicannon','A',600],['firesword','F',900],['minibomb','B',400],['recov80','*',500],['invis','*',1500],['pu_a','',1500],['pu_r','',1500],['hp','',2000]]},
+ {id:'kr',x:-9.5,z:-466.5,face:Math.PI*.75,n:'蔚山ネットショップ',items:[['heatshot','H',700],['thunder','T',800],['quake','Q',1200],['recov80','*',500],['mcannon','A',1600],['pu_c','',1500],['pu_a','',1500],['hp','',2000]]},
+ {id:'cb',x:790.5,z:5.5,face:Math.PI*.75,n:'ケーブル中継ショップ',items:[['recov150','*',1000],['mcannon','B',1600],['invis','*',1500],['firesword','F',900],['thunder','T',800],['pu_r','',1500],['pu_c','',1500]]}];
 { SHOPS.forEach(S=>{const g=new THREE.Group();g.position.set(S.x,0,S.z);g.rotation.y=S.face;field.add(g);
   const body=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,1.1,16),new THREE.MeshBasicMaterial({color:'#2a6ad0'}));body.position.y=.75;g.add(body);
   const head=new THREE.Mesh(new THREE.SphereGeometry(.42,18,14),new THREE.MeshBasicMaterial({color:'#e8f4ff'}));head.position.y=1.6;g.add(head);
@@ -1071,10 +1078,11 @@ let SHOP_OPEN=null;
 function openShop(S){if(myBattle(NET.on&&NET.guest?M:V))return;SHOP_OPEN=S;paused=true;MS.fire=false;if(document.pointerLockElement)document.exitPointerLock();renderShop();$('shop').classList.remove('hide');SFX('custom');}
 function closeShop(){SHOP_OPEN=null;$('shop').classList.add('hide');paused=false;tryLock();}
 function renderShop(){const S=SHOP_OPEN;if(!S)return;const me=NET.on&&NET.guest?'M':'V';$('shopt').textContent=S.n;$('shopz').textContent=zenny+' Z';
- $('shopl').innerHTML=S.items.map((it,i)=>{const [id,code,price]=it;const hp=id==='hp';const bought=hp&&(SAVE.shopHp||{})[S.id+me];const nm=hp?'HPメモリ（最大HP+20）':CH[id].n+' '+code;const ic=hp?'<div class="shp-hp">HP</div>':'<img src="sprites/'+CH[id].ic+'.webp"'+chipStyle(id)+'>';
+ $('shopl').innerHTML=S.items.map((it,i)=>{const [id,code,price0]=it;if(id.startsWith('pu_')){const k=id[3],lv=buLv(me,k),price=Math.round(price0*(1+lv*.5));const mx=lv>=BU_MAX;return '<button class="shp-it'+(mx?' sold':'')+(zenny<price?' poor':'')+'" data-i="'+i+'"><div class="shp-hp" style="background:#a0402a">'+k.toUpperCase()+'</div><div class="shp-n">バスター'+BU_NAMES[k]+' +1<small>'+(me==='M'?'ミスト':'ボルト')+'の今のレベル '+lv+' / '+BU_MAX+'</small></div><div class="shp-p">'+(mx?'MAX':price+' Z')+'</div></button>';}const price=price0;const hp=id==='hp';const bought=hp&&(SAVE.shopHp||{})[S.id+me];const nm=hp?'HPメモリ（最大HP+20）':CH[id].n+' '+code;const ic=hp?'<div class="shp-hp">HP</div>':'<img src="sprites/'+CH[id].ic+'.webp"'+chipStyle(id)+'>';
   return '<button class="shp-it'+(bought?' sold':'')+(zenny<price?' poor':'')+'" data-i="'+i+'">'+ic+'<div class="shp-n">'+nm+(hp?'':'<small>'+CH[id].d+'</small>')+'</div><div class="shp-p">'+(bought?'SOLD':price+' Z')+'</div></button>';}).join('');
  $('shopl').querySelectorAll('button').forEach(b=>b.onclick=()=>buyShop(+b.dataset.i));}
-function buyShop(i){const S=SHOP_OPEN;if(!S)return;const [id,code,price]=S.items[i];const me=NET.on&&NET.guest?'M':'V';SAVE.shopHp=SAVE.shopHp||{};
+function buyShop(i){const S=SHOP_OPEN;if(!S)return;let [id,code,price]=S.items[i];const me=NET.on&&NET.guest?'M':'V';SAVE.shopHp=SAVE.shopHp||{};
+ if(id.startsWith('pu_')){const k=id[3],lv=buLv(me,k);if(lv>=BU_MAX)return;price=Math.round(price*(1+lv*.5));if(zenny<price){SFX('hurt');$('shopmsg').textContent='ゼニーが足りないみたい…';return;}zenny-=price;SFX('bust');if(NET.on&&NET.guest){NET.send({t:'buup',k});if(BU_REMOTE)BU_REMOTE.M[k]++;}else buUp('V',k);$('shopmsg').textContent='バスター'+BU_NAMES[k]+'がレベルアップ！';saveGame();renderShop();return;}
  if(id==='hp'&&SAVE.shopHp[S.id+me])return;if(zenny<price){SFX('hurt');$('shopmsg').textContent='ゼニーが足りないみたい…';return;}
  zenny-=price;SFX('bust');if(id==='hp'){SAVE.shopHp[S.id+me]=1;if(NET.on&&NET.guest)NET.send({t:'hpup'});else hpUpGive('V');$('shopmsg').textContent='HPメモリを買った！ 最大HPが20アップ！';}
  else{const c=[id,code];const same=FOLDER.filter(x=>x[0]===id).length;if(FOLDER.length<FOLDER_MAX&&same<SAME_MAX){FOLDER.push(c);$('shopmsg').textContent=CH[id].n+' '+code+' をフォルダに入れた！';}else{PACK.push(c);$('shopmsg').textContent=CH[id].n+' '+code+' をパックに入れた（フォルダ編集で入れ替えできる）';}libAdd(id);}
@@ -1087,18 +1095,52 @@ function sortChips(a){return a.map((c,i)=>[c,i]).sort((p,q)=>p[0][0]<q[0][0]?-1:
 function renderFolder(){const allIds=Object.keys(CH).filter(k=>!CH[k].pa);const owned=allIds.filter(k=>LIB.has(k)).length;
  $('fhead').innerHTML='<span>フォルダ <b>'+FOLDER.length+'</b>/'+FOLDER_MAX+'</span><span>パック <b>'+PACK.length+'</b></span><span>ライブラリ <b>'+owned+'</b>/'+allIds.length+'</span><span>'+zenny+' Z</span>';
  $('ffold').innerHTML=sortChips(FOLDER).map(([c,i])=>chipCell(c,i,'f')).join('');$('fpack').innerHTML=PACK.length?sortChips(PACK).map(([c,i])=>chipCell(c,i,'p')).join(''):'<div style="opacity:.6;padding:12px">パックは空です。ミステリーデータやショップでチップを集めよう</div>';
- $('flib').innerHTML=allIds.map(k=>LIB.has(k)?'<span class="lb on" title="'+CH[k].d+'"><img src="sprites/'+CH[k].ic+'.webp"'+chipStyle(k)+'></span>':'<span class="lb">？</span>').join('');
+ renderExtra();$('flib').innerHTML=allIds.map(k=>LIB.has(k)?'<span class="lb on" title="'+CH[k].d+'"><img src="sprites/'+CH[k].ic+'.webp"'+chipStyle(k)+'></span>':'<span class="lb">？</span>').join('');
  document.querySelectorAll('#folder .fc').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(b.dataset.w==='f'){if(FOLDER.length<=FOLDER_MIN){$('fmsg').textContent='フォルダは'+FOLDER_MIN+'枚より少なくできない';SFX('hurt');return;}PACK.push(FOLDER.splice(i,1)[0]);}else{const c=PACK[i];if(FOLDER.length>=FOLDER_MAX){$('fmsg').textContent='フォルダがいっぱい（'+FOLDER_MAX+'枚まで）';SFX('hurt');return;}if(FOLDER.filter(x=>x[0]===c[0]).length>=SAME_MAX){$('fmsg').textContent='同じチップは'+SAME_MAX+'枚まで';SFX('hurt');return;}FOLDER.push(PACK.splice(i,1)[0]);}SFX('chip');$('fmsg').textContent='';renderFolder();});}
 function shopVisual(dt){SHOPS.forEach(S=>{if(!S.head)return;S.ant.position.y=2.12+Math.sin(T*4)*.05;S.head.rotation.y=Math.sin(T*.8)*.4;});
  const me=NET.on&&NET.guest?M:V;const S=MODE==='play'&&NETCUR==='net1'?shopNear(me):null;const h=$('shopHint');if(h)h.classList.toggle('hide',!S||!!SHOP_OPEN||myBattle(me));}
 
 loadGame();progSync(PROG.md);setTimeout(()=>{if(SAVE.chap>0&&$('chapv')&&!QS.get('join')){$('chapv').innerHTML=CHAPS.slice(0,SAVE.chap+1).concat(SAVE.clear?[CHAPS_EX]:[]).map(c=>'<option value="'+c.k+'">'+c.n+'</option>').join('');$('chapv').value=CHAPS[SAVE.chap].k;$('chapsel').classList.remove('hide');}},0);
+
+// ===================== BUSTER POWER-UPS & REQUEST BOARD =====================
+const BU_NAMES={a:'アタック',r:'ラピッド',c:'チャージ'},BU_MAX=5;let BU_REMOTE=null;
+function buData(){SAVE.bu=SAVE.bu||{V:{a:0,r:0,c:0},M:{a:0,r:0,c:0}};return SAVE.bu;}
+function buLv(who,k){const d=(NET.on&&NET.guest&&BU_REMOTE)?BU_REMOTE:buData();return (d[who]&&d[who][k])||0;}
+function cdT(who){return (who==='M'?BUSTER.mist:BUSTER.volt).cd*(1-.1*buLv(who,'r'));}
+function chgT(who){return (who==='M'?BUSTER.mist:BUSTER.volt).chg*(1-.1*buLv(who,'c'));}
+function buSync(d){BU_REMOTE=d;}
+function buUp(who,k){const d=buData();if(d[who][k]>=BU_MAX)return false;d[who][k]++;saveGame();if(NET.on&&NET.host)netCall('buSync',[d]);return true;}
+// ---- request board ----
+const QUESTS=[
+ {id:'kill1',n:'ウイルスバスター 初級',d:'ウイルスを20体デリート',t:'kills',g:20,rw:{z:1000}},
+ {id:'kill2',n:'ウイルスバスター 上級',d:'ウイルスを80体デリート',t:'kills',g:80,rw:{pu:'a'}},
+ {id:'md',n:'データ探偵',d:'ミステリーデータを8個開ける',t:'md',g:8,rw:{pu:'r'}},
+ {id:'nodmg',n:'ノーダメージ',d:'被弾0回でバトルに3回勝つ',t:'nodmg',g:3,rw:{chip:['recov80','*']}},
+ {id:'srank',n:'Sランクバスター',d:'バスティングレベルSを2回とる',t:'srank',g:2,rw:{pu:'c'}},
+ {id:'cross',n:'クロスの達人',d:'クロスバスターを3回きめる',t:'cross',g:3,rw:{chip:['mcannon','A']}},
+ {id:'navi',n:'暴走ナビを止めろ',d:'ナビボスを2体たおす',t:'navi',g:2,rw:{z:3000}},
+ {id:'lib',n:'チップコレクター',d:'ライブラリを20種類そろえる',t:'lib',g:20,rw:{pu:'a'}}];
+let Q_REMOTE=null;
+function qData(){SAVE.q=SAVE.q||{c:{},done:{}};return SAVE.q;}
+function qView(){return (NET.on&&NET.guest&&Q_REMOTE)?Q_REMOTE:qData();}
+function qSync(d){Q_REMOTE=d;if(!$('folder').classList.contains('hide'))renderFolder();}
+function qAdd(t,n){if(NET.on&&NET.guest)return;const q=qData();q.c[t]=(q.c[t]||0)+(n||1);const just=QUESTS.filter(Q=>Q.t===t&&!q.done[Q.id]&&q.c[t]>=Q.g&&(q.c[t]-(n||1))<Q.g);just.forEach(Q=>{rawBanner('依頼達成！「'+Q.n+'」','#ffd24a');if(NET.on)netCall('banner',['依頼達成！「'+Q.n+'」','#ffd24a']);});saveGame();if(NET.on&&NET.host)netCall('qSync',[q]);}
+function qProg(Q){const v=qView();if(Q.t==='lib')return [...LIB].filter(k=>CH[k]&&!CH[k].pa).length;return (v.c&&v.c[Q.t])||0;}
+function qClaim(id){if(NET.on&&NET.guest){NET.send({t:'qclaim',id});return;}const q=qData();const Q=QUESTS.find(x=>x.id===id);if(!Q||q.done[id]||qProg(Q)<Q.g)return;q.done[id]=1;const r=Q.rw;
+ if(r.z){zenny+=r.z;if(NET.on)netCall('zennyGive',[r.z]);}if(r.chip)folderAdd(r.chip);if(r.pu){buUp('V',r.pu);buUp('M',r.pu);}
+ SFX('bust');rawBanner('報酬ゲット！','#5cff8a');saveGame();if(NET.on){netCall('qSync',[q]);netCall('buSync',[buData()]);}if(!$('folder').classList.contains('hide'))renderFolder();}
+function rewardText(r){return r.z?r.z+' ゼニー':r.chip?'チップ「'+CH[r.chip[0]].n+' '+r.chip[1]+'」':r.pu?'バスター'+BU_NAMES[r.pu]+'+1（2人とも）':'';}
+function renderExtra(){const me=NET.on&&NET.guest?'M':'V';const nm=me==='M'?'ミスト':'ボルト';
+ let h='<div class="fcap" style="margin-top:10px">'+nm+'のバスター</div><div class="bu">'+['a','r','c'].map(k=>'<span>'+BU_NAMES[k]+' <b>'+'■'.repeat(buLv(me,k))+'<i>'+'□'.repeat(BU_MAX-buLv(me,k))+'</i></b></span>').join('')+'</div>';
+ const v=qView();h+='<div class="fcap" style="margin-top:10px">依頼ボード</div><div class="qlist">'+QUESTS.map(Q=>{const p=Math.min(Q.g,qProg(Q)),done=v.done&&v.done[Q.id],ok=p>=Q.g;return '<div class="qi'+(done?' qd':'')+'"><div><b>'+Q.n+'</b><small>'+Q.d+'　報酬：'+rewardText(Q.rw)+'</small></div><div class="qp">'+(done?'受取済み':ok?'<button class="qbtn" data-q="'+Q.id+'">受け取る</button>':p+' / '+Q.g)+'</div></div>';}).join('')+'</div>';
+ $('fextra').innerHTML=h;$('fextra').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{qClaim(b.dataset.q);setTimeout(renderFolder,300);});}
+
 function showBust(zn){SFX('bust');const time=T-zn.t0;const rk='z'+ZONES.indexOf(zn);const prevB=SAVE.rec[rk];const isNewB=prevB==null||time<prevB;if(isNewB)SAVE.rec[rk]=+time.toFixed(1);const rows=[];let lv=0;
  const tp=time<15?7:time<30?6:time<50?5:4;lv+=tp;rows.push(['デリートタイム',time.toFixed(1)+'秒','+'+tp]);
  const hp=zn.hits===0?1:zn.hits===1?0:zn.hits<=3?-1:-2;lv+=hp;rows.push(['被弾',zn.hits+'回',(hp>=0?'+':'')+hp]);
  let multi=0;const d=zn.deaths.slice().sort((a,b)=>a-b);for(let i=1;i<d.length;i++)if(d[i]-d[i-1]<.5)multi++;const mp=multi?Math.min(3,multi+1):0;lv+=mp;if(mp)rows.push(['同時デリート',multi+1+'体','+'+mp]);
  const cp=Math.min(2,zn.counters);lv+=cp;if(cp)rows.push(['カウンター',zn.counters+'回','+'+cp]);
- lv=clamp(lv,1,11);const L=lv>=11?'S':String(lv);
+ lv=clamp(lv,1,11);const L=lv>=11?'S':String(lv);if(lv>=11)qAdd('srank');if(zn.hits===0)qAdd('nodmg');
  let get;if(lv>=9){const c=BUST_DROP.hi[ri(0,BUST_DROP.hi.length-1)];folderAdd(c);get='チップ GET：'+CH[c[0]].n+' '+c[1];}
  else if(lv>=6){const c=BUST_DROP.mid[ri(0,BUST_DROP.mid.length-1)];folderAdd(c);get='チップ GET：'+CH[c[0]].n+' '+c[1];}
  else{const z=ri(1,3)*100;zennyAdd(z,zn);get=z+' ゼニー GET';}zennyAdd(lv*20,zn);
@@ -1108,11 +1150,12 @@ function closeBust(){if($('bust').classList.contains('hide'))return;$('bust').cl
 $('bbtn').onclick=closeBust;
 
 function makeSymbol(zn){const k=zn.list[0][0];const d=EDEF[k];const u=makeUnit(d.img,d.h*(zn.boss?1:1.15),false);u.x=zn.hx;u.z=zn.hz;u.tint='#ffb0c0';u.float=d.float;u.isSym=true;u.k2=k;if(!zn.boss){attach3DEnemy(u,k);u.k=k;u.hp=1;}
- const ring=new THREE.Mesh(new THREE.RingGeometry(.8,1.05,32),new THREE.MeshBasicMaterial({color:zn.boss?'#ff3b5c':'#ff5ad8',transparent:true,opacity:.7,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;u.g.add(ring);u.ring=ring;u.wt=0;u.wx=zn.hx;u.wz=zn.hz;zn.sym=u;}
+ const ring=new THREE.Mesh(new THREE.RingGeometry(.8,1.05,32),new THREE.MeshBasicMaterial({color:zn.boss?'#ff3b5c':'#ff5ad8',transparent:true,opacity:.7,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;u.g.add(ring);u.ring=ring;{const bm=new THREE.Mesh(new THREE.CylinderGeometry(.12,.3,14,10,1,true),new THREE.MeshBasicMaterial({color:zn.boss||zn.navi?'#ff3b5c':zn.req?'#ff5ad8':'#b98cff',transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));bm.position.y=7;u.g.add(bm);}u.wt=0;u.wx=zn.hx;u.wz=zn.hz;zn.sym=u;}
 function symbolStep(zn,dt){const u=zn.sym;if(!u)return;const locked=zn.need!=null&&!ZONES[zn.need].clear;u.tint=locked?'#777':'#ffb0c0';u.ring.visible=!locked;
  u.ring.material.opacity=.45+.3*Math.sin(T*6);u.ring.scale.setScalar(1+.1*Math.sin(T*6));
  const w_=zn.world||'both';const tg=[V,M].filter(a=>!a.down&&(a===V||NET.on)&&zoneHas(zn,a)).sort((a,b)=>Math.hypot(a.x-u.x,a.z-u.z)-Math.hypot(b.x-u.x,b.z-u.z))[0]||V;const dx=tg.x-u.x,dz=tg.z-u.z,d=Math.hypot(dx,dz);u.moving=false;const busyB=inBattleW(w_);
- if(!locked&&!zn.boss&&!busyB&&d<8&&MODE==='play'){const s=3.2*dt;const nx=u.x+dx/d*s,nz=u.z+dz/d*s;if(walk(nx,nz)){u.x=nx;u.z=nz;}u.face=Math.atan2(dx,dz);u.moving=true;if(Math.random()<.05)popup(u.x,u.h+.6,u.z,'！','#ff4f7a',22);}
+ const homeD=Math.hypot(u.x-zn.hx,u.z-zn.hz);if(homeD>13&&!busyB){u.x=zn.hx;u.z=zn.hz;u.tx=null;glow(u.x,1,u.z,'#ff5ad8',2,.3,1);}
+ if(!locked&&!zn.boss&&!busyB&&d<8&&homeD<9&&MODE==='play'){const s=3.2*dt;const nx=u.x+dx/d*s,nz=u.z+dz/d*s;if(walk(nx,nz)){u.x=nx;u.z=nz;}u.face=Math.atan2(dx,dz);u.moving=true;if(Math.random()<.05)popup(u.x,u.h+.6,u.z,'！','#ff4f7a',22);}
  else if(!zn.boss){u.wt-=dt;if(u.wt<=0){u.wt=rnd(1.5,3);u.wx=zn.hx+rnd(-4,4);u.wz=zn.hz+rnd(-4,4);}const wx=u.wx-u.x,wz=u.wz-u.z,wd=Math.hypot(wx,wz);if(wd>.2){const nx=u.x+wx/wd*1.4*dt,nz=u.z+wz/wd*1.4*dt;if(walk(nx,nz)){u.x=nx;u.z=nz;u.moving=true;u.face=Math.atan2(wx,wz);}else u.wt=0;}}
  if(!busyB&&!locked&&zoneHas(zn,V)&&Math.hypot(V.x-u.x,V.z-u.z)<1.3&&V.y<.8&&MODE==='play'&&!paused&&!DLGS&&!busyStory){const behind=Math.cos(Math.atan2(-dx,-dz)-u.face)<0;startEncounter(zn,V.slide>0||behind);}
  else if(NET.on&&!busyB&&!locked&&!M.down&&zoneHas(zn,M)&&MODE==='play'&&!paused&&!DLGS&&!busyStory&&Math.hypot(M.x-u.x,M.z-u.z)<1.3&&(M.y||0)<.8){startEncounter(zn,M.slide>0,M);}}
@@ -1176,7 +1219,7 @@ function hurtEnemy(e,dmg,from,opt){if(e.dead||NET.guest)return;opt=opt||{};if(e.
  if(opt.freeze){e.frozen=2.5;e.tele=0;e.act=null;popup(e.x,e.h+.7,e.z,'フリーズ','#9fe8ff',16);}
  if(dmg>=40){hitstop=Math.max(hitstop,.06);shakeT=Math.max(shakeT,.12);}
  if(e.tele>0&&dmg>=40){e.tele=0;e.act=null;e.stun=1;if(e.zone)e.zone.counters=(e.zone.counters||0)+1;popup(e.x,e.h+.7,e.z,'COUNTER','#ffe14d',18);}
- if(e.hp<=0){e.dead=true;e.deadT=0;e.deathT=T;SFX('delete');if(e.zone&&e.zone.deaths)e.zone.deaths.push(T);glow(e.x,.9,e.z,'#7ff',4,.4,1.5);sparks(e.x,.9,e.z,'#7ff',24,6);for(let k=0;k<14;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),new THREE.MeshBasicMaterial({color:k%2?'#7ff':'#fff'}));m.position.set(e.x+rnd(-.5,.5),rnd(.2,1.6),e.z+rnd(-.5,.5));scene.add(m);FX.push({m,v:new THREE.Vector3(rnd(-.5,.5),rnd(2,4),rnd(-.5,.5)),t:0,life:.9,float:1});}hitstop=Math.max(hitstop,.05);e.bar.classList.add('hide');e.hpn&&e.hpn.classList.add('hide');burst(e.x,.9,e.z,'#7ff',22,5);popup(e.x,e.h,e.z,'DELETE','#7ff',18);if(lockT===e)lockT=null;gaugeV=Math.min(1,gaugeV+.15);clearCharge(e);if(e.k==='boss'){for(let k=0;k<5;k++)setTimeout(()=>{glow(e.x+rnd(-1,1),rnd(.5,3),e.z+rnd(-1,1),'#ff2a4a',4,.5,1.5);sparks(e.x,1.5,e.z,'#ff6b8a',20,7);SFX('boom');shakeT=.4;},k*260);EN.filter(x=>x.zone===e.zone&&!x.dead).forEach(x=>{x.hp=1;hurtEnemy(x,9,x,{ignoreShield:1});});cutin(['volt_e0','mist_e0'],'NOISE DELETED');slowT=.8;}}
+ if(e.hp<=0){e.dead=true;e.deadT=0;e.deathT=T;if(e.k!=='ncore')qAdd('kills');SFX('delete');if(e.zone&&e.zone.deaths)e.zone.deaths.push(T);glow(e.x,.9,e.z,'#7ff',4,.4,1.5);sparks(e.x,.9,e.z,'#7ff',24,6);for(let k=0;k<14;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),new THREE.MeshBasicMaterial({color:k%2?'#7ff':'#fff'}));m.position.set(e.x+rnd(-.5,.5),rnd(.2,1.6),e.z+rnd(-.5,.5));scene.add(m);FX.push({m,v:new THREE.Vector3(rnd(-.5,.5),rnd(2,4),rnd(-.5,.5)),t:0,life:.9,float:1});}hitstop=Math.max(hitstop,.05);e.bar.classList.add('hide');e.hpn&&e.hpn.classList.add('hide');burst(e.x,.9,e.z,'#7ff',22,5);popup(e.x,e.h,e.z,'DELETE','#7ff',18);if(lockT===e)lockT=null;gaugeV=Math.min(1,gaugeV+.15);clearCharge(e);if(e.k==='boss'){for(let k=0;k<5;k++)setTimeout(()=>{glow(e.x+rnd(-1,1),rnd(.5,3),e.z+rnd(-1,1),'#ff2a4a',4,.5,1.5);sparks(e.x,1.5,e.z,'#ff6b8a',20,7);SFX('boom');shakeT=.4;},k*260);EN.filter(x=>x.zone===e.zone&&!x.dead).forEach(x=>{x.hp=1;hurtEnemy(x,9,x,{ignoreShield:1});});cutin(['volt_e0','mist_e0'],'NOISE DELETED');slowT=.8;}}
 }
 function bossPhase(e,np){SFX('phase');e.pi=0;setTimeout(()=>{if(!e.dead&&MODE==='play')spawnCores(e);},2300);e.phase=np;e.binv=2.2;e.tele=0;e.dash=null;clearCharge(e);e.cd=2.4;e.dazed=0;slowT=.6;shakeT=1;flashScreen(.5);HAZ.forEach(h=>h.cancel=true);
  banner(np===2?'ノイズが 膨れ上がる…！':'ノイズ・ゼロ 暴走！！','#ff2a4a');ringWaveHz(e.x,e.z,14,10,20);glow(e.x,1.5,e.z,'#ff2a4a',8,.8,1.5);if(np===3){e.tint='#ff6b6b';EDEF.boss.sp=2.2;}
@@ -1219,7 +1262,7 @@ function waveStep(dt){for(const w of WAVES){w.t+=dt;w.x+=w.dx*w.sp*dt;w.z+=w.dz*
  WAVES=WAVES.filter(w=>{if(w.dead)scene.remove(w.m);return !w.dead;});}
 // ---------- player ----------
 function onKey(c){if(c==='KeyP'&&(MODE==='room'||MODE==='play')&&!CHOICE){togglePhone();return;}if(NET.on&&NET.guest&&!CHOICE){if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(!$('bust').classList.contains('hide')){if(['Enter','Space','NumpadEnter'].includes(c)){$('bust').classList.add('hide');tryLock();}return;}if(MODE==='room'&&c==='KeyF'&&!NET.lock)NET.send({t:'interact'});
- if(MODE==='play'){if(SHOP_OPEN){if(['Escape','KeyF','Enter'].includes(c))closeShop();return;}if(!$('folder').classList.contains('hide')){if(['Escape','KeyF','Enter'].includes(c))closeFolder();return;}if(c==='KeyF'&&!paused&&NETCUR==='net1'){const S=shopNear(M);if(S)openShop(S);else openFolder();return;}if(paused&&!$('custom').classList.contains('hide')){if(/^Digit[1-6]$/.test(c))togglePick(+c[5]-1);if(c==='Enter'||c==='NumpadEnter')closeCustom();return;}if(/^Digit[1-4]$/.test(c))useChip(+c[5]-1);if(c==='Tab')openCustom();if(c==='KeyE')guestSkill();}return;}if(CHOICE){if(/^Digit[1-4]$/.test(c))CHOICE(+c[5]-1);return;}if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(MODE==='room'){if(c==='KeyF')roomInteract();if(c==='KeyX')switchHuman();return;}if(MODE!=='play')return;
+ if(MODE==='play'){if(SHOP_OPEN){if(['Escape','KeyF','Enter'].includes(c))closeShop();return;}if(!$('folder').classList.contains('hide')){if(['Escape','KeyF','Enter'].includes(c))closeFolder();return;}if(c==='KeyF'&&!paused&&NETCUR==='net1'){const S=shopNear(M);if(S)openShop(S);else openFolder();return;}if(paused&&!$('custom').classList.contains('hide')){if(/^Digit[1-6]$/.test(c))togglePick(+c[5]-1);if(c==='Enter'||c==='NumpadEnter')closeCustom();return;}if(/^Digit[1-4]$/.test(c))useChip(+c[5]-1);if(c==='Tab')openCustom();if(c==='KeyE')guestSkill();}return;}if(CHOICE){if(/^Digit[1-4]$/.test(c))CHOICE(+c[5]-1);return;}if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(MODE==='room'){if(MG&&MG.k==='fetch'&&MG.phase==='aim'&&(c==='KeyF'||c==='Space')){MG.thrown=true;MG.phase='fly';return;}if(c==='KeyF')roomInteract();if(c==='KeyX')switchHuman();return;}if(MODE!=='play')return;
  if(SHOP_OPEN){if(['Escape','KeyF','Enter'].includes(c))closeShop();return;}if(!$('folder').classList.contains('hide')){if(['Escape','KeyF','Enter'].includes(c))closeFolder();return;}
  if(paused&&!$('bust').classList.contains('hide')){if(c==='Enter'||c==='NumpadEnter'||c==='Space')closeBust();return;}
  if(paused){if(!$('custom').classList.contains('hide')){if(/^Digit[1-6]$/.test(c))togglePick(+c[5]-1);if(c==='Enter'||c==='NumpadEnter')closeCustom();}return;}
@@ -1284,15 +1327,15 @@ function playerStep(dt,t){const L=V;if(paused){L.moving=false;L.holding=false;L.
  // buster
  L.shotCD=Math.max(0,L.shotCD-dt);
  const inBattle=myBattle(L);if(!inBattle&&MS.fire&&!L.noFireMsg){L.noFireMsg=1.5;popup(L.x,2.2,L.z,'バトル中だけ撃てる','#9ab',14);}L.noFireMsg=Math.max(0,(L.noFireMsg||0)-dt);
- if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){busterShot(false);L.shotCD=BUSTER.volt.cd;}}else L.chg+=dt;}
- if(L.holding&&L.chg>.2&&Math.random()<(L.chg>=BUSTER.volt.chg?.9:.5)){const a=rnd(0,6.28),r=L.chg>=BUSTER.volt.chg?1.1:1.4;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=BUSTER.volt.chg?'#ffe14d':'#fff3a0',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}
- else if(L.holding){L.holding=false;if(L.chg>=BUSTER.volt.chg)busterShot(true);L.chg=0;}
+ if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){busterShot(false);L.shotCD=cdT('V');}}else L.chg+=dt;}
+ if(L.holding&&L.chg>.2&&Math.random()<(L.chg>=chgT('V')?.9:.5)){const a=rnd(0,6.28),r=L.chg>=chgT('V')?1.1:1.4;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=chgT('V')?'#ffe14d':'#fff3a0',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}
+ else if(L.holding){L.holding=false;if(L.chg>=chgT('V'))busterShot(true);L.chg=0;}
  // lock-on camera assist
  if(lockT&&!lockT.dead){const ty=Math.atan2(V.x-lockT.x,V.z-lockT.z);let d=ty-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*Math.min(1,dt*5);}else if(lockT)lockT=null;
 }
 const BUSTER={volt:{nm:'サンダーバスター',cd:.12,chg:1.1,cc:'#ffe14d',n:{sp:38,dmg:4,col:'#fff3a0',r:.12},c:{sp:40,dmg:32,col:'#ffe14d',r:.34,kb:.6,pierce:1,charged:1,chain:1,life:1.2}},
  mist:{nm:'ミストバスター',cd:.22,chg:.85,cc:'#7fe6ff',n:{sp:27,dmg:3,col:'#c8f6ff',r:.11,life:.5,spread:1},c:{sp:17,dmg:30,col:'#7fe6ff',r:.5,charged:1,mist:1,R:2.8,life:1.4}}};
-function busterFire(C,aim,charged,extra){const B=C===M?BUSTER.mist:BUSTER.volt;const o=Object.assign({side:'P'},charged?B.c:B.n,extra||{});
+function busterFire(C,aim,charged,extra){const B=C===M?BUSTER.mist:BUSTER.volt;const o=Object.assign({side:'P'},charged?B.c:B.n,extra||{});{const lv=buLv(C===M?'M':'V','a');if(o.dmg)o.dmg=charged?Math.round(o.dmg*(1+.15*lv)):o.dmg+lv;}
  if(o.spread){const a0=Math.atan2(aim.x-C.x,aim.z-C.z),d=Math.hypot(aim.x-C.x,aim.z-C.z)||1;[-.14,0,.14].forEach(da=>{const a=a0+da;fireAt(C,{x:C.x+Math.sin(a)*d,y:aim.y,z:C.z+Math.cos(a)*d},Object.assign({},o));});}
  else fireAt(C,aim,o);
  if(charged){glow(C.x,1,C.z,B.cc,3,.25,1.2);burst(C.x,1,C.z,B.cc,8,3);}}
@@ -1969,8 +2012,52 @@ function spawnRoomPets(){const L=ROOMS.leo,Mo=ROOMS.molly;
  for(let i=0;i<5;i++){const u=makeLizard3D(LC[i][0],LC[i][1]);u.x=Mo.ox-.95+(i-2)*.16;u.z=Mo.oz+Mo.d/2-.3+(i%2?.07:-.07);u.y=.59;u.face=rnd(-1,1)+(i%2?Math.PI:0);u.fixed=true;u.room='molly';RPETS.push(u);}
  const u=makeLizard3D('#e8b060','#5a3a2a');u.x=Mo.ox+.6;u.z=Mo.oz+.6;u.wt=2;u.room='molly';u.slow=1;RPETS.push(u);}
 function petsRoomStep(dt){RPETS.forEach(u=>{if(!u.fixed){u.wt-=dt;if(u.wt<=0){u.wt=rnd(2,5);const R=ROOMS[u.room];for(let k=0;k<8;k++){const tx=R.ox+rnd(-R.w/2+.6,R.w/2-.6),tz=R.oz+rnd(-R.d/2+.6,R.d/2-.6);if(petFree(u.room,tx,tz,.3)){u.tx=tx;u.tz=tz;break;}}}
- if(u.tx!=null){const dx=u.tx-u.x,dz=u.tz-u.z,d=Math.hypot(dx,dz);if(d>.1){const sp=(u.slow?.35:1.2)*dt;const nx=u.x+dx/d*sp,nz=u.z+dz/d*sp;if(petFree(u.room,nx,nz,.22)){u.x=nx;u.z=nz;u.face=Math.atan2(dx,dz);u.moving=true;}else{u.tx=null;u.moving=false;u.wt=.3;}}else u.moving=false;}}
+ if(u.tx!=null){const dx=u.tx-u.x,dz=u.tz-u.z,d=Math.hypot(dx,dz);if(d>.1){const sp=(u.slow?.35:u.fast||1.2)*dt;const nx=u.x+dx/d*sp,nz=u.z+dz/d*sp;if(petFree(u.room,nx,nz,.22)){u.x=nx;u.z=nz;u.face=Math.atan2(dx,dz);u.moving=true;}else{u.tx=null;u.moving=false;u.wt=.3;}}else u.moving=false;}}
  if(u.is3d)petAnim(u,dt);else updUnit(u,T);});NPCS.forEach(u=>updUnit(u,T));}
+
+// ===================== PET MINI GAMES =====================
+let MG=null;
+function mgHud(html){const el=$('mg');if(!el)return;if(!html){el.classList.add('hide');return;}el.innerHTML=html;el.classList.remove('hide');}
+function mgShow(html){if(NET.on&&NET.actor==='molly')netCall('mgHud',[html]);else mgHud(html);}
+function freeToward(room,x0,z0,x1,z1){let x=x1,z=z1;for(let k=0;k<20;k++){if(petFree(room,x,z,.3))return [x,z];x=x0+(x-x0)*.85;z=z0+(z-z0)*.85;}return [x0,z0];}
+async function fetchGame(){const room=ROOM_OF.leo;const dogs=RPETS.filter(u=>u.kind==='dog'&&u.room==='leo');if(!dogs.length)return;
+ const ball=new THREE.Mesh(new THREE.SphereGeometry(.07,12,10),new THREE.MeshStandardMaterial({color:'#e8ff40',roughness:.5}));ball.castShadow=true;scene.add(ball);ball.visible=false;
+ MG={k:'fetch',pow:0,t:0,thrown:false,score:0};let total=0;
+ await say('leo','よーし、ボール投げるぞー！　とってこーい！');
+ for(let i=0;i<5;i++){MG.phase='aim';MG.thrown=false;
+  while(!MG.thrown){await wait(30);const p=MG.pow;mgShow('<b>🎾 ボール投げ '+(i+1)+'/5</b><div class="mgbar"><i style="width:'+(p*100)+'%"></i><span class="mgok"></span></div><small>ゲージが右はしに近いときに F／クリック！（向いている方向に投げる）　スコア '+total+'</small>');}
+  const p=MG.pow;const dist=.8+p*4.2;const fx=Math.sin(LEO.face),fz=Math.cos(LEO.face);let [tx,tz]=freeToward(room,LEO.x,LEO.z,LEO.x+fx*dist,LEO.z+fz*dist);
+  SFX('jump');ball.visible=true;const sx=LEO.x,sz=LEO.z,d=Math.hypot(tx-sx,tz-sz);for(let k=0;k<=20;k++){const t=k/20;ball.position.set(sx+(tx-sx)*t,1.2+Math.sin(t*Math.PI)*(.4+d*.25)-t*1.13,sz+(tz-sz)*t);await wait(22);}
+  const sp=dogs.map(()=>rnd(1.7,2.4));dogs.forEach((u,k)=>{u.tx=tx;u.tz=tz;u.wt=99;u.fast=sp[k];});
+  let win=null;for(let k=0;k<300&&!win;k++){await wait(30);for(const u of dogs)if(Math.hypot(u.x-tx,u.z-tz)<.35){win=u;break;}}
+  if(!win)win=dogs[0];SFX('chip');const perfect=p>.9;const pts=Math.round(d*20)+(perfect?50:0);total+=pts;popup(win.x,1.2,win.z,(perfect?'ナイス！ ':'')+'+'+pts,'#ffe14d',20);
+  dogs.forEach(u=>{if(u!==win){u.tx=null;u.wt=rnd(1,2);u.fast=null;}});
+  for(let k=0;k<300;k++){ball.position.set(win.x+Math.sin(win.face)*.3,.42,win.z+Math.cos(win.face)*.3);const [lx,lz]=freeToward(room,win.x,win.z,LEO.x,LEO.z);win.tx=lx;win.tz=lz;await wait(30);if(Math.hypot(win.x-LEO.x,win.z-LEO.z)<.95)break;}
+  win.tx=null;win.fast=null;win.wt=rnd(1,3);ball.visible=false;await say('dog',['ワフッ！','ワンワン！','ハッハッハッ……！','ワオーン！','クゥン♪'][i]);}
+ scene.remove(ball);MG=null;mgShow('');SAVE.fetchBest=Math.max(SAVE.fetchBest||0,total);zenny+=total;
+ await say('sys','ボール投げ スコア '+total+'（ベスト '+SAVE.fetchBest+'）　'+total+' ゼニーをもらった！');
+ if(total>=600&&!SAVE.fetchChip){SAVE.fetchChip=1;folderAdd(['dogs','*']);await say('leo','おまえら最高だな！　……ボルトのフォルダにも入れとくか。');await say('sys','チップ「コリーダッシュ *」を手に入れた！');}
+ saveGame();}
+async function cricketGame(){const room=ROOM_OF.molly;const R=ROOMS[room];const cr=[];
+ await say('molly','ごはんの時間だよー。……あっ、コオロギが逃げた！　つかまえなきゃ！');
+ for(let i=0;i<8;i++){let x,z;for(let k=0;k<20;k++){x=R.ox+rnd(-R.w/2+.7,R.w/2-.7);z=R.oz+rnd(-R.d/2+.7,R.d/2-.7);if(petFree(room,x,z,.3))break;}
+  const g=new THREE.Group();const b=new THREE.Mesh(new THREE.SphereGeometry(.06,10,8),new THREE.MeshStandardMaterial({color:'#5a3a1a'}));b.scale.set(1,.7,1.6);g.add(b);[-1,1].forEach(s=>{const l=new THREE.Mesh(new THREE.BoxGeometry(.01,.01,.12),new THREE.MeshBasicMaterial({color:'#3a2a10'}));l.position.set(s*.05,.02,-.05);l.rotation.x=.5;g.add(l);});
+  const ring=new THREE.Mesh(new THREE.RingGeometry(.12,.15,20),new THREE.MeshBasicMaterial({color:'#ffd24a',transparent:true,opacity:.6,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=-.03;g.add(ring);
+  g.position.set(x,.05,z);scene.add(g);cr.push({g,x,z,ht:rnd(.3,1),vy:0,y:0,vx:0,vz:0});}
+ let caught=0,t=25;MG={k:'cricket'};
+ let lt=performance.now();while(t>0&&caught<cr.length){await wait(40);const nw=performance.now();const dt=Math.min(.1,(nw-lt)/1000);lt=nw;t-=dt;
+  for(const c of cr){if(c.dead)continue;c.ht-=dt;if(c.ht<=0&&c.y<=0){c.ht=rnd(.5,1.3);const a=rnd(0,6.28),s=rnd(.6,1.4);const flee=Math.hypot(MOLLY.x-c.x,MOLLY.z-c.z)<1.4;const ang=flee?Math.atan2(c.x-MOLLY.x,c.z-MOLLY.z)+rnd(-.6,.6):a;c.vx=Math.sin(ang)*s;c.vz=Math.cos(ang)*s;c.vy=2.4;}
+   if(c.y>0||c.vy>0){c.vy-=9*dt;c.y=Math.max(0,c.y+c.vy*dt);const nx=c.x+c.vx*dt,nz=c.z+c.vz*dt;if(petFree(room,nx,nz,.15)){c.x=nx;c.z=nz;}}
+   c.g.position.set(c.x,.05+c.y,c.z);c.g.rotation.y=Math.atan2(c.vx,c.vz);
+   if(Math.hypot(MOLLY.x-c.x,MOLLY.z-c.z)<.5&&c.y<.3){c.dead=true;scene.remove(c.g);caught++;SFX('chip');popup(c.x,.8,c.z,'つかまえた！ '+caught,'#7dff9a',18);}}
+  mgShow('<b>🦗 コオロギつかまえ</b>　のこり <b>'+Math.ceil(t)+'</b> 秒　つかまえた <b>'+caught+'</b> / '+cr.length+'<br><small>モリーで近づいてつかまえよう（にげるのが速いので回りこんで！）</small>');}
+ cr.forEach(c=>{if(!c.dead)scene.remove(c.g);});MG=null;mgShow('');const z=caught*60;SAVE.cricketBest=Math.max(SAVE.cricketBest||0,caught);
+ if(NET.on&&NET.actor==='molly')netCall('zennyGive',[z]);else zenny+=z;
+ await say('molly',caught>=6?'やったー！　みんな、おなかいっぱいだね。':'うーん、何匹か逃げちゃった……。');await say('sys','つかまえた数 '+caught+'（ベスト '+SAVE.cricketBest+'）　'+z+' ゼニーをもらった！');
+ if(caught>=7&&!SAVE.cricketChip){SAVE.cricketChip=1;folderAdd(['liz','*']);await say('mist','（通信）トカゲさんたちのデータ、チップにしておきました。');await say('sys','チップ「トカゲガード *」を手に入れた！');}
+ saveGame();}
+function mgStep(dt){if(MG&&MG.k==='fetch'&&MG.phase==='aim'){MG.t+=dt;MG.pow=(Math.sin(MG.t*3.2-Math.PI/2)+1)/2;}}
+
 // ---------- control ----------
 function humanStep(c,dt,control){c.slide=0;c.faceHold=0;c.inv=0;if(c.auto){const dx=c.auto.x-c.x,dz=c.auto.z-c.z,d=Math.hypot(dx,dz);if(d>.08){c.x+=dx/d*Math.min(d,2.2*dt);c.z+=dz/d*Math.min(d,2.2*dt);c.face=Math.atan2(dx,dz);c.moving=true;}else{c.moving=false;c.face=c.auto.face;c.auto=null;}return;}
  if(!control){c.moving=false;return;}
@@ -1989,7 +2076,7 @@ let objBase='';function objective2(t){objBase=t;objective(t);}
 function roomLight(key){const R=ROOMS[key];const rg=!!(R&&R.rig);[LEO,MOLLY,MOM1,MOM2,NPC1,NPC2].forEach(c=>{if(c&&c.shadow)c.shadow.visible=!rg;});if(rg){rigTo(key);HEMI.intensity=R.rig.hemi||.3;HEMI.color.set(R.air?'#eef4ff':'#fff1dc');DIRL.intensity=0;RL.intensity=0;if(window.__BP)window.__BP.strength=R.air?.15:.4;}else{rigTo(null);HEMI.intensity=.42;HEMI.color.set('#fff1dc');DIRL.intensity=.45;RL.intensity=.6;if(window.__BP)window.__BP.strength=R&&R.air?.12:.45;}}
 function roomStep(dt){roomLight(ROOM_OF[ACT]);$('clickme').classList.toggle('hide',locked()||plFail||!!DLGS||!!CHOICE);
  [LEO,MOLLY].forEach(c=>{if(!(NET.on&&c===MOLLY&&!c.auto))humanStep(c,dt,c===ACTC);charLocomotion(c,dt);updChar(c,dt,T);});[MOM1,MOM2,NPC1,NPC2].forEach(c=>{if(c&&c.g.visible){c.moving=false;charLocomotion(c,dt);updChar(c,dt,T);}});
- ['leoL','mollyL'].forEach(k=>{const R=ROOMS[k];if(R.tv)R.tv.material.color.set(Math.floor(T*1.3)%3?'#24486a':'#2a5a50');});petsRoomStep(dt);
+ mgStep(dt);['leoL','mollyL'].forEach(k=>{const R=ROOMS[k];if(R.tv)R.tv.material.color.set(Math.floor(T*1.3)%3?'#24486a':'#2a5a50');});petsRoomStep(dt);
  const it=!DLGS&&!CHOICE&&!busyStory&&nearInter();$('prompt').classList.toggle('hide',!it);if(it)$('prompt').textContent='F／クリック：'+it.label;
  PADS.forEach(p=>{p.m.rotation.z+=dt*2;p.m.material.opacity=.6+.3*Math.sin(T*6);});
  ['leo','molly'].forEach(k=>{const R=ROOMS[k];if(R.screen)R.screen.material.color.set(PH==='rooms0'&&!FL['pc_'+k]?(Math.floor(T*3)%2?'#ff4f7a':'#4fd8ff'):'#4fd8ff');});
@@ -2087,8 +2174,8 @@ async function talkPhoto(){await say('sys','写真立て。はじめて2人が�
  await say('molly','3月14日。……あの日から、ずっと画面ごし。');}
 async function talkBed(who){await say(who,who==='leo'?'まだ寝てる場合じゃない。':'まだ眠れないよ。');}
 async function talkWindow(who){if(who==='leo'){await say('leo','天竜川と、夜の山なみ。……この山の向こう、海の向こうに、モリーがいる。');await say('volt','ウルサンまで780km。ネットなら一瞬なのにな。');}else{await say('molly','ウルサンの夜。港の灯りが、今日はやけにきれい。……明日、レオに会えるんだ。');await say('mist','きっと、レオさんも同じ空を見ていますよ。');}}
-async function talkDogs(){SFX('jump');await say('dog','クゥーン……ワフッ！');await say('leo','おまえらも心配してくれてんのか。……大丈夫、ちゃんと帰ってくるって。');}
-async function talkLizards(){await say('molly','みんな、びっくりしたね。……大丈夫、大丈夫。');await say('sys','5匹のトカゲが、そろってモリーのほうを見上げている。');}
+async function talkDogs(){SFX('jump');await say('dog','クゥーン……ワフッ！');const r=await choose('コリーたちと遊ぶ？',['ボールを投げる（ミニゲーム）','なでる','やめる']);if(r===0)await fetchGame();else if(r===1){await say('leo','よしよし……。おまえらも心配してくれてんのか。……大丈夫、ちゃんと帰ってくるって。');await say('dog','クゥン♪');}}
+async function talkLizards(){await say('molly','みんな、びっくりしたね。……大丈夫、大丈夫。');await say('sys','5匹のトカゲが、そろってモリーのほうを見上げている。');const r=await choose('トカゲたちにごはんをあげる？',['コオロギをあげる（ミニゲーム）','見守る']);if(r===0)await cricketGame();}
 async function goodNight(){await say('leo','じゃあ……おやすみ、モリー。');await say('molly','잘 자, レオ。……明日、空港で。');await say('volt','ミスト、また明日な！');await say('mist','はい。明日は、4人で。');
  fade(true);await wait(700);await say('sys','――翌朝。');airportsStart();}
 // ---------- chapter 2: airports ----------
@@ -2204,13 +2291,15 @@ async function netHost(role){role=role||'leo';const me=role==='molly'?'molly':'l
   peer.on('connection',c=>{if(NET.conn&&NET.conn.open){c.close();return;}NET.conn=c;c.on('data',onNetData);c.on('close',onNetClose);c.on('open',onPeer);});}
  const cp=()=>{const b=$('copyInv');if(b)b.onclick=()=>{const i=$('invite');i.select();try{navigator.clipboard.writeText(i.value);}catch(e){document.execCommand('copy');}b.textContent='コピーしました！';};};setTimeout(cp,50);setTimeout(cp,1500);
  bootGame(true);if(NET.host&&QS.get('bc'))hostLogicStart();}
-function hostMaybeReady(){const b=$('hstart'),st=$('lstat');if(!st)return;if(NET.gReady&&NET.ready){st.textContent='つながりました！　相手（モリー＆ミスト）の準備ができました。';b.classList.remove('hide');b.onclick=()=>{$('title').classList.add('hide');NET.on=true;renderHP();NET.send({t:'go'});netCall('progSync',[PROG.md]);startStory();};}
+function hostMaybeReady(){const b=$('hstart'),st=$('lstat');if(!st)return;if(NET.gReady&&NET.ready){st.textContent='つながりました！　相手（モリー＆ミスト）の準備ができました。';b.classList.remove('hide');b.onclick=()=>{$('title').classList.add('hide');NET.on=true;renderHP();NET.send({t:'go'});netCall('progSync',[PROG.md]);netCall('buSync',[buData()]);netCall('qSync',[qData()]);startStory();};}
  else if(NET.gReady)st.textContent='つながりました！　こちらの読み込みを待っています…';}
 function hostOnMsg(o){switch(o.t){
  case 'gready':NET.gReady=true;hostMaybeReady();break;
  case 'hi':break;
  case 'st':NET.rs=o;break;
  case 'hpup':hpUpGive('M');break;
+ case 'buup':buUp('M',o.k);break;
+ case 'qclaim':qClaim(o.id);break;
  case 'cusReq':if(MODE==='play')cusStart(M);break;
  case 'cusDone':if(o.n===NET.cusN)NET.cusG=false;break;
  case 'dlgNext':if(DLGS&&DLGS.shared)dlgNext();break;
@@ -2333,9 +2422,9 @@ function guestPlayerStep(dt){const L=M;L.busy=Math.max(0,(L.busy||0)-dt);if(L.do
  if(ml){mx/=ml;mz/=ml;const sp=L.slide>0?12:K.ShiftLeft||K.ShiftRight?7.5:4.8;const nx=L.x+mx*sp*dt,nz=L.z+mz*sp*dt;if(walk(nx,nz)){L.x=nx;L.z=nz;}else if(walk(nx,L.z))L.x=nx;else if(walk(L.x,nz))L.z=nz;if(!(L.faceHold>0))L.face=Math.atan2(mx,mz);L.sprint=!!(K.ShiftLeft||K.ShiftRight);}
  ZONES.forEach(z=>{if(z.act&&!z.clear&&zoneHas(z,M))confine(L,z);});
  L.shotCD=Math.max(0,(L.shotCD||0)-dt);const inBattle=myBattle(L);
- if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){guestShot(false);L.shotCD=BUSTER.mist.cd;}}else L.chg+=dt;}
- else if(L.holding){L.holding=false;if(L.chg>=BUSTER.mist.chg)guestShot(true);L.chg=0;}
- if(L.holding&&L.chg>.2&&Math.random()<.6){const a=rnd(0,6.28),r=1.2;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=BUSTER.mist.chg?'#3fd0ff':'#bff4ff',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}}
+ if(MS.fire&&!paused&&inBattle){if(!L.holding){L.holding=true;L.chg=0;if(L.shotCD<=0){guestShot(false);L.shotCD=cdT('M');}}else L.chg+=dt;}
+ else if(L.holding){L.holding=false;if(L.chg>=chgT('M'))guestShot(true);L.chg=0;}
+ if(L.holding&&L.chg>.2&&Math.random()<.6){const a=rnd(0,6.28),r=1.2;glow(L.x+Math.cos(a)*r,rnd(.3,1.6),L.z+Math.sin(a)*r,L.chg>=chgT('M')?'#3fd0ff':'#bff4ff',.3,.2,-.8,new THREE.Vector3(-Math.cos(a)*r*4,0,-Math.sin(a)*r*4));}}
 function guestShot(c){SFX(c?'charge':'shot');const aim=aimInfo();M.face=Math.atan2(aim.x-M.x,aim.z-M.z);M.faceHold=.4;if(M.is3d&&!M.moving)charOneShot(M,'Pistol_Shoot',c?.9:1.6);
  busterFire(M,aim,c,{dmg:0,local:1});NET.send({t:'fire',c:c?1:0,a:{x:r2(aim.x),y:r2(aim.y),z:r2(aim.z)}});}
 function guestSkill(){if(NET.skillCD>0){popup(M.x,2.2,M.z,'スキル準備中 '+Math.ceil(NET.skillCD)+'秒','#9ab',14);return;}NET.skillCD=13;NET.send({t:'skill'});}
@@ -2367,7 +2456,7 @@ function renderPhoneLog(){$('phl').innerHTML=PHONE.length?PHONE.map(m=>'<div cla
 function togglePhone(){const el=$('phonelog');renderPhoneLog();el.classList.toggle('hide');}
 $('phonelog').onclick=()=>$('phonelog').classList.add('hide');
 
-function crossCheck(e,from){if(e.dead||NET.guest)return;e.cx=e.cx||{};e.cx[from===V?'v':'m']=T;if(e.cx.v!=null&&e.cx.m!=null&&Math.abs(e.cx.v-e.cx.m)<.9){e.cx={};flashScreen(.35);shakeT=.45;cutin(['volt_e0','mist_e0'],'クロスバスター');ringFx(e.x,e.z,3.2,'#ffe14d',.5);burst(e.x,1,e.z,'#ffe14d',24,6);if(e.k==='boss'&&e.binv>0)return;e.binv=0;hurtEnemy(e,150,from,{ignoreShield:1,breakShield:1,kb:2});banner('クロスバスター！！','#ffe14d');}}
+function crossCheck(e,from){if(e.dead||NET.guest)return;e.cx=e.cx||{};e.cx[from===V?'v':'m']=T;if(e.cx.v!=null&&e.cx.m!=null&&Math.abs(e.cx.v-e.cx.m)<.9){qAdd('cross');e.cx={};flashScreen(.35);shakeT=.45;cutin(['volt_e0','mist_e0'],'クロスバスター');ringFx(e.x,e.z,3.2,'#ffe14d',.5);burst(e.x,1,e.z,'#ffe14d',24,6);if(e.k==='boss'&&e.binv>0)return;e.binv=0;hurtEnemy(e,150,from,{ignoreShield:1,breakShield:1,kb:2});banner('クロスバスター！！','#ffe14d');}}
 function coreStep(){const b=EN.find(x=>x.k==='boss'&&x.zone.act);if(!b)return;const cs=EN.filter(x=>x.k==='ncore'&&x.zone===b.zone);if(!cs.length)return;
  if(b.dead){cs.forEach(c=>{if(!c.dead){c.dead=true;c.deadT=0;}});return;}
  const d=cs.filter(c=>c.dead);
@@ -2380,18 +2469,18 @@ function spawnCores(b){EN.filter(x=>x.k==='ncore'&&x.zone===b.zone).forEach(c=>{
 let last=performance.now(),T=0;
 function cusUI(){const op=cusOpenH();let w=false,t='';if(NET.on&&MODE==='play'){if(NET.host){w=!op&&!!NET.cusG;t=NET.cusG?'モリー：チップを選んでいます…':'モリー：選択OK！';}else{w=!op&&!!NET.fz;t=NET.hc?'レオ：チップを選んでいます…':'レオ：選択OK！';}}$('cwait').classList.toggle('hide',!w);const cp=$('cpart');if(cp.textContent!==(NET.on?t:''))cp.textContent=NET.on?t:'';}
 function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);cusUI();if(window.SKYD){if(SCN==='net'&&(NETCUR==='net1'||NETCUR==='net3'))SKYD.position.copy(camera.position);else SKYD.position.set(0,0,0);}worldVis();if(SCN==='net'&&(NETCUR==='net1'||NETCUR==='net3')&&(MODE==='play'||MODE==='dead')){worldVisual(dt);shopVisual(dt);}else if($('shopHint'))$('shopHint').classList.add('hide');
- if(NET.on&&NET.guest){guestApply(dt);if(MODE==='room'){T+=dt;guestRoomStep(dt);}if(MODE==='play'||MODE==='dead'){T+=dt;if(!paused&&!NET.fz)gaugeV=Math.min(1,gaugeV+dt/10);$('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';if(!NET.fz){guestPlayerStep(dt);projStep(dt);waveStep(dt);hazStep(dt);}else{M.moving=false;M.holding=false;}wallStep(dt);enVel(dt);guestVisualStep(dt);$('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:'ウイルスの群れ 残り '+ZONES.filter(z=>z.net===NETCUR&&!z.clear).length;$('clickme').classList.toggle('hide',locked()||plFail);}
+ if(NET.on&&NET.guest){guestApply(dt);if(MODE==='room'){T+=dt;guestRoomStep(dt);}if(MODE==='play'||MODE==='dead'){T+=dt;if(!paused&&!NET.fz)gaugeV=Math.min(1,gaugeV+dt/10);$('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';if(!NET.fz){guestPlayerStep(dt);projStep(dt);waveStep(dt);hazStep(dt);}else{M.moving=false;M.holding=false;}wallStep(dt);enVel(dt);guestVisualStep(dt);$('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:(()=>{const me=NET.on&&NET.guest?M:V;const w=wOf(me);const zs=ZONES.filter(z=>z.net===NETCUR&&!z.clear&&(w==='both'||(z.world||'both')===w||z.world==='both'));const rq=zs.filter(z=>z.req).length;return 'このエリアのウイルス 残り '+zs.length+(rq?'（必須 '+rq+'）':'');})();$('clickme').classList.toggle('hide',locked()||plFail);}
   const nw=performance.now();if(nw-NET.lastSt>50){NET.lastSt=nw;guestSendState();}}
  else{if(NET.on){hostApplyGuest(dt);const nw=performance.now();if(nw-NET.lastSnap>66){NET.lastSnap=nw;hostSnap();}}
  if(MODE==='room'&&!paused){T+=dt;roomStep(dt);}
  if(MODE==='play'&&!worldFrozen()&&!DLGS){
   if(hitstop>0){hitstop-=dt;dt=0;}if(slowT>0){slowT-=dt;dt*=.35;}
-  T+=dt;enVel(dt);playerStep(dt,T);if(NET.on)mistRemoteStep(dt);else mistStep(dt);EN.forEach(e=>enemyStep(e,dt));coreStep();petStep(dt);projStep(dt);waveStep(dt);hazStep(dt);wallStep(dt);ZONES.forEach(z=>{symbolStep(z,dt);if(z.act&&!z.clear){if(zoneHas(z,V))confine(V,z);if(!M.down&&zoneHas(z,M))confine(M,z);}});
+  T+=dt;enVel(dt);playerStep(dt,T);if(NET.on)mistRemoteStep(dt);else mistStep(dt);EN.forEach(e=>enemyStep(e,dt));coreStep();petStep(dt);projStep(dt);waveStep(dt);hazStep(dt);wallStep(dt);ZONES.forEach(z=>{if(z.net===NETCUR&&!z.act&&!z.clear&&!z.sym&&z.hx!=null){z.x=z.hx;z.z=z.hz;makeSymbol(z);}symbolStep(z,dt);if(z.act&&!z.clear){if(zoneHas(z,V))confine(V,z);if(!M.down&&zoneHas(z,M))confine(M,z);}});
   gaugeV=Math.min(1,gaugeV+dt/10);
   pickupStep(dt);if(NETCUR==='net1')linkStep(dt);else if(NETCUR==='net3')link3Step(dt);ZONES.forEach(z=>{if(z.act&&!z.clear&&EN.filter(e=>e.zone===z).every(e=>e.dead)){z.clear=true;BATTLE_END=T;NET.cusG=false;wallOff(z);onZoneClear(z);const hv=zoneHas(z,V),hm=NET.on&&zoneHas(z,M);if(hv){if(!$('custom').classList.contains('hide')){$('custom').classList.add('hide');paused=false;}CHIPS_IN=[];hand=[];selSlot=0;renderChips();gaugeV=1;rawBanner('ALL DELETED!','#7dff9a');}if(hm)netCall('banner',['ALL DELETED!','#7dff9a']);flashScreen(.2);setTimeout(()=>{if(MODE==='play')showBust(z);},1100);}});
   const allClear=ZONES.every(z=>z.clear);gate.material.color.set(allClear?'#ffd24a':'#555a70');gateIn.material.opacity=allClear?.25+.15*Math.sin(T*4):.05;
   if(false){MODE='end';showResult('第1章 クリア','ケーブル管理ネットのノイズは消えた。<br>――でも、ノイズはどこから来たのか？<br><br>（つづく）',()=>location.reload());}
-  $('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:'ウイルスの群れ 残り '+ZONES.filter(z=>z.net===NETCUR&&!z.clear).length;
+  $('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:(()=>{const me=NET.on&&NET.guest?M:V;const w=wOf(me);const zs=ZONES.filter(z=>z.net===NETCUR&&!z.clear&&(w==='both'||(z.world||'both')===w||z.world==='both'));const rq=zs.filter(z=>z.req).length;return 'このエリアのウイルス 残り '+zs.length+(rq?'（必須 '+rq+'）':'');})();
   $('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';$('gbar').style.background=gaugeV>=1?(Math.floor(T*6)%2?'#ffe14d':'#fff'):'#43e6ff';
   $('clickme').classList.toggle('hide',locked()||plFail);
  }}
