@@ -1,0 +1,35 @@
+【Tripo 用プロンプト（敵ナビ9体）】
+使い方：Tripo（https://www.tripo3d.ai）にログイン → 「Text to 3D」→ 下の英文を1体ずつ貼って生成 → 気に入ったものを「GLB」でダウンロード
+→ ファイル名を tripo_dam.glb のように下の名前にして、パソコンの「ダウンロード\nl_kk」フォルダに置く。あとは私がやります。
+※無料プランは CC BY 4.0（ゲーム内クレジットに「Tripo AI」を表記すれば商用も可）。クレジットは私が入れます。
+※オプションがあれば：Style = Cartoon / Stylized、Pose = T-pose、Quad / Low poly（軽め）、Texture = ON
+
+共通の後ろに付ける文：
+, full body, standing in T-pose, arms straight out to the sides, symmetrical, slim heroic humanoid proportions, stylized anime toon game character, smooth glossy armor, clean simple shapes, bright clear colors, no weapons on the ground, no base, no text
+
+1) tripo_dam.glb（ダムキーパー：水・洪水）
+A cyber robot guardian of a hydroelectric dam, head shaped like a big round water valve wheel with a dark visor and two glowing cyan eyes, chest armor shaped like a floodgate with glowing vertical slits, both forearms are thick water hose cannons ending in brass nozzles, cylindrical water tank backpack, royal blue and white color scheme
+
+2) tripo_crane.glb（クレーンガイスト：コンテナ落とし）
+A cyber robot dock worker, head shaped like a yellow crane operator cabin with a window face and two glowing amber eyes and an orange warning lamp on top, right arm is a long yellow crane boom with a steel hook, left arm holds a shipping container as a shield, yellow and black hazard stripes, chunky shoulders
+
+3) tripo_neon.glb（ネオンガイスト：ビーム・閃光）
+A slender female cyber robot made of neon signs, head is a rectangular glowing pink neon billboard screen showing simple eyes, glowing neon tube rings on the arms and legs, long cape made of colorful light strips, magenta and cyan color scheme, nightlife city vibe
+
+4) tripo_liner.glb（ライナーガイスト：突進・列車）
+A cyber robot whose torso is the front car of a commuter train, windshield on the chest acting as its face with two glowing headlight eyes, pantograph antenna on the shoulders, green stripe on white body, legs with small train wheels at the ankles, white grey and green color scheme
+
+5) tripo_wave.glb（ウェーブガード：波）
+A slender female cyber robot of the ocean waves, head shaped like a curling ocean wave crest with white foam and two glowing aqua eyes, fin shapes on the forearms and calves, holds a trident in the right hand and a small surfboard shield on the left arm, ocean blue and white color scheme
+
+6) tripo_shade.glb（シェイド：忍者・ワープ）
+A cyber ninja robot made of shadows, masked head with a glowing violet eye slit and a headband with long trailing ribbons, long flowing scarf, kunai blades in both hands, sleek dark purple armor with glowing violet lines
+
+7) tripo_hanabi.glb（ハナビガイスト：花火・爆撃）
+A slender female cyber robot of Japanese summer fireworks, head shaped like a round red firework shell with white stripes and a lit fuse on top, firework launcher tubes mounted on both shoulders, forearms are launcher cannons, short happi coat style chest armor, red white and gold color scheme
+
+8) tripo_bridge.glb（ブリッジガイスト：叩きつけ）
+A big strong cyber robot shaped like a suspension bridge, two bridge towers rising from its shoulders with glowing green lights on top, huge blocky steel fists, colorful LED light strips across the chest, white steel and navy blue color scheme
+
+9) tripo_blackout.glb（ブラックアウト：停電の黒幕）
+A sinister cyber robot of a power outage, head is a dark burnt-out light bulb with a faint red filament glow and red eyes, screw base neck, a long power cable tail ending in an electric plug, clawed hands, black armor with red glowing lines and spikes on the shoulders
