@@ -37,6 +37,7 @@
 
 ## クレジット
 - 3Dモデル：VRoid Studio サンプルモデル（CC0）
+- 敵ナビ・ウイルス・攻撃オブジェ・ネットの遠景：Blenderで自作（敵ナビの素体は VRoid サンプル CC0）
 - モーション：Quaternius Universal Animation Library（CC0）
 - チップアイコン：game-icons.net（Lorc・Delapouite ほか / CC BY 3.0）
 - 描画：three.js ／ 通信：PeerJS
