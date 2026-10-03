@@ -44,10 +44,16 @@ button{font:inherit;cursor:pointer;border:none;border-radius:12px;color:#fff}
 .dn{animation:pop .25s ease-out}
 @keyframes pop{0%{transform:translate(-50%,-50%) scale(2.2)}100%{transform:translate(-50%,-50%) scale(1)}}
 #vign{position:fixed;inset:0;pointer-events:none;z-index:5;opacity:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(255,20,50,.75) 100%)}
-#wflash{position:fixed;inset:0;pointer-events:none;z-index:9;background:#fff;opacity:0}
+#wflash{position:fixed;inset:0;pointer-events:none;z-index:9;background:#cfeaff;opacity:0}
 #bossbar{position:fixed;left:50%;top:60px;transform:translateX(-50%);width:min(560px,70vw);z-index:5;text-align:center}
 #bbn{font-family:Orbitron;font-weight:900;letter-spacing:.3em;color:#ff6b8a;text-shadow:0 0 10px #ff2a4a;font-size:14px}
 #bbp{font-size:12px;font-weight:900;color:#ffb0c0;margin-top:2px}
+#dlgbt{position:absolute;right:30px;top:-24px;z-index:2;display:flex;gap:6px;pointer-events:auto}
+#dlgbt button{background:rgba(6,12,34,.92);color:#9fe8ff;border:1px solid #3fd0ff66;border-radius:6px;font-size:11px;font-weight:800;padding:3px 8px;cursor:pointer}
+#dlgbt button.on{background:#3fd0ff;color:#06102a}
+#dlgbt kbd{font-size:9px;opacity:.7;margin-left:2px}
+#ncp,#dex,#dlogv{z-index:60}
+#dlogl .dl{padding:6px 2px;border-bottom:1px solid #3fd0ff22;font-size:14px;line-height:1.5}#dlogl .dl b{display:block;font-size:12px}
 #dlg{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);width:min(820px,calc(100% - 24px));display:flex;align-items:flex-end;gap:10px;z-index:14;pointer-events:none}
 #dlg img{width:120px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 8px #000a)}
 .dlgb{flex:1;background:linear-gradient(160deg,rgba(18,30,80,.95),rgba(6,10,30,.95));clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));box-shadow:inset 0 0 0 2px #3fd0ff66;padding:12px 18px 14px;min-height:74px;position:relative}
@@ -171,6 +177,7 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 #title .seg{display:inline-flex;border:1px solid #3fd0ff88;border-radius:999px;overflow:hidden;margin-bottom:12px}
 #title .seg button{background:transparent;color:#cfe6ff;border:0;padding:9px 20px;font-weight:800;font-size:14px;cursor:pointer}
 #title .seg button[aria-pressed="true"]{background:#3fd0ff;color:#06102a}
+#title .seg.sm button{padding:5px 14px;font-size:12px}#title .seg.sm{margin-top:-4px}
 #title .netbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:6px auto 12px;max-width:520px}
 #title .netbox .lnk{background:#16224a;color:#fff;border:1px solid #3fd0ff;border-radius:8px;padding:9px 16px;font-weight:800;cursor:pointer}
 #title .netbox .lnk:hover{background:#21336a}
@@ -179,12 +186,19 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 #title .netbox .note{font-size:12px;opacity:.7;width:100%}
 #title .howto{text-align:left;margin-top:14px}
 #title .howto summary{cursor:pointer;font-weight:800;opacity:.85;text-align:center}
+#pstat{position:fixed;left:12px;bottom:36px;z-index:5;background:rgba(4,8,24,.8);border-left:3px solid #ff8fc8;padding:5px 10px;font-size:12px;line-height:1.4;pointer-events:none;max-width:300px}#pstat b{font-size:11px;opacity:.8}
+#ncpg{display:grid;grid-template-columns:repeat(5,44px);gap:3px;background:#05081a;padding:6px;border:1px solid #3fd0ff55}
+#ncpg .nc{width:44px;height:44px;background:#121a36;cursor:pointer;border-radius:4px}#ncpg .nc.cl{box-shadow:inset 0 0 0 2px #3fd0ff;background-color:#16264a}
+#ncpl .np{display:block;width:100%;text-align:left;background:#0e1636;color:#e8f4ff;border:1px solid #3fd0ff44;border-radius:6px;padding:6px 8px;margin-bottom:5px;cursor:pointer}#ncpl .np.on{border-color:#ffe14d;background:#2a2a10}#ncpl .np.used{opacity:.45}
+#ncpl .np i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:middle}#ncpl .np small{display:block;opacity:.7;font-size:11px}
+#dexl .dx{background:#0e1636;border-left:3px solid #3fd0ff;padding:6px 8px;font-size:13px}#dexl .dx.no{opacity:.45;border-left-color:#555}#dexl .dn{font-size:10px;opacity:.6;margin-right:6px}#dexl small{display:block;font-size:11px;opacity:.75}
+.shp-it.sel{border-color:#ffe14d!important;background:#2a2a10!important}
 #mmap{position:fixed;right:12px;bottom:46px;z-index:5;width:170px;height:170px;border:1px solid #3fd0ff88;box-shadow:0 0 0 2px #000a;pointer-events:none}
 @media (max-width:700px){#mmap{width:120px;height:120px}}
 </style></head><body>
 <div id="title" class="ov"><div class="card ttl">
 <h1 class="logo">NET <em>LINKERS</em></h1><div class="tagline">ネットの海で、ふたりはつながる</div>
-<div class="seg" id="pSeg" role="group" aria-label="プレイ人数"><button id="p1" aria-pressed="true">ひとりで遊ぶ</button><button id="p2" aria-pressed="false">ふたりで遊ぶ（オンライン）</button></div>
+<div class="seg" id="pSeg" role="group" aria-label="プレイ人数"><button id="p1" aria-pressed="true">ひとりで遊ぶ</button><button id="p2" aria-pressed="false">ふたりで遊ぶ（オンライン）</button></div><br><div class="seg sm" id="dSeg" role="group" aria-label="難易度"><button onclick="setDiff(0)">やさしい</button><button onclick="setDiff(1)" aria-pressed="true">ふつう</button><button onclick="setDiff(2)">むずかしい</button></div>
 <div id="chapsel" class="hide" style="margin-bottom:10px;font-weight:800">どこから遊ぶ？　<select id="chapv" style="font-size:15px;padding:6px 10px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"></select></div><div id="modebtns">
 <div id="netBox" class="netbox hide"><button class="lnk" id="onl">部屋を作る</button><span class="or">または</span><input id="codeIn" maxlength="8" placeholder="部屋コード" autocomplete="off" onkeydown="if(event.key==='Enter')joinByCode()"><button class="lnk" onclick="joinByCode()">参加</button>
 <div id="codeMsg" style="font-size:12px;color:#ffb0b0;min-height:16px;width:100%"></div><div class="note">相手は登録なしで参加できます。部屋を作った人が、どっちのキャラで遊ぶか選べます</div></div>
@@ -210,10 +224,10 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 </div></div>
 <div id="areaName" class="hide"></div>
 <canvas id="mmap" class="hide" width="170" height="170"></canvas>
-<div id="armInd" class="hide"></div>
+<div id="armInd" class="hide"></div><div id="ncp" class="ov hide"><div class="card" style="max-width:760px"><h1 style="font-size:22px" id="ncpw">ナビカスタマイザー</h1><div style="font-size:12px;opacity:.8;margin-bottom:8px">プログラムを選んでマスをクリックで置く／置いたブロックをクリックで外す。<b style="color:#3fd0ff">色つきプログラムは光る列（コマンドライン）に1マス以上</b>乗せないと動かない。白いプログラム（HP）はどこでもOK。</div><div style="display:flex;gap:16px;flex-wrap:wrap"><div><div id="ncpg"></div><div style="margin-top:8px;display:flex;gap:6px;align-items:center"><button class="big" style="padding:6px 12px;font-size:13px" onclick="NCP_ROT=(NCP_ROT+1)%4;renderNcp()">↻ 回転</button><span id="ncpr" style="font-size:12px;opacity:.8"></span></div></div><div id="ncpl" style="flex:1;min-width:240px;max-height:46vh;overflow:auto"></div></div><div id="ncps" style="margin:10px 0;font-size:13px"></div><div style="text-align:center"><button class="big" onclick="closeNcp()">決定</button></div></div></div><div id="dex" class="ov hide" onclick="if(event.target===this)this.classList.add('hide')"><div class="card" style="max-width:640px"><h1 style="font-size:22px" id="dexh">ウイルス図鑑</h1><div id="dexl" style="max-height:60vh;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:6px"></div><div style="text-align:center;margin-top:10px"><button class="big" onclick="$('dex').classList.add('hide')">とじる</button></div></div></div><div id="pstat" class="hide"></div>
 <div id="mg" class="hide"></div>
 <div id="shopHint" class="hide">F：ネットショップ</div>
-<div id="shop" class="ov hide"><div class="card" style="max-width:640px;width:92vw;max-height:94vh;overflow:auto"><h1 style="font-size:22px;display:flex;justify-content:space-between"><span id="shopt">ネットショップ</span><span id="shopz" style="color:#ffd24a"></span></h1><div style="font-size:13px;opacity:.8;margin-bottom:8px">いらっしゃい！ 欲しいチップをクリック。（F／Esc で閉じる）</div><div id="shopl"></div><div id="shopmsg" style="min-height:20px;margin-top:8px;color:#9fe8ff"></div><div style="text-align:center"><button class="big" onclick="closeShop()">とじる</button></div></div></div>
+<div id="shop" class="ov hide"><div class="card" style="max-width:640px;width:92vw;max-height:94vh;overflow:auto"><h1 style="font-size:22px;display:flex;justify-content:space-between"><span id="shopt">ネットショップ</span><span id="shopz" style="color:#ffd24a"></span></h1><div id="shoph" style="font-size:13px;opacity:.8;margin-bottom:8px">いらっしゃい！ 欲しいチップをクリック。（F／Esc で閉じる）</div><div id="shopl"></div><div id="shopmsg" style="min-height:20px;margin-top:8px;color:#9fe8ff"></div><div style="text-align:center"><button class="big" onclick="closeShop()">とじる</button></div></div></div>
 <div id="folder" class="ov hide"><div class="card" style="max-width:900px;width:94vw;max-height:94vh;overflow:auto"><h1 style="font-size:22px">フォルダ編集</h1><div id="fhead"></div><div style="font-size:12px;opacity:.75;margin:4px 0 8px">チップをクリックで フォルダ⇄パック を入れ替え。フォルダは15〜30枚、同じチップは4枚まで。（F／Esc で閉じる）</div>
 <div class="fcols"><div><div class="fcap">フォルダ</div><div id="ffold" class="fgrid"></div></div><div><div class="fcap">パック</div><div id="fpack" class="fgrid"></div></div></div>
 <div class="fcap" style="margin-top:8px">チップライブラリ</div><div id="flib"></div><div id="fextra"></div><div id="fmsg" style="min-height:18px;color:#ffb0b0"></div><div style="text-align:center"><button class="big" onclick="closeFolder()">とじる</button></div></div></div>
@@ -234,7 +248,8 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <div id="help" class="hide">左クリック バスター（長押しチャージ）　右クリック/1〜4 チップ　ホイール チップ選択　Tab カスタム　R 変形　F フォルダ／ショップ　Q ロックオン　Space ジャンプ　C スライディング　P スマホ　Shift ダッシュ</div>
 <div id="area" class="hide"></div>
 <div id="clickme" class="hide">画面をクリックして操作開始</div>
-<div id="dlg" class="hide"><img id="dlgimg"><div class="dlgb"><div id="dlgn"></div><div id="dlgt"></div><div id="dlgm">▼</div></div></div>
+<div id="dlg" class="hide"><div id="dlgbt"><button id="dlgAuto" onclick="dlgToggleAuto()">オート <kbd>Z</kbd></button><button id="dlgSkip" onclick="dlgToggleSkip()">早送り <kbd>Ctrl</kbd></button><button onclick="dlgLog(true)">ログ <kbd>L</kbd></button></div><img id="dlgimg"><div class="dlgb"><div id="dlgn"></div><div id="dlgt"></div><div id="dlgm">▼</div></div></div>
+<div id="dlogv" class="ov hide" onclick="if(event.target===this)dlgLog(false)"><div class="card" style="max-width:640px"><h1 style="font-size:20px">会話ログ</h1><div id="dlogl" style="max-height:62vh;overflow:auto"></div><div style="text-align:center;margin-top:10px"><button class="big" onclick="dlgLog(false)">とじる（L）</button></div></div></div>
 <div id="phonebox"></div><div id="phonelog" class="ov hide"><div class="card" style="max-width:480px"><h1 style="font-size:20px">📱 スマホ（手がかりメモ）</h1><div id="phl" style="max-height:60vh;overflow:auto"></div><div style="opacity:.7;font-size:12px;margin-top:8px">P キー／クリックで閉じる</div></div></div><div id="choice" class="hide"></div><div id="obj" class="hide"></div><div id="prompt" class="hide"></div><div id="roomhelp" class="hide">WASD 移動　マウス 視点（画面クリックで固定）　F／左クリック 調べる　X キャラ切替（レオ ⇄ モリー）　Shift ダッシュ</div>
 <div id="chap" class="hide"><div id="chapn"></div><div id="chapt"></div></div><div id="who" class="hide"></div>
 <div id="msg"></div><div id="cut" class="hide"></div><div id="dmg"></div><div id="fade"></div><div id="vign"></div><div id="wflash"></div>
@@ -473,7 +488,17 @@ const SCALES={field:[0,3,5,7,10],battle:[0,3,5,7,8,10],boss:[0,1,3,5,6,8,10]};
 const BGMDEF={room:{bpm:78,root:52,bass:[0,0,5,0,3,0,7,0],lead:[12,-1,-1,14,-1,12,-1,10,-1,-1,7,-1,10,-1,-1,-1],drum:'k.......s.......'},field:{bpm:96,root:50,bass:[0,0,7,0,5,0,3,0],lead:[12,-1,10,-1,7,-1,5,-1,3,-1,5,-1,7,-1,-1,-1],drum:'k...s...k.k.s...'},
  battle:{bpm:138,root:45,bass:[0,0,12,0,0,10,0,7],lead:[12,15,17,15,12,10,12,-1,19,17,15,12,10,12,-1,-1],drum:'k.h.s.h.k.k.s.hh'},
  boss:{bpm:156,root:40,bass:[0,0,0,12,0,0,1,13],lead:[12,13,12,10,8,10,8,6,5,6,8,10,12,-1,13,-1],drum:'k.hks.hkk.hks.hs'}};
-function mtof(m){return 440*Math.pow(2,(m-69)/12);}
+function mtof(m){return 440*Math.pow(2,(m-69)/12);}Object.assign(BGMDEF,{
+ f_jp:{bpm:92,root:50,bass:[0,0,7,0,5,0,2,0],lead:[12,-1,14,-1,16,-1,19,-1,16,-1,14,-1,12,-1,-1,-1],drum:'k...s...k...s.h.'},
+ f_kr:{bpm:88,root:49,bass:[0,0,5,0,7,0,5,3],lead:[12,-1,15,-1,17,15,12,-1,10,-1,12,-1,15,-1,-1,-1],drum:'k..hs...k.k.s..h'},
+ f_cb:{bpm:80,root:45,bass:[0,0,0,3,0,0,-2,0],lead:[19,-1,-1,-1,17,-1,-1,-1,15,-1,-1,12,-1,-1,-1,-1],drum:'k.......k...s...'},
+ f_sky:{bpm:100,root:52,bass:[0,0,5,5,7,7,4,4],lead:[16,-1,19,-1,21,-1,19,16,14,-1,16,-1,12,-1,-1,-1],drum:'k...s.h.k...s.h.'},
+ f_hub:{bpm:110,root:53,bass:[0,0,9,9,5,5,7,7],lead:[12,14,16,-1,19,-1,16,14,12,-1,9,-1,12,-1,-1,-1],drum:'k.h.s.h.k.h.s.hh'},
+ f_seoul:{bpm:124,root:48,bass:[0,0,0,10,8,8,7,7],lead:[15,-1,12,15,17,-1,15,12,10,-1,12,-1,15,17,-1,-1],drum:'k.hks.h.k.hks.hk'},
+ f_tokyo:{bpm:118,root:51,bass:[0,0,4,4,5,5,7,9],lead:[16,-1,14,-1,12,-1,14,16,19,-1,16,-1,14,-1,12,-1],drum:'k.h.s.hhk.h.s.h.'},
+ navi:{bpm:146,root:43,bass:[0,0,12,0,3,0,12,5],lead:[12,-1,15,17,-1,15,12,10,12,-1,19,-1,17,15,-1,-1],drum:'k.hks.h.k.hks.hs'}});
+function fieldBgm(){const me=NET.on&&NET.guest?M:V;if(!me)return 'field';const w=wOf(me);if(NETCUR==='net1')return w==='kr'?'f_kr':w==='cb'?'f_cb':'f_jp';if(NETCUR==='net3')return 'f_sky';if(NETCUR==='inet')return w==='seoul'?'f_seoul':w==='tokyo'?'f_tokyo':'f_hub';return 'field';}
+
 function bgmSet(mode){if(!SND.ctx||SND.mode===mode)return;SND.mode=mode;SND.step=0;SND.next=SND.ctx.currentTime+.05;}
 function bgmTick(){const c=SND.ctx;if(!c||!SND.mode)return;const d=BGMDEF[SND.mode];const st=60/d.bpm/4;
  while(SND.next<c.currentTime+.12){const i=SND.step,t=SND.next;const b=d.bass[(i>>1)%d.bass.length];if(i%2===0)tone('sawtooth',mtof(d.root+b),0,st*1.8,.18,SND.bgm,t);
@@ -986,13 +1011,13 @@ function canPick(idx){if(pick.includes(idx))return true;if(pick.length>=4)return
 function togglePick(idx){if(idx>=hand.length)return;const k=pick.indexOf(idx);if(k>=0)pick.splice(k,1);else if(canPick(idx))pick.push(idx);renderCustom();}
 function withPA(list){for(const pa of PAS){for(let s=0;s+pa.seq.length<=list.length;s++){if(pa.seq.every((q,k)=>list[s+k][0]===q[0]&&(list[s+k][1]===q[1]))){return {list:list.slice(0,s).concat([[pa.to,'PA']],list.slice(s+pa.seq.length)),pa:pa.to};}}}return {list,pa:null};}
 function renderCustom(){const el=$('cards');el.innerHTML='';hand.forEach((c,i)=>{const d=CH[c[0]];const on=pick.includes(i),ok=canPick(i);
- const b=document.createElement('div');b.className='cc'+(on?' on':'')+(!ok&&!on?' no':'');b.innerHTML=(on?'<span class="ord">'+(pick.indexOf(i)+1)+'</span>':'')+'<div style="font-size:11px;opacity:.6">'+(i+1)+'</div><img src="sprites/'+d.ic+'.webp"'+chipStyle(c[0])+'><div class="n">'+d.n+'</div><div class="cd">'+c[1]+'</div><div class="dsc">'+d.d+'</div>';b.onclick=()=>togglePick(i);el.appendChild(b);});
+ const b=document.createElement('div');b.className='cc'+(on?' on':'')+(!ok&&!on?' no':'');b.innerHTML=(on?'<span class="ord">'+(pick.indexOf(i)+1)+'</span>':'')+'<div style="font-size:11px;opacity:.6">'+(i+1)+'</div><img src="'+chipArt(c[0])+'"><div class="n">'+d.n+'</div><div class="cd">'+c[1]+'</div><div class="dsc">'+d.d+'</div>';b.onclick=()=>togglePick(i);el.appendChild(b);});
  const r=withPA(pick.map(i=>hand[i]));$('pa').textContent=r.pa?'★ プログラムアドバンス「'+CH[r.pa].n+'」が完成！':'';}
 function closeCustom(){const chosen=pick.map(i=>hand[i]);const r=withPA(chosen);hand=hand.filter((c,i)=>!pick.includes(i));
  CHIPS_IN=r.list.concat(CHIPS_IN).slice(0,4);selSlot=0;gaugeV=0;$('custom').classList.add('hide');paused=false;renderChips();if(r.pa)banner('P.A. '+CH[r.pa].n,'#ff7bf0');if(NET.on&&NET.guest){NET.send({t:'cusDone',n:NET.cusN});NET.fz=true;}tryLock();}
 $('cok').onclick=closeCustom;$('cclr').onclick=()=>{pick=[];renderCustom();};
 function renderChips(){const el=$('chips');el.innerHTML='';for(let i=0;i<4;i++){const c=CHIPS_IN[i];const s=document.createElement('div');s.className='slot'+(i===selSlot&&c?' sel':'');
- s.innerHTML='<span class="k">'+(i+1)+'</span>'+(!c&&i===0&&!CHIPS_IN.length?'<span style="font-size:11px;text-align:center;line-height:1.2">Tabで<br>チップ</span>':'')+(c?'<img src="sprites/'+CH[c[0]].ic+'.webp"'+(CH[c[0]].pa?' style="filter:hue-rotate(260deg) saturate(2)"':chipStyle(c[0]))+'><span class="c">'+(c[1]==='PA'?'PA':c[1])+'</span>'+(i===selSlot?'<span class="nm">'+CH[c[0]].n+'</span>':''):'');el.appendChild(s);}}
+ s.innerHTML='<span class="k">'+(i+1)+'</span>'+(!c&&i===0&&!CHIPS_IN.length?'<span style="font-size:11px;text-align:center;line-height:1.2">Tabで<br>チップ</span>':'')+(c?'<img src="'+chipArt(c[0])+'"><span class="c">'+(c[1]==='PA'?'PA':c[1])+'</span>'+(i===selSlot?'<span class="nm">'+CH[c[0]].n+'</span>':''):'');el.appendChild(s);}}
 // ---------- actors ----------
 let PETS=[];let V,M,EN=[],PROJ=[],WAVES=[],FX=[],lockT=null,trail=[];
 const P0={volt:{hp:300,max:300},mist:{hp:220,max:220}};
@@ -1117,6 +1142,39 @@ Object.assign(CH,{
  damk:{n:'ダムキーパー',ic:'chip_wave',f:'hue-rotate(20deg) saturate(2.2) brightness(.9)',d:'ナビチップ：3本の大波 各70'},
  cranek:{n:'クレーンガイスト',ic:'chip_hammer',f:'hue-rotate(-30deg) saturate(2.4)',d:'ナビチップ：ねらった所にコンテナ落下 120'}
 });
+
+// ---- procedural chip art (one icon per chip) ----
+const CHIPART={};
+function chipArt(id){if(CHIPART[id])return CHIPART[id];const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');
+ const T={sword:['#2a3a7a','#e8f4ff'],wide:['#2a3a7a','#e8f4ff'],long:['#2a3a7a','#e8f4ff'],dream:['#4a1a6a','#ffd6ff'],firesword:['#6a1a10','#ffb04a'],cannon:['#3a2a10','#ffd24a'],hicannon:['#3a2a10','#ffd24a'],mcannon:['#3a2a10','#ffd24a'],giga:['#5a3a00','#fff0a0'],bomb:['#2a2a30','#c8c8d8'],minibomb:['#2a2a30','#c8c8d8'],wave:['#0a2a4a','#7fd8ff'],thunder:['#2a2a00','#fff36a'],quake:['#3a2410','#e0a060'],spread:['#3a103a','#ff9ad8'],heatshot:['#4a1408','#ff7a3a'],recov:['#0a3a1a','#7dff9a'],recov80:['#0a3a1a','#7dff9a'],recov150:['#0a3a1a','#7dff9a'],barrier:['#10284a','#9fe8ff'],invis:['#1a1a2a','#c8c8ff'],hammer:['#3a2a1a','#ffc080'],steal:['#1a1a3a','#b98cff'],damk:['#0a1e4a','#7fc8ff'],cranek:['#3a2a00','#ffc040'],dogs:['#2a2010','#ffe14d'],liz:['#0a2a1a','#7dff9a'],neonk:['#2a0a2a','#ff5ad8'],linerk:['#0a2a12','#7dff9a']}[id]||['#1a2a4a','#fff'];
+ const bg=g.createLinearGradient(0,0,0,96);bg.addColorStop(0,T[0]);bg.addColorStop(1,'#05070f');g.fillStyle=bg;g.beginPath();g.roundRect?g.roundRect(4,4,88,88,12):g.rect(4,4,88,88);g.fill();g.strokeStyle=T[1]+'99';g.lineWidth=2;g.stroke();
+ g.translate(48,48);g.fillStyle=T[1];g.strokeStyle=T[1];g.lineCap='round';g.lineJoin='round';
+ const blade=(x,len,w,col,rot)=>{g.save();g.rotate(rot||-.6);g.translate(x,0);g.fillStyle=col||T[1];g.beginPath();g.moveTo(0,-len);g.lineTo(w,-len+w*2);g.lineTo(w,len*.55);g.lineTo(-w,len*.55);g.lineTo(-w,-len+w*2);g.closePath();g.fill();g.fillStyle='#5a4a3a';g.fillRect(-w*2.2,len*.55,w*4.4,5);g.fillRect(-3,len*.55+5,6,12);g.restore();};
+ const can=(n,col)=>{g.fillStyle=col||T[1];g.fillRect(-30,-9,40,18);g.beginPath();g.arc(-30,0,13,0,7);g.fill();for(let i=0;i<n;i++){g.strokeStyle=col||T[1];g.lineWidth=4;g.beginPath();g.arc(20+i*0,0,8+i*6,-.9,.9);g.stroke();}};
+ switch(id){
+  case 'sword':blade(0,34,6);break;case 'wide':[-14,0,14].forEach(x=>blade(x,26,5,null,-.2));break;case 'long':blade(0,40,4);break;
+  case 'firesword':blade(0,34,6,'#ffb04a');g.fillStyle='#ff5a1a';for(let i=0;i<5;i++){g.beginPath();g.arc(-6+i*5,-10-i*6,5,0,7);g.fill();}break;
+  case 'dream':{const gr=g.createLinearGradient(-30,-30,30,30);['#ff7ab8','#ffd24a','#7dff9a','#7fd8ff','#c87aff'].forEach((col,i)=>gr.addColorStop(i/4,col));blade(0,38,9,gr);break;}
+  case 'cannon':can(1);break;case 'hicannon':can(2);break;case 'mcannon':can(3);break;case 'giga':can(3,'#ffe14d');g.fillStyle='#fff';g.font='bold 18px sans-serif';g.fillText('G',-30,30);break;
+  case 'bomb':case 'minibomb':{const r=id==='bomb'?20:14;g.beginPath();g.arc(-4,6,r,0,7);g.fill();g.strokeStyle='#e0b060';g.lineWidth=3;g.beginPath();g.moveTo(8,-8);g.quadraticCurveTo(18,-24,28,-20);g.stroke();g.fillStyle='#ffd24a';g.beginPath();g.arc(28,-20,5,0,7);g.fill();break;}
+  case 'wave':g.lineWidth=6;for(let i=0;i<3;i++){g.beginPath();g.moveTo(-34,-18+i*16);for(let x=-34;x<=34;x+=4)g.lineTo(x,-18+i*16+Math.sin(x/7)*6);g.stroke();}break;
+  case 'thunder':g.beginPath();g.arc(0,0,22,0,7);g.globalAlpha=.35;g.fill();g.globalAlpha=1;g.beginPath();g.moveTo(-4,-30);g.lineTo(12,-30);g.lineTo(2,-4);g.lineTo(14,-4);g.lineTo(-10,30);g.lineTo(-2,6);g.lineTo(-14,6);g.closePath();g.fill();break;
+  case 'quake':g.fillRect(-34,18,68,8);g.lineWidth=4;g.beginPath();g.moveTo(-20,18);g.lineTo(-10,-4);g.lineTo(0,10);g.lineTo(10,-14);g.lineTo(20,18);g.stroke();break;
+  case 'spread':case 'heatshot':for(let i=0;i<8;i++){g.save();g.rotate(i*Math.PI/4);g.beginPath();g.moveTo(0,-34);g.lineTo(6,-12);g.lineTo(-6,-12);g.closePath();g.fill();g.restore();}g.beginPath();g.arc(0,0,10,0,7);g.fill();break;
+  case 'recov':case 'recov80':case 'recov150':g.fillRect(-8,-28,16,46);g.fillRect(-26,-12,52,16);g.fillStyle='#fff';g.font='bold 16px sans-serif';g.textAlign='center';g.fillText(id==='recov'?'50':id.slice(5),0,36);break;
+  case 'barrier':g.lineWidth=5;g.beginPath();g.moveTo(0,-32);g.lineTo(26,-20);g.lineTo(22,12);g.lineTo(0,32);g.lineTo(-22,12);g.lineTo(-26,-20);g.closePath();g.globalAlpha=.3;g.fill();g.globalAlpha=1;g.stroke();break;
+  case 'invis':g.setLineDash([5,5]);g.lineWidth=4;g.beginPath();g.arc(0,-14,10,0,7);g.stroke();g.beginPath();g.moveTo(-18,30);g.lineTo(-14,4);g.lineTo(14,4);g.lineTo(18,30);g.stroke();g.setLineDash([]);break;
+  case 'hammer':g.save();g.rotate(-.5);g.fillRect(-4,-6,8,40);g.fillRect(-22,-26,44,22);g.restore();break;
+  case 'steal':g.lineWidth=6;g.beginPath();g.moveTo(-30,0);g.lineTo(18,0);g.stroke();g.beginPath();g.moveTo(8,-14);g.lineTo(26,0);g.lineTo(8,14);g.closePath();g.fill();g.strokeRect(10,-26,22,52);break;
+  case 'dogs':{[[-14,6,'#2a2a2a'],[12,-4,'#3a3a3a']].forEach(([x,y,c0])=>{g.fillStyle=c0;g.beginPath();g.ellipse(x,y,18,11,0,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.ellipse(x+12,y-6,8,7,0,0,7);g.fill();g.fillStyle=c0;g.beginPath();g.moveTo(x+10,y-12);g.lineTo(x+14,y-20);g.lineTo(x+17,y-11);g.fill();g.fillStyle='#fff';g.fillRect(x-14,y+8,4,8);g.fillRect(x+6,y+8,4,8);});g.strokeStyle='#ffe14d';g.lineWidth=3;for(let i=0;i<3;i++){g.beginPath();g.moveTo(-40,-14+i*10);g.lineTo(-30,-14+i*10);g.stroke();}break;}
+  case 'liz':{g.fillStyle='#7dff9a';for(let i=0;i<5;i++){g.save();g.rotate(i*Math.PI*2/5);g.translate(0,-26);g.beginPath();g.ellipse(0,0,5,10,0,0,7);g.fill();g.beginPath();g.arc(0,-10,4,0,7);g.fill();g.restore();}g.strokeStyle='#9fe8ff';g.lineWidth=3;g.beginPath();g.arc(0,0,14,0,7);g.stroke();break;}
+  default:{// navi chips: face
+   const L=(typeof NAVI_LOOK!=='undefined'&&NAVI_LOOK[({damk:'dam',cranek:'crane',neonk:'neon',linerk:'liner'})[id]])||{c1:T[1],c3:'#fff',hd:'#ddd'};
+   g.fillStyle=L.c1;g.beginPath();g.arc(0,4,26,0,7);g.fill();g.fillStyle=L.hd;g.fillRect(-26,-22,52,14);g.fillStyle='#0a0c18';g.fillRect(-18,-2,36,14);g.fillStyle=L.c3;g.fillRect(-14,1,10,8);g.fillRect(4,1,10,8);
+   if(id==='damk'){g.strokeStyle='#c8d8ff';g.lineWidth=3;g.beginPath();g.arc(0,24,8,0,7);g.stroke();}if(id==='cranek'){g.strokeStyle='#ffe08a';g.lineWidth=4;g.beginPath();g.moveTo(0,-22);g.lineTo(0,-36);g.lineTo(18,-36);g.stroke();}
+   if(id==='neonk'){g.fillStyle='#ff9ad8';g.fillRect(-20,-34,40,8);}if(id==='linerk'){g.fillStyle='#3a8a3a';g.fillRect(-26,16,52,6);}
+   g.fillStyle='#fff';g.font='bold 11px sans-serif';g.textAlign='center';g.fillText('NAVI',0,44);}}
+ return CHIPART[id]=c.toDataURL();}
 const chipStyle=id=>CH[id]&&CH[id].f?' style="filter:'+CH[id].f+'"':'';
 const NAVICHIP={damk:'dam',cranek:'crane',neonk:'neon',linerk:'liner'};
 function summonNavi(k,C,dur){const E=makeEnemy3D(k);const side=C.aimFace+Math.PI*.62;E.root.position.set(C.x+Math.sin(side)*1.6,0,C.z+Math.cos(side)*1.6);E.root.rotation.y=C.aimFace;E.root.scale.setScalar(.01);scene.add(E.root);
@@ -1145,22 +1203,25 @@ function folderAdd(c){folderAddLocal(c);}
 function packAdd(c){c=c.slice();PACK.push(c);const nw=libAdd(c[0]);if(nw){(NET.raw&&NET.raw.banner||banner)('ライブラリ 新チップ！','#9fe8ff');}saveGame();}
 function folderAddLocal(c){c=c.slice();const same=FOLDER.filter(x=>x[0]===c[0]).length;if(FOLDER.length<FOLDER_MAX&&same<SAME_MAX)FOLDER.push(c);else PACK.push(c);const nw=libAdd(c[0]);if(nw){(NET.raw&&NET.raw.banner||banner)('ライブラリ 新チップ！','#9fe8ff');}saveGame();}
 function zennyGive(z){zenny+=z;saveGame();}
-function zennyAdd(z,zn){if(!NET.on||!zn||zoneHas(zn,V))zenny+=z;if(NET.on&&zn&&zoneHas(zn,M))netCall('zennyGive',[z]);saveGame();}
+function zennyAdd(z,zn){z=Math.round(z*DIFF().z);if(!NET.on||!zn||zoneHas(zn,V))zenny+=z;if(NET.on&&zn&&zoneHas(zn,M))netCall('zennyGive',[z]);saveGame();}
 // ---- save ----
 const SAVEK='nl_save_v1';let SAVE={chap:0,rec:{},hpUp:{V:0,M:0}};
 const CHAPS_EX={k:'extra',n:'★ EXTRA ケーブル深層（クリア後）'};
 const CHAPS=[{k:'intro',n:'はじめから（プロローグ）'},{k:'net1',n:'第1章 海底ケーブル管理ネット'},{k:'rooms1',n:'第1章 出発の準備'},{k:'air',n:'第2章 止まった空'},{k:'net3',n:'第2章 空港管制ネット'},{k:'arrival',n:'第3章 780kmの向こう側'},{k:'p2',n:'第2部 第4章 ウルサンの朝'}];
-function saveGame(){try{const o={v:1,fetchBest:SAVE.fetchBest||0,fetchChip:SAVE.fetchChip||0,cricketBest:SAVE.cricketBest||0,cricketChip:SAVE.cricketChip||0,folder:FOLDER,pack:PACK,zenny,lib:[...LIB],md:PROG.md,chap:SAVE.chap,rec:SAVE.rec,hpUp:SAVE.hpUp,clear:SAVE.clear||0,shopHp:SAVE.shopHp||{},exBest:SAVE.exBest||0,exClear:SAVE.exClear||0,bu:SAVE.bu||null,q:SAVE.q||null,blade:SAVE.blade||null};localStorage.setItem(SAVEK,JSON.stringify(o));}catch(e){}}
-function loadGame(){try{const o=JSON.parse(localStorage.getItem(SAVEK)||'null');if(!o)return false;if(Array.isArray(o.folder)&&o.folder.length>=FOLDER_MIN){FOLDER.length=0;o.folder.forEach(c=>FOLDER.push(c));}PACK=o.pack||[];zenny=o.zenny||0;(o.lib||[]).forEach(id=>LIB.add(id));PROG.md=o.md||{};SAVE.chap=o.chap||0;SAVE.rec=o.rec||{};SAVE.hpUp=o.hpUp||{V:0,M:0};SAVE.clear=o.clear||0;SAVE.shopHp=o.shopHp||{};SAVE.exBest=o.exBest||0;SAVE.exClear=o.exClear||0;['fetchBest','fetchChip','cricketBest','cricketChip'].forEach(k=>SAVE[k]=o[k]||0);if(o.bu)SAVE.bu=o.bu;if(o.blade)SAVE.blade=o.blade;if(o.q)SAVE.q=o.q;return true;}catch(e){return false;}}
+const DIFFS=[{n:'やさしい',hp:.75,dmg:.55,z:1},{n:'ふつう',hp:1,dmg:1,z:1},{n:'むずかしい',hp:1.35,dmg:1.4,z:1.3}];
+function DIFF(){const x=SAVE.x||{};const i=NET.on&&NET.guest?1:(x.diff==null?1:x.diff);return DIFFS[i]||DIFFS[1];}
+function setDiff(i){SAVE.x=SAVE.x||{};SAVE.x.diff=i;saveGame();document.querySelectorAll('#dSeg button').forEach((b,k)=>b.setAttribute('aria-pressed',k===i));}
+function saveGame(){try{const o={v:1,fetchBest:SAVE.fetchBest||0,fetchChip:SAVE.fetchChip||0,cricketBest:SAVE.cricketBest||0,cricketChip:SAVE.cricketChip||0,folder:FOLDER,pack:PACK,zenny,lib:[...LIB],md:PROG.md,chap:SAVE.chap,rec:SAVE.rec,hpUp:SAVE.hpUp,clear:SAVE.clear||0,shopHp:SAVE.shopHp||{},exBest:SAVE.exBest||0,exClear:SAVE.exClear||0,bu:SAVE.bu||null,q:SAVE.q||null,blade:SAVE.blade||null,x:SAVE.x||{}};localStorage.setItem(SAVEK,JSON.stringify(o));}catch(e){}}
+function loadGame(){try{const o=JSON.parse(localStorage.getItem(SAVEK)||'null');if(!o)return false;if(Array.isArray(o.folder)&&o.folder.length>=FOLDER_MIN){FOLDER.length=0;o.folder.forEach(c=>FOLDER.push(c));}PACK=o.pack||[];zenny=o.zenny||0;(o.lib||[]).forEach(id=>LIB.add(id));PROG.md=o.md||{};SAVE.chap=o.chap||0;SAVE.x=o.x||{};SAVE.rec=o.rec||{};SAVE.hpUp=o.hpUp||{V:0,M:0};SAVE.clear=o.clear||0;SAVE.shopHp=o.shopHp||{};SAVE.exBest=o.exBest||0;SAVE.exClear=o.exClear||0;['fetchBest','fetchChip','cricketBest','cricketChip'].forEach(k=>SAVE[k]=o[k]||0);if(o.bu)SAVE.bu=o.bu;if(o.blade)SAVE.blade=o.blade;if(o.q)SAVE.q=o.q;return true;}catch(e){return false;}}
 function chapReached(k){const i=CHAPS.findIndex(c=>c.k===k);if(i>SAVE.chap){SAVE.chap=i;}saveGame();}
-function applyHpUps(){if(!V||!M)return;V.max=P0.volt.max+(SAVE.hpUp.V||0)*20;M.max=P0.mist.max+(SAVE.hpUp.M||0)*20;V.hp=Math.min(V.hp,V.max);M.hp=Math.min(M.hp,M.max);renderHP();}
+function applyHpUps(){if(!V||!M)return;V.max=P0.volt.max+(SAVE.hpUp.V||0)*20+(ncpOf('V').hp||0);M.max=P0.mist.max+(SAVE.hpUp.M||0)*20+(ncpOf('M').hp||0);V.hp=Math.min(V.hp,V.max);M.hp=Math.min(M.hp,M.max);renderHP();}
 function hpUpGive(who){SAVE.hpUp[who]=(SAVE.hpUp[who]||0)+1;const A=who==='M'?M:V;A.max+=20;A.hp=Math.min(A.max,A.hp+20);renderHP();saveGame();}
 function progSync(md){PROG.md=md||{};MDS.forEach(d=>{if(PROG.md[d.id]&&MDV[d.id])MDV[d.id].grp.visible=false;});}
 // ---- shops ----
 const SHOPS=[
- {id:'jp',x:43.5,z:35.5,face:Math.PI*1.25,n:'浜松ネットショップ',items:[['hicannon','A',600],['firesword','F',900],['minibomb','B',400],['recov80','*',500],['invis','*',1500],['pu_a','',1500],['pu_r','',1500],['hp','',2000]]},
- {id:'kr',x:-9.5,z:-466.5,face:Math.PI*.75,n:'蔚山ネットショップ',items:[['heatshot','H',700],['thunder','T',800],['quake','Q',1200],['recov80','*',500],['mcannon','A',1600],['pu_c','',1500],['pu_a','',1500],['hp','',2000]]},
- {id:'cb',x:790.5,z:5.5,face:Math.PI*.75,n:'ケーブル中継ショップ',items:[['recov150','*',1000],['mcannon','B',1600],['invis','*',1500],['firesword','F',900],['thunder','T',800],['pu_r','',1500],['pu_c','',1500]]}];
+ {id:'jp',x:43.5,z:35.5,face:Math.PI*1.25,n:'浜松ネットショップ',items:[['hicannon','A',600],['firesword','F',900],['minibomb','B',400],['recov80','*',500],['invis','*',1500],['pu_a','',1500],['pu_r','',1500],['hp','',2000],['ncp_rap','',1200]]},
+ {id:'kr',x:-9.5,z:-466.5,face:Math.PI*.75,n:'蔚山ネットショップ',items:[['heatshot','H',700],['thunder','T',800],['quake','Q',1200],['recov80','*',500],['mcannon','A',1600],['pu_c','',1500],['pu_a','',1500],['hp','',2000],['ncp_chg','',1200]]},
+ {id:'cb',x:790.5,z:5.5,face:Math.PI*.75,n:'ケーブル中継ショップ',items:[['recov150','*',1000],['mcannon','B',1600],['invis','*',1500],['firesword','F',900],['thunder','T',800],['pu_r','',1500],['pu_c','',1500],['ncp_hp100','',2400],['ncp_fbar','',2000]]}];
 function buildShopNpc(S){{const g=new THREE.Group();g.position.set(S.x,0,S.z);g.rotation.y=S.face;field.add(g);
   const body=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,1.1,16),new THREE.MeshBasicMaterial({color:'#2a6ad0'}));body.position.y=.75;g.add(body);
   const head=new THREE.Mesh(new THREE.SphereGeometry(.42,18,14),new THREE.MeshBasicMaterial({color:'#e8f4ff'}));head.position.y=1.6;g.add(head);
@@ -1176,37 +1237,84 @@ function shopNear(a){return SHOPS.find(S=>Math.hypot(a.x-S.x,a.z-S.z)<2.6);}
 let SHOP_OPEN=null;
 function openShop(S){if(myBattle(NET.on&&NET.guest?M:V))return;SHOP_OPEN=S;paused=true;MS.fire=false;if(document.pointerLockElement)document.exitPointerLock();renderShop();$('shop').classList.remove('hide');SFX('custom');}
 function closeShop(){SHOP_OPEN=null;$('shop').classList.add('hide');paused=false;tryLock();}
-function renderShop(){const S=SHOP_OPEN;if(!S)return;const me=NET.on&&NET.guest?'M':'V';$('shopt').textContent=S.n;$('shopz').textContent=zenny+' Z';
- $('shopl').innerHTML=S.items.map((it,i)=>{const [id,code,price0]=it;if(id.startsWith('pu_')){const k=id[3],lv=buLv(me,k),price=Math.round(price0*(1+lv*.5));const mx=lv>=BU_MAX;return '<button class="shp-it'+(mx?' sold':'')+(zenny<price?' poor':'')+'" data-i="'+i+'"><div class="shp-hp" style="background:#a0402a">'+k.toUpperCase()+'</div><div class="shp-n">バスター'+BU_NAMES[k]+' +1<small>'+(me==='M'?'ミスト':'ボルト')+'の今のレベル '+lv+' / '+BU_MAX+'</small></div><div class="shp-p">'+(mx?'MAX':price+' Z')+'</div></button>';}const price=price0;const hp=id==='hp';const bought=hp&&(SAVE.shopHp||{})[S.id+me];const nm=hp?'HPメモリ（最大HP+20）':CH[id].n+' '+code;const ic=hp?'<div class="shp-hp">HP</div>':'<img src="sprites/'+CH[id].ic+'.webp"'+chipStyle(id)+'>';
+function renderShop(){const S=SHOP_OPEN;if(!S)return;if(S.trader)return renderTrader();$('shoph').textContent='いらっしゃい！ 欲しいものをクリック。（F／Esc で閉じる）';const me=NET.on&&NET.guest?'M':'V';$('shopt').textContent=S.n;$('shopz').textContent=zenny+' Z';
+ $('shopl').innerHTML=S.items.map((it,i)=>{const [id,code,price0]=it;if(id.startsWith('ncp_')){const k=id.slice(4),D=NCP_DEF[k],own=(ncpData().own[k]||0);return '<button class="shp-it'+(zenny<price0?' poor':'')+'" data-i="'+i+'"><div class="shp-hp" style="background:'+D.col+';color:#06102a">PRG</div><div class="shp-n">'+D.n+'<small>ナビカスタマイザー用：'+D.d+'（所持 '+own+'）</small></div><div class="shp-p">'+price0+' Z</div></button>';}if(id.startsWith('pu_')){const k=id[3],lv=buLv(me,k),price=Math.round(price0*(1+lv*.5));const mx=lv>=BU_MAX;return '<button class="shp-it'+(mx?' sold':'')+(zenny<price?' poor':'')+'" data-i="'+i+'"><div class="shp-hp" style="background:#a0402a">'+k.toUpperCase()+'</div><div class="shp-n">バスター'+BU_NAMES[k]+' +1<small>'+(me==='M'?'ミスト':'ボルト')+'の今のレベル '+lv+' / '+BU_MAX+'</small></div><div class="shp-p">'+(mx?'MAX':price+' Z')+'</div></button>';}const price=price0;const hp=id==='hp';const bought=hp&&(SAVE.shopHp||{})[S.id+me];const nm=hp?'HPメモリ（最大HP+20）':CH[id].n+' '+code;const ic=hp?'<div class="shp-hp">HP</div>':'<img src="'+chipArt(id)+'">';
   return '<button class="shp-it'+(bought?' sold':'')+(zenny<price?' poor':'')+'" data-i="'+i+'">'+ic+'<div class="shp-n">'+nm+(hp?'':'<small>'+CH[id].d+'</small>')+'</div><div class="shp-p">'+(bought?'SOLD':price+' Z')+'</div></button>';}).join('');
  $('shopl').querySelectorAll('button').forEach(b=>b.onclick=()=>buyShop(+b.dataset.i));}
-function buyShop(i){const S=SHOP_OPEN;if(!S)return;let [id,code,price]=S.items[i];const me=NET.on&&NET.guest?'M':'V';SAVE.shopHp=SAVE.shopHp||{};
+function buyShop(i){const S=SHOP_OPEN;if(!S)return;let [id,code,price]=S.items[i];const me=NET.on&&NET.guest?'M':'V';SAVE.shopHp=SAVE.shopHp||{};if(id.startsWith('ncp_')){if(zenny<price){SFX('hurt');$('shopmsg').textContent='ゼニーが足りないみたい…';return;}zenny-=price;ncpGive(id.slice(4));SFX('bust');$('shopmsg').textContent=NCP_DEF[id.slice(4)].n+' を手に入れた！ F のフォルダ画面 →「ナビカスタマイザー」でセットしよう';saveGame();renderShop();return;}
  if(id.startsWith('pu_')){const k=id[3],lv=buLv(me,k);if(lv>=BU_MAX)return;price=Math.round(price*(1+lv*.5));if(zenny<price){SFX('hurt');$('shopmsg').textContent='ゼニーが足りないみたい…';return;}zenny-=price;SFX('bust');if(NET.on&&NET.guest){NET.send({t:'buup',k});if(BU_REMOTE)BU_REMOTE.M[k]++;}else buUp('V',k);$('shopmsg').textContent='バスター'+BU_NAMES[k]+'がレベルアップ！';saveGame();renderShop();return;}
  if(id==='hp'&&SAVE.shopHp[S.id+me])return;if(zenny<price){SFX('hurt');$('shopmsg').textContent='ゼニーが足りないみたい…';return;}
  zenny-=price;SFX('bust');if(id==='hp'){SAVE.shopHp[S.id+me]=1;if(NET.on&&NET.guest)NET.send({t:'hpup'});else hpUpGive('V');$('shopmsg').textContent='HPメモリを買った！ 最大HPが20アップ！';}
  else{const c=[id,code];const same=FOLDER.filter(x=>x[0]===id).length;if(FOLDER.length<FOLDER_MAX&&same<SAME_MAX){FOLDER.push(c);$('shopmsg').textContent=CH[id].n+' '+code+' をフォルダに入れた！';}else{PACK.push(c);$('shopmsg').textContent=CH[id].n+' '+code+' をパックに入れた（フォルダ編集で入れ替えできる）';}libAdd(id);}
  saveGame();renderShop();}
+
+// ===================== NAVI CUSTOMIZER / CHIP TRADER / VIRUS DEX =====================
+const NCP_DEF={
+ hp50:{n:'HP+50',col:'#d8dce8',plus:1,cells:[[0,0],[1,0]],d:'最大HP+50（コマンドライン外でもOK）',hp:50},
+ hp100:{n:'HP+100',col:'#d8dce8',plus:1,cells:[[0,0],[1,0],[0,1],[1,1]],d:'最大HP+100（コマンドライン外でもOK）',hp:100},
+ atk:{n:'アタック+1',col:'#ff5a5a',cells:[[0,0],[1,0],[2,0]],d:'バスターの攻撃力+1',a:1},
+ rap:{n:'ラピッド+1',col:'#ffd24a',cells:[[0,0],[1,0],[1,1]],d:'バスターの連射+1',r:1},
+ chg:{n:'チャージ+1',col:'#5ab8ff',cells:[[0,0],[0,1],[0,2]],d:'チャージが早くなる',c:1},
+ armor:{n:'スーパーアーマー',col:'#7dff9a',cells:[[0,0],[1,0],[2,0],[1,1]],d:'攻撃を受けてもふっとばない',armor:1},
+ regen:{n:'オートリカバー',col:'#ff8fc8',cells:[[0,0],[1,0],[0,1],[1,1]],d:'バトル中、少しずつHPが回復',regen:1},
+ cust:{n:'カスタム+1',col:'#3fd0ff',cells:[[0,0],[1,0],[2,0],[2,1]],d:'カスタムゲージが25%早くたまる',cust:1},
+ fbar:{n:'ファーストバリア',col:'#b98cff',cells:[[0,0],[1,0]],d:'バトル開始時にバリアを張る',fbar:1}};
+const NCP_N=5,NCP_CL=2;
+function ncpData(){SAVE.x=SAVE.x||{};const d=SAVE.x.ncp=SAVE.x.ncp||{own:{hp50:1,atk:1},V:[],M:[]};d.own=d.own||{};d.V=d.V||[];d.M=d.M||[];return d;}
+function ncpCells(p){const D=NCP_DEF[p.id];let cs=D.cells.map(c=>c.slice());for(let k=0;k<(p.r||0);k++)cs=cs.map(([x,y])=>[-y,x]);const mx=Math.min(...cs.map(c=>c[0])),my=Math.min(...cs.map(c=>c[1]));return cs.map(([x,y])=>[x-mx+p.x,y-my+p.y]);}
+function ncpValid(list){const used={};for(const p of list){const cs=ncpCells(p);for(const [x,y] of cs){if(x<0||y<0||x>=NCP_N||y>=NCP_N)return '枠からはみ出してる';const k=x+','+y;if(used[k])return '重なってる';used[k]=1;}if(!NCP_DEF[p.id].plus&&!cs.some(c=>c[1]===NCP_CL))return NCP_DEF[p.id].n+' がコマンドライン（光る列）に乗っていない';}return null;}
+function ncpLocalSum(who){const d=ncpData(),L=d[who]||[];const o={hp:0,a:0,r:0,c:0,armor:0,regen:0,cust:0,fbar:0};if(ncpValid(L))return o;L.forEach(p=>{const D=NCP_DEF[p.id];for(const k in o)if(D[k])o[k]+=D[k];});return o;}
+function ncpOf(who){if(who==='M'&&NET.on&&NET.host)return NET.ncpM||{hp:0,a:0,r:0,c:0};return ncpLocalSum(who);}
+function ncpGive(id){const d=ncpData();d.own[id]=(d.own[id]||0)+1;saveGame();}
+function ncpSync(){if(NET.on&&NET.guest)NET.send({t:'ncp',v:ncpLocalSum('M')});applyHpUps();}
+let NCP_SEL=null,NCP_ROT=0,NCP_WHO='V';
+function openNcp(){NCP_WHO=NET.on&&NET.guest?'M':'V';NCP_SEL=null;NCP_ROT=0;renderNcp();$('ncp').classList.remove('hide');}
+function closeNcp(){const d=ncpData();const err=ncpValid(d[NCP_WHO]);$('ncp').classList.add('hide');ncpSync();saveGame();if(err)$('fmsg')&&($('fmsg').textContent='ナビカスタマイザー：'+err+'（効果なし）');renderFolder();}
+function renderNcp(){const d=ncpData(),L=d[NCP_WHO];const err=ncpValid(L);const grid=[];for(let y=0;y<NCP_N;y++)for(let x=0;x<NCP_N;x++)grid.push({x,y,p:null});L.forEach((p,i)=>ncpCells(p).forEach(([x,y])=>{const g=grid[y*NCP_N+x];if(g)g.p=i;}));
+ $('ncpg').innerHTML=grid.map(g=>{const p=g.p!=null?L[g.p]:null;const col=p?NCP_DEF[p.id].col:'';return '<div class="nc'+(g.y===NCP_CL?' cl':'')+'" data-x="'+g.x+'" data-y="'+g.y+'"'+(p?' style="background:'+col+'"':'')+'></div>';}).join('');
+ const inUse={};L.forEach(p=>inUse[p.id]=(inUse[p.id]||0)+1);
+ $('ncpl').innerHTML=Object.keys(NCP_DEF).filter(k=>d.own[k]).map(k=>{const D=NCP_DEF[k],left=d.own[k]-(inUse[k]||0);return '<button class="np'+(NCP_SEL===k?' on':'')+(left<=0?' used':'')+'" data-k="'+k+'"><i style="background:'+D.col+'"></i><b>'+D.n+'</b> ×'+left+'<small>'+D.d+'</small></button>';}).join('')||'<div style="opacity:.6">プログラムを持っていない</div>';
+ const S=ncpLocalSum(NCP_WHO);$('ncps').innerHTML=err?'<span style="color:#ff8a8a">⚠ '+err+'（このままだと効果なし）</span>':'効果：'+[S.hp?'HP+'+S.hp:'',S.a?'アタック+'+S.a:'',S.r?'ラピッド+'+S.r:'',S.c?'チャージ+'+S.c:'',S.armor?'スーパーアーマー':'',S.regen?'オートリカバー':'',S.cust?'カスタム+'+S.cust:'',S.fbar?'ファーストバリア':''].filter(Boolean).join('・')||'なし';
+ $('ncpw').textContent=(NCP_WHO==='M'?'ミスト':'ボルト')+'のナビカスタマイザー';$('ncpr').textContent='向き '+(NCP_ROT*90)+'°';
+ document.querySelectorAll('#ncpl .np').forEach(b=>b.onclick=()=>{NCP_SEL=NCP_SEL===b.dataset.k?null:b.dataset.k;renderNcp();});
+ document.querySelectorAll('#ncpg .nc').forEach(c=>c.onclick=()=>{const x=+c.dataset.x,y=+c.dataset.y;const hit=L.findIndex(p=>ncpCells(p).some(q=>q[0]===x&&q[1]===y));if(hit>=0){L.splice(hit,1);SFX('custom');renderNcp();return;}
+  if(!NCP_SEL)return;const left=d.own[NCP_SEL]-(L.filter(p=>p.id===NCP_SEL).length);if(left<=0){SFX('hurt');return;}const p={id:NCP_SEL,x,y,r:NCP_ROT};const t=L.concat([p]);const e=ncpValid(t);if(e&&/はみ出し|重なって/.test(e)){SFX('hurt');$('ncps').innerHTML='<span style="color:#ff8a8a">'+e+'</span>';return;}L.push(p);SFX('chip');renderNcp();});}
+// ---- chip trader ----
+let TRD_PICK=[];
+function renderTrader(){$('shopt').textContent='チップトレーダー';$('shoph').textContent='トレードするチップを3枚えらんでね。（F／Esc で閉じる）';$('shopz').textContent=zenny+' Z';
+ $('shopl').innerHTML='<div style="grid-column:1/-1;font-size:13px;opacity:.85;margin-bottom:6px">パックのチップを<b>3枚</b>入れると、ランダムで1枚出てくる（レアが出ることも）。</div>'+(PACK.length?PACK.map((c,i)=>'<button class="shp-it'+(TRD_PICK.includes(i)?' sel':'')+'" data-i="'+i+'"><img src="'+chipArt(c[0])+'"><div class="shp-n">'+CH[c[0]].n+' '+c[1]+'</div><div class="shp-p">'+(TRD_PICK.includes(i)?'✔':'')+'</div></button>').join(''):'<div style="opacity:.6">パックが空です</div>')+'<div style="grid-column:1/-1;text-align:center;margin-top:8px"><button class="big" id="trdgo"'+(TRD_PICK.length===3?'':' disabled style="opacity:.4"')+'>トレードする（'+TRD_PICK.length+'/3）</button></div>';
+ $('shopl').querySelectorAll('.shp-it').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;const k=TRD_PICK.indexOf(i);if(k>=0)TRD_PICK.splice(k,1);else if(TRD_PICK.length<3)TRD_PICK.push(i);renderTrader();});
+ const go=$('trdgo');if(go)go.onclick=()=>{if(TRD_PICK.length!==3)return;TRD_PICK.sort((a,b)=>b-a).forEach(i=>PACK.splice(i,1));TRD_PICK=[];
+  const pool=[['sword','S',30],['cannon','A',30],['bomb','B',25],['wave','W',20],['spread','S',20],['wide','W',15],['long','L',15],['hicannon','B',14],['minibomb','*',14],['recov80','*',12],['thunder','T',10],['heatshot','H',10],['quake','Q',8],['firesword','F',8],['mcannon','C',6],['invis','*',5],['recov150','*',4],['hammer','*',4],['steal','*',3]];
+  let tot=pool.reduce((a,p)=>a+p[2],0),r=Math.random()*tot,pick=pool[0];for(const p of pool){r-=p[2];if(r<=0){pick=p;break;}}
+  const c=[pick[0],pick[1]];packAdd(c);SFX('bust');$('shopmsg').innerHTML='ガシャン！　<b>'+CH[c[0]].n+' '+c[1]+'</b> が出てきた！（パックに入った）';qAdd('trade');renderTrader();};}
+// ---- virus dex ----
+function dexAdd(k){if(!EDEF[k]||NET.guest)return;SAVE.x=SAVE.x||{};const d=SAVE.x.dex=SAVE.x.dex||{};d[k]=(d[k]||0)+1;}
+function openDex(){const d=(SAVE.x&&SAVE.x.dex)||{};const ks=Object.keys(EDEF).filter(k=>k!=='core');const got=ks.filter(k=>d[k]).length;
+ $('dexl').innerHTML=ks.map((k,i)=>{const E=EDEF[k];const n=d[k]||0;return '<div class="dx'+(n?'':' no')+'"><b><span class="dn">No.'+String(i+1).padStart(2,'0')+'</span>'+(n?E.n:'？？？？')+'</b><small>'+(n?'HP '+E.hp+'　デリート '+n+'回'+(E.navi?'　（ナビ）':k==='boss'?'　（ボス）':''):'まだ出会っていない')+'</small></div>';}).join('');
+ $('dexh').textContent='ウイルス図鑑　'+got+' / '+ks.length;$('dex').classList.remove('hide');}
 // ---- folder edit ----
 function openFolder(){if(myBattle(NET.on&&NET.guest?M:V)||MODE!=='play')return;paused=true;MS.fire=false;if(document.pointerLockElement)document.exitPointerLock();renderFolder();$('folder').classList.remove('hide');SFX('custom');}
 function closeFolder(){$('folder').classList.add('hide');paused=false;saveGame();tryLock();}
-function chipCell(c,i,where){const d=CH[c[0]];if(!d)return '';return '<button class="fc" data-w="'+where+'" data-i="'+i+'"><img src="sprites/'+d.ic+'.webp"'+chipStyle(c[0])+'><span class="fn">'+d.n+'</span><span class="fcd">'+c[1]+'</span></button>';}
+function chipCell(c,i,where){const d=CH[c[0]];if(!d)return '';return '<button class="fc" data-w="'+where+'" data-i="'+i+'"><img src="'+chipArt(c[0])+'"><span class="fn">'+d.n+'</span><span class="fcd">'+c[1]+'</span></button>';}
 function sortChips(a){return a.map((c,i)=>[c,i]).sort((p,q)=>p[0][0]<q[0][0]?-1:p[0][0]>q[0][0]?1:p[0][1]<q[0][1]?-1:1);}
 function renderFolder(){const allIds=Object.keys(CH).filter(k=>!CH[k].pa);const owned=allIds.filter(k=>LIB.has(k)).length;
  $('fhead').innerHTML='<span>フォルダ <b>'+FOLDER.length+'</b>/'+FOLDER_MAX+'</span><span>パック <b>'+PACK.length+'</b></span><span>ライブラリ <b>'+owned+'</b>/'+allIds.length+'</span><span>'+zenny+' Z</span>';
  $('ffold').innerHTML=sortChips(FOLDER).map(([c,i])=>chipCell(c,i,'f')).join('');$('fpack').innerHTML=PACK.length?sortChips(PACK).map(([c,i])=>chipCell(c,i,'p')).join(''):'<div style="opacity:.6;padding:12px">パックは空です。ミステリーデータやショップでチップを集めよう</div>';
- renderExtra();$('flib').innerHTML=allIds.map(k=>LIB.has(k)?'<span class="lb on" title="'+CH[k].d+'"><img src="sprites/'+CH[k].ic+'.webp"'+chipStyle(k)+'></span>':'<span class="lb">？</span>').join('');
+ renderExtra();$('flib').innerHTML=allIds.map(k=>LIB.has(k)?'<span class="lb on" title="'+CH[k].d+'"><img src="'+chipArt(k)+'"></span>':'<span class="lb">？</span>').join('');
  document.querySelectorAll('#folder .fc').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(b.dataset.w==='f'){if(FOLDER.length<=FOLDER_MIN){$('fmsg').textContent='フォルダは'+FOLDER_MIN+'枚より少なくできない';SFX('hurt');return;}PACK.push(FOLDER.splice(i,1)[0]);}else{const c=PACK[i];if(FOLDER.length>=FOLDER_MAX){$('fmsg').textContent='フォルダがいっぱい（'+FOLDER_MAX+'枚まで）';SFX('hurt');return;}if(FOLDER.filter(x=>x[0]===c[0]).length>=SAME_MAX){$('fmsg').textContent='同じチップは'+SAME_MAX+'枚まで';SFX('hurt');return;}FOLDER.push(PACK.splice(i,1)[0]);}SFX('chip');$('fmsg').textContent='';renderFolder();});}
 function shopVisual(dt){SHOPS.forEach(S=>{if(!S.head)return;S.ant.position.y=2.12+Math.sin(T*4)*.05;S.head.rotation.y=Math.sin(T*.8)*.4;});
- const me=NET.on&&NET.guest?M:V;const S=MODE==='play'&&SCN==='net'?shopNear(me):null;const h=$('shopHint');if(h)h.classList.toggle('hide',!S||!!SHOP_OPEN||myBattle(me));}
+ const me=NET.on&&NET.guest?M:V;const S=MODE==='play'&&SCN==='net'?shopNear(me):null;const h=$('shopHint');if(h){h.classList.toggle('hide',!S||!!SHOP_OPEN||myBattle(me));if(S)h.textContent=S.trader?'F：チップトレーダー':'F：ネットショップ';}}
 
-loadGame();progSync(PROG.md);setTimeout(()=>{if(SAVE.chap>0&&$('chapv')&&!QS.get('join')){$('chapv').innerHTML=CHAPS.slice(0,SAVE.chap+1).concat(SAVE.clear?[CHAPS_EX]:[]).map(c=>'<option value="'+c.k+'">'+c.n+'</option>').join('');$('chapv').value=CHAPS[SAVE.chap].k;$('chapsel').classList.remove('hide');}},0);
+loadGame();progSync(PROG.md);setTimeout(()=>{const x=SAVE.x||{};setDiff(x.diff==null?1:x.diff);},0);setTimeout(()=>{if(SAVE.chap>0&&$('chapv')&&!QS.get('join')){$('chapv').innerHTML=CHAPS.slice(0,SAVE.chap+1).concat(SAVE.clear?[CHAPS_EX]:[]).map(c=>'<option value="'+c.k+'">'+c.n+'</option>').join('');$('chapv').value=CHAPS[SAVE.chap].k;$('chapsel').classList.remove('hide');}},0);
 
 // ===================== BUSTER POWER-UPS & REQUEST BOARD =====================
 const BU_NAMES={a:'アタック',r:'ラピッド',c:'チャージ'},BU_MAX=5;let BU_REMOTE=null;
 function buData(){SAVE.bu=SAVE.bu||{V:{a:0,r:0,c:0},M:{a:0,r:0,c:0}};return SAVE.bu;}
 function buLv(who,k){const d=(NET.on&&NET.guest&&BU_REMOTE)?BU_REMOTE:buData();return (d[who]&&d[who][k])||0;}
-function cdT(who){return (who==='M'?BUSTER.mist:BUSTER.volt).cd*(1-.1*buLv(who,'r'));}
-function chgT(who){return (who==='M'?BUSTER.mist:BUSTER.volt).chg*(1-.1*buLv(who,'c'));}
+function buEff(who,k){return buLv(who,k)+((typeof ncpOf==='function'&&ncpOf(who)[k])||0);}
+function cdT(who){return (who==='M'?BUSTER.mist:BUSTER.volt).cd*(1-.1*buEff(who,'r'));}
+function chgT(who){return (who==='M'?BUSTER.mist:BUSTER.volt).chg*(1-.1*buEff(who,'c'));}
 function buSync(d){BU_REMOTE=d;}
 function buUp(who,k){const d=buData();if(d[who][k]>=BU_MAX)return false;d[who][k]++;saveGame();if(NET.on&&NET.host)netCall('buSync',[d]);return true;}
 // ---- request board ----
@@ -1218,21 +1326,25 @@ const QUESTS=[
  {id:'srank',n:'Sランクバスター',d:'バスティングレベルSを2回とる',t:'srank',g:2,rw:{pu:'c'}},
  {id:'cross',n:'クロスの達人',d:'クロスバスターを3回きめる',t:'cross',g:3,rw:{chip:['mcannon','A']}},
  {id:'navi',n:'暴走ナビを止めろ',d:'ナビボスを2体たおす',t:'navi',g:2,rw:{z:3000}},
- {id:'lib',n:'チップコレクター',d:'ライブラリを20種類そろえる',t:'lib',g:20,rw:{pu:'a'}}];
+ {id:'lib',n:'チップコレクター',d:'ライブラリを20種類そろえる',t:'lib',g:20,rw:{pu:'a'}},
+ {id:'trade',n:'トレーダー常連',d:'チップトレーダーを3回まわす',t:'trade',g:3,rw:{ncp:'cust'}},
+ {id:'dex',n:'ウイルス博士',d:'ウイルス図鑑を12種類うめる',t:'dex',g:12,rw:{ncp:'regen'}},
+ {id:'kill3',n:'ウイルスバスター 達人',d:'ウイルスを200体デリート',t:'kills',g:200,rw:{ncp:'armor'}}];
 let Q_REMOTE=null;
 function qData(){SAVE.q=SAVE.q||{c:{},done:{}};return SAVE.q;}
 function qView(){return (NET.on&&NET.guest&&Q_REMOTE)?Q_REMOTE:qData();}
 function qSync(d){Q_REMOTE=d;if(!$('folder').classList.contains('hide'))renderFolder();}
 function qAdd(t,n){if(NET.on&&NET.guest)return;const q=qData();q.c[t]=(q.c[t]||0)+(n||1);const just=QUESTS.filter(Q=>Q.t===t&&!q.done[Q.id]&&q.c[t]>=Q.g&&(q.c[t]-(n||1))<Q.g);just.forEach(Q=>{rawBanner('依頼達成！「'+Q.n+'」','#ffd24a');if(NET.on)netCall('banner',['依頼達成！「'+Q.n+'」','#ffd24a']);});saveGame();if(NET.on&&NET.host)netCall('qSync',[q]);}
-function qProg(Q){const v=qView();if(Q.t==='lib')return [...LIB].filter(k=>CH[k]&&!CH[k].pa).length;return (v.c&&v.c[Q.t])||0;}
+function qProg(Q){const v=qView();if(Q.t==='lib')return [...LIB].filter(k=>CH[k]&&!CH[k].pa).length;if(Q.t==='dex')return Object.keys((SAVE.x&&SAVE.x.dex)||{}).length;return (v.c&&v.c[Q.t])||0;}
 function qClaim(id){if(NET.on&&NET.guest){NET.send({t:'qclaim',id});return;}const q=qData();const Q=QUESTS.find(x=>x.id===id);if(!Q||q.done[id]||qProg(Q)<Q.g)return;q.done[id]=1;const r=Q.rw;
- if(r.z){zenny+=r.z;if(NET.on)netCall('zennyGive',[r.z]);}if(r.chip)folderAdd(r.chip);if(r.pu){buUp('V',r.pu);buUp('M',r.pu);}
+ if(r.z){zenny+=r.z;if(NET.on)netCall('zennyGive',[r.z]);}if(r.chip)packAdd(r.chip);if(r.pu){buUp('V',r.pu);buUp('M',r.pu);}if(r.ncp){ncpGive(r.ncp);if(NET.on)netCall('ncpGive',[r.ncp]);}
  SFX('bust');rawBanner('報酬ゲット！','#5cff8a');saveGame();if(NET.on){netCall('qSync',[q]);netCall('buSync',[buData()]);}if(!$('folder').classList.contains('hide'))renderFolder();}
-function rewardText(r){return r.z?r.z+' ゼニー':r.chip?'チップ「'+CH[r.chip[0]].n+' '+r.chip[1]+'」':r.pu?'バスター'+BU_NAMES[r.pu]+'+1（2人とも）':'';}
+function rewardText(r){return r.z?r.z+' ゼニー':r.chip?'チップ「'+CH[r.chip[0]].n+' '+r.chip[1]+'」':r.pu?'バスター'+BU_NAMES[r.pu]+'+1（2人とも）':r.ncp?'プログラム「'+NCP_DEF[r.ncp].n+'」':'';}
 function renderExtra(){const me=NET.on&&NET.guest?'M':'V';const nm=me==='M'?'ミスト':'ボルト';
+ let h0='<div style="display:flex;gap:8px;margin-top:10px"><button class="big" style="font-size:13px;padding:7px 14px" onclick="openNcp()">ナビカスタマイザー</button><button class="big" style="font-size:13px;padding:7px 14px" onclick="openDex()">ウイルス図鑑</button></div>';
  let h='<div class="fcap" style="margin-top:10px">'+nm+'のバスター</div><div class="bu">'+['a','r','c'].map(k=>'<span>'+BU_NAMES[k]+' <b>'+'■'.repeat(buLv(me,k))+'<i>'+'□'.repeat(BU_MAX-buLv(me,k))+'</i></b></span>').join('')+'</div>';
  const v=qView();h+='<div class="fcap" style="margin-top:10px">依頼ボード</div><div class="qlist">'+QUESTS.map(Q=>{const p=Math.min(Q.g,qProg(Q)),done=v.done&&v.done[Q.id],ok=p>=Q.g;return '<div class="qi'+(done?' qd':'')+'"><div><b>'+Q.n+'</b><small>'+Q.d+'　報酬：'+rewardText(Q.rw)+'</small></div><div class="qp">'+(done?'受取済み':ok?'<button class="qbtn" data-q="'+Q.id+'">受け取る</button>':p+' / '+Q.g)+'</div></div>';}).join('')+'</div>';
- $('fextra').innerHTML=h;$('fextra').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{qClaim(b.dataset.q);setTimeout(renderFolder,300);});}
+ $('fextra').innerHTML=h0+h;$('fextra').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{qClaim(b.dataset.q);setTimeout(renderFolder,300);});}
 
 // ===================== BLADE MODE (arm transform) =====================
 const ARM={V:'buster',M:'buster'};let BLADE_REMOTE=null;
@@ -1257,7 +1369,7 @@ function armToggle(){const who=NET.on&&NET.guest?'M':'V';if(!bladeHas(who)){popu
  if(NET.on&&NET.guest)NET.send({t:'arm',m});else if(NET.on)netCall('armSet',['V',m]);}
 function armHud(){const el=$('armInd');if(!el)return;const who=NET.on&&NET.guest?'M':'V';if(!bladeHas(who)){el.classList.add('hide');return;}el.classList.remove('hide');const b=ARM[who]==='blade';el.innerHTML=(b?'⚔ '+BLADE[who].n:'◎ バスター')+'<small>R で変形</small>';el.style.borderColor=b?BLADE[who].col:'#3fd0ff';}
 // slash (host authoritative; guest sends request)
-function bladeSlash(C,charged,opt){opt=opt||{};const who=C===M?'M':'V';const B=BLADE[who];const lv=buLv(who,'a');const mul=1+.12*lv;
+function bladeSlash(C,charged,opt){opt=opt||{};const who=C===M?'M':'V';const B=BLADE[who];const lv=buEff(who,'a');const mul=1+.12*lv;
  const aim=opt.aim||aimInfo();C.aimFace=Math.atan2(aim.x-C.x,aim.z-C.z);C.face=C.aimFace;C.faceHold=.45;
  if(T-(C.comboT||-9)>.6)C.combo=0;const k=charged?2:(C.combo||0)%3;C.combo=charged?0:k+1;C.comboT=T;
  // step-in toward target
@@ -1339,7 +1451,8 @@ defArea('hub',[0,1500],{n:'ネットスクエア',spawn:[0,-3],col:'#ffd24a',are
  addGate(A,0,29,'busan','釜山（準備中）','#7dff9a','never');addGate(A,0,-29,'under','？？？','#5a2a6a','never');
  IGATES.filter(G=>G.A==='hub').forEach(G=>{const a=Math.atan2(G.x-A.o[0],G.z-A.o[1]);G.grp.rotation.y=a+Math.PI;});
  addHeal(A.o[0]+6,A.o[1]+6);}});
-SHOPS.push({id:'hub',x:-9,z:1491,face:Math.PI*.25,n:'スクエア ネットショップ',items:[['hicannon','A',600],['recov80','*',500],['minibomb','B',400],['heatshot','H',700],['pu_a','',1500],['pu_r','',1500],['pu_c','',1500],['hp','',2400]]});
+SHOPS.push({id:'hub',x:-9,z:1491,face:Math.PI*.25,n:'スクエア ネットショップ',items:[['hicannon','A',600],['recov80','*',500],['minibomb','B',400],['heatshot','H',700],['pu_a','',1500],['pu_r','',1500],['pu_c','',1500],['hp','',2400],['ncp_hp50','',1000],['ncp_atk','',1800],['ncp_armor','',3200]]});
+SHOPS.push({id:'trader',x:9,z:1491,face:-Math.PI*.25,n:'チップトレーダー',trader:1,items:[]});
 // ===== SEOUL =====
 defArea('seoul',[300,1500],{n:'ソウル ネオンストリート',spawn:[0,-2],col:'#ff5ad8',
  areas:[['ソウル ネオンストリート',[-10,-10,10,42]],['クァンジャン市場',[3,10,40,32]],['ナムサンタワー前',[-16,40,16,82]],['うら路地',[-32,16,-3,40]]],build(A){
@@ -1394,7 +1507,14 @@ defArea('tokyo',[-300,1500],{n:'トーキョー シブヤネット',spawn:[0,-2]
  addZone(A,{req:1,navi:'liner',x:55,z:18,r:8,list:[['liner',0,3]]});
  addMD({id:'t_cross',x:A.o[0]+12,z:A.o[1]+28,c:{chip:['firesword','F']}});addMD({id:'t_alley',x:A.o[0]-32,z:A.o[1]+24,c:{pu:'c'}});addMD({id:'t_tower',x:A.o[0]+10,z:A.o[1]+60,c:{z:800}});addMD({id:'t_plat',x:A.o[0]+44,z:A.o[1]+15.5,c:{hp:'V'}});
  addHeal(A.o[0],A.o[1]+38);}});
-SHOPS.slice(-1).forEach(S=>buildShopNpc(S));
+function buildTrader(S){const g=new THREE.Group();g.position.set(S.x,0,S.z);g.rotation.y=S.face;field.add(g);
+ const b=new THREE.Mesh(new THREE.BoxGeometry(1.8,2.6,1.2),new THREE.MeshBasicMaterial({color:'#3a1a5a'}));b.position.y=1.3;g.add(b);
+ const scr=new THREE.Mesh(new THREE.PlaneGeometry(1.3,.8),new THREE.MeshBasicMaterial({color:'#ff5ad8'}));scr.position.set(0,1.85,.61);g.add(scr);
+ const slot=new THREE.Mesh(new THREE.BoxGeometry(.9,.12,.1),new THREE.MeshBasicMaterial({color:'#ffe14d'}));slot.position.set(0,1.1,.62);g.add(slot);
+ const out=new THREE.Mesh(new THREE.BoxGeometry(.7,.35,.2),new THREE.MeshBasicMaterial({color:'#12082a'}));out.position.set(0,.45,.62);g.add(out);
+ const sg=signMesh([['チップトレーダー','#fff'],['3枚 → 1枚','#ffe14d',22]],384,128,'#12082a','#ff5ad8',2.2,.7);sg.position.y=3.1;g.add(sg);
+ WANIM.push((dt,t)=>{scr.material.color.set(Math.floor(t*3)%2?'#ff5ad8':'#b98cff');});}
+SHOPS.slice(-2).forEach(S=>S.trader?buildTrader(S):buildShopNpc(S));
 const IALL=[].concat(...Object.values(IAREAS).map(A=>A.rects));
 // ---- servers under attack (motif for navi/boss fights) ----
 const SRV_NAME={dam:'天竜ダム 水門制御サーバー',crane:'ウルサン港 荷役管理サーバー',neon:'明洞 街頭ビジョン配信サーバー',liner:'山手線 運行管理サーバー',boss:'空港 管制コアサーバー'};const SERVERS=[];
@@ -1493,6 +1613,13 @@ function objTarget(me,w){if(PH==='end')return null;
   else if((w==='seoul'&&FL.frag1&&!FL.frag2)||(w==='tokyo'&&FL.frag2))to='hub';
   const G=to&&IGATES.find(G=>G.A===w&&G.to===to);if(G)return {x:G.x,z:G.z};}
  return null;}
+
+const ROOM_NM={leo:'レオの部屋',leoL:'レオの家（リビング）',molly:'モリーの部屋',mollyL:'モリーの家（リビング）',hnd:'静岡空港',icn:'金海空港',arr:'金海空港 到着ロビー'};
+let PST_T=0;function partnerStep(dt){const el=$('pstat');if(!el)return;if(!NET.on||MODE==='title'){el.classList.add('hide');return;}PST_T-=dt;if(PST_T>0)return;PST_T=.4;
+ const g=NET.guest,nm=g?'レオ＆ボルト':'モリー＆ミスト';let where='',st='';
+ if(MODE==='room'){const r=ROOM_OF[g?'leo':'molly'];where=ROOM_NM[r]||'';if(NET.actor===(g?'leo':'molly')||(busyStory&&!g&&NET.actor==='molly'))st='調べもの中';}
+ else{const a=g?V:M;const w=wOf(a);const W=NETCUR==='inet'?(IAREAS[w]?{n:IAREAS[w].n}:WORLDS.hub):NETCUR==='net3'?WORLDS3[w]:WORLDS[w];where=(W&&W.n)||'';st=a.down?'<span style="color:#ff6b8a">ダウン中！</span>':ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,a))?'<span style="color:#ffe14d">バトル中</span>':'';}
+ el.style.borderLeftColor=g?'#ffb347':'#ff8fc8';el.innerHTML='<b>相棒：'+nm+'</b><br>'+where+(st?'　'+st:'');el.classList.remove('hide');}
 function minimapStep(dt){const cv=$('mmap');if(!cv)return;const on=SCN==='net'&&(MODE==='play'||MODE==='dead')&&!SET.noMap;cv.classList.toggle('hide',!on);if(!on)return;MMT-=dt;if(MMT>0)return;MMT=.15;
  const me=NET.on&&NET.guest?M:V,pt=me===V?M:V;const w=wOf(me);let rs=rectsOfWorld(w);if(NETCUR==='net3'&&w==='core')rs=R3.slice(3);if(!rs.length)return;
  let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;rs.forEach(r=>{x0=Math.min(x0,r[0]);z0=Math.min(z0,r[1]);x1=Math.max(x1,r[2]);z1=Math.max(z1,r[3]);});
@@ -1521,10 +1648,10 @@ function showBust(zn){SFX('bust');const time=T-zn.t0;const rk='z'+ZONES.indexOf(
  let multi=0;const d=zn.deaths.slice().sort((a,b)=>a-b);for(let i=1;i<d.length;i++)if(d[i]-d[i-1]<.5)multi++;const mp=multi?Math.min(3,multi+1):0;lv+=mp;if(mp)rows.push(['同時デリート',multi+1+'体','+'+mp]);
  const cp=Math.min(2,zn.counters);lv+=cp;if(cp)rows.push(['カウンター',zn.counters+'回','+'+cp]);
  lv=clamp(lv,1,11);const L=lv>=11?'S':String(lv);if(lv>=11)qAdd('srank');if(zn.hits===0)qAdd('nodmg');
- let get;if(lv>=9){const c=BUST_DROP.hi[ri(0,BUST_DROP.hi.length-1)];folderAdd(c);get='チップ GET：'+CH[c[0]].n+' '+c[1];}
- else if(lv>=6){const c=BUST_DROP.mid[ri(0,BUST_DROP.mid.length-1)];folderAdd(c);get='チップ GET：'+CH[c[0]].n+' '+c[1];}
+ let get;if(lv>=9){const c=BUST_DROP.hi[ri(0,BUST_DROP.hi.length-1)];packAdd(c);get='チップ GET：'+CH[c[0]].n+' '+c[1];}
+ else if(lv>=6){const c=BUST_DROP.mid[ri(0,BUST_DROP.mid.length-1)];packAdd(c);get='チップ GET：'+CH[c[0]].n+' '+c[1];}
  else{const z=ri(1,3)*100;zennyAdd(z,zn);get=z+' ゼニー GET';}zennyAdd(lv*20,zn);
- $('bl').textContent=L;$('bd').innerHTML=rows.map(r=>'<div style="display:flex;justify-content:space-between"><span>'+r[0]+'</span><span>'+r[1]+'　<b style="color:#ffd24a">'+r[2]+'</b></span></div>').join('')+'<div style="font-size:12px;opacity:.7;margin-top:4px">手に入れたチップはフォルダ（いっぱいならパック）に入ります。F キーでフォルダ編集</div>';
+ $('bl').textContent=L;$('bd').innerHTML=rows.map(r=>'<div style="display:flex;justify-content:space-between"><span>'+r[0]+'</span><span>'+r[1]+'　<b style="color:#ffd24a">'+r[2]+'</b></span></div>').join('')+'<div style="font-size:12px;opacity:.7;margin-top:4px">手に入れたチップはパックに入ります。F キーのフォルダ画面でフォルダに入れよう</div>';
  $('bg').textContent=get+'　＋'+(lv*20)+'Z　｜　ベスト '+SAVE.rec[rk]+'秒'+(isNewB&&prevB!=null?' NEW!':'');saveGame();if(zn.__nobust)return;paused=true;MS.fire=false;if(document.pointerLockElement)document.exitPointerLock();$('bust').classList.remove('hide');}
 function closeBust(){if($('bust').classList.contains('hide'))return;$('bust').classList.add('hide');paused=false;tryLock();}
 $('bbtn').onclick=closeBust;
@@ -1551,7 +1678,8 @@ function startEncounter(zn,pre,who){who=who||V;if(inBattleW(zn.world||'both')||T
  const nm=EDEF[zn.list[0][0]].n;
  banner(pre?'先制攻撃！':zn.boss?'WARNING!! BOSS':nm+'たちが あらわれた！',pre?'#ffe14d':'#ff4f7a');
  if(zn.boss){shakeT=1;setTimeout(()=>cutin([],FL.ex?'ジャマー SP':'ジャマー'),500);}
- setTimeout(()=>{if(MODE==='play'){if(NET.on)cusStartZone(zn);else{gaugeV=1;if(!paused)openCustom();}}},650);}
+ setTimeout(()=>{if(MODE==='play'){if(NET.on)cusStartZone(zn);else{gaugeV=1;if(!paused)openCustom(true);}}},650);
+ [V,M].forEach(A=>{if(A&&ncpOf(A===M?'M':'V').fbar&&Math.hypot(A.x-zn.x,A.z-zn.z)<zn.r+3){A.barrier=true;popup(A.x,2,A.z,'ファーストバリア','#b98cff',14);}});}
 function bestArena(x0,z0,r){let best=[x0,z0],bs=-9;const lim=Math.max(3,r-1.2);for(let dx=-lim;dx<=lim;dx+=.5)for(let dz=-lim;dz<=lim;dz+=.5){const dd=Math.hypot(dx,dz);if(dd>lim)continue;const x=x0+dx,z=z0+dz;if(!walk(x,z,.5))continue;let c=0,n=0;for(const f of [.4,.7,.95])for(let k=0;k<20;k++){const a=k/20*6.2832;n++;if(walk(x+Math.sin(a)*r*f,z+Math.cos(a)*r*f,.3))c++;}const sc=c/n-dd*.01;if(sc>bs+1e-6){bs=sc;best=[x,z];}}return best;}
 function confine(a,zn){const dx=a.x-zn.x,dz=a.z-zn.z,d=Math.hypot(dx,dz);if(d>zn.r){for(let rr=zn.r;rr>=0;rr-=.25){const nx=zn.x+dx/d*rr,nz=zn.z+dz/d*rr;if(walk(nx,nz)){a.x=nx;a.z=nz;return;}}a.x=zn.x;a.z=zn.z;}}
 
@@ -1577,7 +1705,7 @@ const GLOWS=[];
 function glow(x,y,z,col,size,life,grow,vel){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOWTEX,color:col,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));m.position.set(x,y,z);m.scale.setScalar(size);scene.add(m);GLOWS.push({m,t:0,life:life||.3,size,grow:grow||0,v:vel||null});return m;}
 function glowStep(dt){for(let k=GLOWS.length-1;k>=0;k--){const g=GLOWS[k];g.t+=dt;const f=g.t/g.life;g.m.material.opacity=Math.max(0,1-f);g.m.scale.setScalar(Math.max(.01,g.size*(1+g.grow*f)));if(g.v){g.m.position.addScaledVector(g.v,dt);g.v.y-=4*dt;}if(g.t>=g.life){scene.remove(g.m);g.m.material.dispose();GLOWS.splice(k,1);}}}
 function sparks(x,y,z,col,n,sp){for(let k=0;k<n;k++)glow(x,y,z,col,rnd(.15,.35),rnd(.25,.5),-.5,new THREE.Vector3(rnd(-1,1),rnd(0,1.5),rnd(-1,1)).multiplyScalar(sp||4));}
-function flashScreen(a){wflashT=Math.max(wflashT,a||.25);}
+function flashScreen(a){wflashT=Math.max(wflashT,Math.min(.6,a||.25));}
 
 function burst(x,y,z,col,n,sp){for(let k=0;k<(n||10);k++){const m=new THREE.Mesh(new THREE.BoxGeometry(.1,.1,.1),new THREE.MeshBasicMaterial({color:col}));m.position.set(x,y,z);scene.add(m);FX.push({m,v:new THREE.Vector3(rnd(-1,1),rnd(.5,2),rnd(-1,1)).multiplyScalar(sp||3),t:0,life:rnd(.3,.6)});}}
 function ringFx(x,z,r,col,life){const m=new THREE.Mesh(new THREE.RingGeometry(.8,1,40),new THREE.MeshBasicMaterial({color:col,transparent:true,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.set(x,.08,z);scene.add(m);FX.push({m,ring:r,t:0,life:life||.35});}
@@ -1599,16 +1727,16 @@ function hurtEnemy(e,dmg,from,opt){if(e.dead||NET.guest)return;opt=opt||{};if(e.
  if(opt.freeze){e.frozen=2.5;e.tele=0;e.act=null;popup(e.x,e.h+.7,e.z,'フリーズ','#9fe8ff',16);}
  if(dmg>=40){hitstop=Math.max(hitstop,.06);shakeT=Math.max(shakeT,.12);}
  if(e.tele>0&&dmg>=40){e.tele=0;e.act=null;e.stun=1;if(e.zone)e.zone.counters=(e.zone.counters||0)+1;popup(e.x,e.h+.7,e.z,'COUNTER','#ffe14d',18);}
- if(e.hp<=0){e.dead=true;e.deadT=0;e.deathT=T;if(e.k!=='ncore')qAdd('kills');SFX('delete');if(e.zone&&e.zone.deaths)e.zone.deaths.push(T);glow(e.x,.9,e.z,'#7ff',4,.4,1.5);sparks(e.x,.9,e.z,'#7ff',24,6);for(let k=0;k<14;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),new THREE.MeshBasicMaterial({color:k%2?'#7ff':'#fff'}));m.position.set(e.x+rnd(-.5,.5),rnd(.2,1.6),e.z+rnd(-.5,.5));scene.add(m);FX.push({m,v:new THREE.Vector3(rnd(-.5,.5),rnd(2,4),rnd(-.5,.5)),t:0,life:.9,float:1});}hitstop=Math.max(hitstop,.05);e.bar.classList.add('hide');e.hpn&&e.hpn.classList.add('hide');burst(e.x,.9,e.z,'#7ff',22,5);popup(e.x,e.h,e.z,'DELETE','#7ff',18);if(lockT===e){const C=NET.on&&NET.guest?M:V;lockT=liveEn().filter(x=>x!==e&&!x.dead&&x.zone===e.zone).sort((p,q)=>Math.hypot(p.x-C.x,p.z-C.z)-Math.hypot(q.x-C.x,q.z-C.z))[0]||null;}gaugeV=Math.min(1,gaugeV+.15);clearCharge(e);if(e.k==='boss'){for(let k=0;k<5;k++)setTimeout(()=>{glow(e.x+rnd(-1,1),rnd(.5,3),e.z+rnd(-1,1),'#ff2a4a',4,.5,1.5);sparks(e.x,1.5,e.z,'#ff6b8a',20,7);SFX('boom');shakeT=.4;},k*260);EN.filter(x=>x.zone===e.zone&&!x.dead).forEach(x=>{x.hp=1;hurtEnemy(x,9,x,{ignoreShield:1});});cutin(['volt_e0','mist_e0'],'NOISE DELETED');slowT=.8;}}
+ if(e.hp<=0){e.dead=true;e.deadT=0;e.deathT=T;if(e.k!=='ncore')qAdd('kills');SFX('delete');if(e.zone&&e.zone.deaths)e.zone.deaths.push(T);glow(e.x,.9,e.z,'#7ff',4,.4,1.5);sparks(e.x,.9,e.z,'#7ff',24,6);for(let k=0;k<14;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),new THREE.MeshBasicMaterial({color:k%2?'#7ff':'#fff'}));m.position.set(e.x+rnd(-.5,.5),rnd(.2,1.6),e.z+rnd(-.5,.5));scene.add(m);FX.push({m,v:new THREE.Vector3(rnd(-.5,.5),rnd(2,4),rnd(-.5,.5)),t:0,life:.9,float:1});}hitstop=Math.max(hitstop,.05);e.bar.classList.add('hide');e.hpn&&e.hpn.classList.add('hide');burst(e.x,.9,e.z,'#7ff',22,5);popup(e.x,e.h,e.z,'DELETE','#7ff',18);dexAdd(e.k);if(lockT===e){const C=NET.on&&NET.guest?M:V;lockT=liveEn().filter(x=>x!==e&&!x.dead&&x.zone===e.zone).sort((p,q)=>Math.hypot(p.x-C.x,p.z-C.z)-Math.hypot(q.x-C.x,q.z-C.z))[0]||null;}gaugeV=Math.min(1,gaugeV+.15);clearCharge(e);if(e.k==='boss'){for(let k=0;k<5;k++)setTimeout(()=>{glow(e.x+rnd(-1,1),rnd(.5,3),e.z+rnd(-1,1),'#ff2a4a',4,.5,1.5);sparks(e.x,1.5,e.z,'#ff6b8a',20,7);SFX('boom');shakeT=.4;},k*260);EN.filter(x=>x.zone===e.zone&&!x.dead).forEach(x=>{x.hp=1;hurtEnemy(x,9,x,{ignoreShield:1});});cutin(['volt_e0','mist_e0'],'NOISE DELETED');slowT=.8;}}
 }
 function bossPhase(e,np){SFX('phase');e.pi=0;setTimeout(()=>{if(!e.dead&&MODE==='play')spawnCores(e);},2300);e.phase=np;e.binv=2.2;e.tele=0;e.dash=null;clearCharge(e);e.cd=2.4;e.dazed=0;slowT=.6;shakeT=1;flashScreen(.5);HAZ.forEach(h=>h.cancel=true);
  banner(np===2?'ノイズが 膨れ上がる…！':'ジャマー 暴走！！','#ff2a4a');ringWaveHz(e.x,e.z,14,10,20);glow(e.x,1.5,e.z,'#ff2a4a',8,.8,1.5);if(np===3){e.tint='#ff6b6b';EDEF.boss.sp=2.2;}
  setTimeout(()=>{if(!e.dead&&MODE==='play'){const n=np===2?2:3;for(let k=0;k<n;k++){const x=e.x+rnd(-5,5),z=e.z+rnd(-4,4);if(walk(x,z)){const u=spawnEnemy(['bitton','sparkle','driller'][k%3],e.zone,x,z);u.cd=2;}}}},1200);}
-function hurtAlly(a,dmg,src){if(NET.guest)return;dmg=Math.round(dmg*1.3*(FL.ex?1.35:1));if(a.down||a.dead)return;
+function hurtAlly(a,dmg,src){if(NET.guest)return;dmg=Math.round(dmg*1.3*(FL.ex?1.35:1)*DIFF().dmg);if(a.down||a.dead)return;
  if(a.slide>0||a.steal>0){if(!a.dodgeT){SFX('dodge');popup(a.x,1.8,a.z,'回避！','#7dff9a',18);a.dodgeT=.3;}return;}
  if(a.inv>0)return;if(a.barrier){a.barrier=false;a.inv=.5;popup(a.x,1.8,a.z,'BARRIER','#7dff9a',18);burst(a.x,1,a.z,'#7dff9a',10,3);return;}
  a.hp=Math.max(0,a.hp-dmg);a.inv=.6;a.flash=.12;SFX('hurt');if(a.is3d&&a.hp>0)charOneShot(a,'Hit_Chest',1.5);if(a===V){ZONES.forEach(z=>{if(z.act&&!z.clear)z.hits++;});vignT=.5;hitstop=Math.max(hitstop,.05);}sparks(a.x,1,a.z,'#ff6b6b',8,4);popup(a.x,1.8,a.z,'-'+dmg,'#ff6b6b',24);shakeT=.2;a.chg=0;
- if(src){const dx=a.x-src.x,dz=a.z-src.z,d=Math.hypot(dx,dz)||1;const nx=a.x+dx/d*1.2,nz=a.z+dz/d*1.2;if(walk(nx,nz)){a.x=nx;a.z=nz;}}
+ if(src&&!ncpOf(a===M?'M':'V').armor){const dx=a.x-src.x,dz=a.z-src.z,d=Math.hypot(dx,dz)||1;const nx=a.x+dx/d*1.2,nz=a.z+dz/d*1.2;if(walk(nx,nz)){a.x=nx;a.z=nz;}}
  if(a.hp<=0){if(a===V){MODE='dead';banner('ログアウト…','#ff6b6b');setTimeout(respawn,1800);}else{a.down=true;a.rev=0;popup(a.x,2,a.z,'ダウン！近くで2秒で復活','#ffb0b0',16);}}
  renderHP();}
 function onZoneClear(z){if(z.navi){const go=()=>{if(paused||DLGS||busyStory){setTimeout(go,300);return;}naviPost(z);};setTimeout(go,1600);}if(z.core||z.boss){const go=()=>{if(paused||DLGS){setTimeout(go,300);return;}FL.ex?exClear(z):z.core?coreEvent():bossDefeated();};setTimeout(go,z.boss?2500:1500);}}
@@ -1641,7 +1769,7 @@ function waveStep(dt){for(const w of WAVES){w.t+=dt;w.x+=w.dx*w.sp*dt;w.z+=w.dz*
  else{for(const a of [V,M]){if(!a.down&&!w.hit.has(a)&&Math.hypot(a.x-w.x,a.z-w.z)<.8&&a.y<.45){w.hit.add(a);hurtAlly(a,w.dmg,w);}}}}
  WAVES=WAVES.filter(w=>{if(w.dead)scene.remove(w.m);return !w.dead;});}
 // ---------- player ----------
-function onKey(c){if(c==='KeyP'&&(MODE==='room'||MODE==='play')&&!CHOICE){togglePhone();return;}if(NET.on&&NET.guest&&!CHOICE){if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(!$('bust').classList.contains('hide')){if(['Enter','Space','NumpadEnter'].includes(c)){$('bust').classList.add('hide');tryLock();}return;}if(MODE==='room'&&c==='KeyF'&&!NET.lock)NET.send({t:'interact'});
+function onKey(c){if(c==='KeyL'&&(DLGS||!$('dlogv').classList.contains('hide')||MODE==='room')){dlgLog();return;}if(!$('dlogv').classList.contains('hide')){if(c==='Escape')dlgLog(false);return;}if(DLGS&&c==='KeyZ'){dlgToggleAuto();return;}if(c==='KeyP'&&(MODE==='room'||MODE==='play')&&!CHOICE){togglePhone();return;}if(NET.on&&NET.guest&&!CHOICE){if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(!$('bust').classList.contains('hide')){if(['Enter','Space','NumpadEnter'].includes(c)){$('bust').classList.add('hide');tryLock();}return;}if(MODE==='room'&&c==='KeyF'&&!NET.lock)NET.send({t:'interact'});
  if(MODE==='play'){if(SHOP_OPEN){if(['Escape','KeyF','Enter'].includes(c))closeShop();return;}if(!$('folder').classList.contains('hide')){if(['Escape','KeyF','Enter'].includes(c))closeFolder();return;}if(c==='KeyF'&&!paused&&SCN==='net'){const S=shopNear(M);if(S)openShop(S);else openFolder();return;}if(paused&&!$('custom').classList.contains('hide')){if(/^Digit[1-6]$/.test(c))togglePick(+c[5]-1);if(c==='Enter'||c==='NumpadEnter')closeCustom();return;}if(/^Digit[1-4]$/.test(c))useChip(+c[5]-1);if(c==='Tab')openCustom();if(c==='KeyR')armToggle();if(c==='KeyE')guestSkill();}return;}if(CHOICE){if(/^Digit[1-4]$/.test(c))CHOICE(+c[5]-1);return;}if(DLGS){if(['Enter','Space','KeyF','NumpadEnter'].includes(c))dlgNext();return;}if(MODE==='room'){if(MG&&MG.k==='fetch'&&MG.phase==='aim'&&(c==='KeyF'||c==='Space')){MG.thrown=true;MG.phase='fly';return;}if(c==='KeyF')roomInteract();if(c==='KeyX')switchHuman();return;}if(MODE!=='play')return;
  if(SHOP_OPEN){if(['Escape','KeyF','Enter'].includes(c))closeShop();return;}if(!$('folder').classList.contains('hide')){if(['Escape','KeyF','Enter'].includes(c))closeFolder();return;}
  if(paused&&!$('bust').classList.contains('hide')){if(c==='Enter'||c==='NumpadEnter'||c==='Space')closeBust();return;}
@@ -1650,7 +1778,7 @@ function onKey(c){if(c==='KeyP'&&(MODE==='room'||MODE==='play')&&!CHOICE){toggle
  if(c==='Tab')openCustom();
  if(c==='KeyR')armToggle();
  if(c==='KeyF'&&SCN==='net'){const S=shopNear(V);if(S)openShop(S);else openFolder();}
- if(c==='KeyQ'){if(lockT){lockT=null;}else{const a=aimInfo();lockT=a.t||liveEn().sort((p,q)=>Math.hypot(p.x-V.x,p.z-V.z)-Math.hypot(q.x-V.x,q.z-V.z))[0]||null;}}
+ if(c==='KeyQ'){if(lockT){lockT=null;}else{const a=aimInfo();const C=NET.on&&NET.guest?M:V;lockT=a.t||liveEn().sort((p,q)=>Math.hypot(p.x-C.x,p.z-C.z)-Math.hypot(q.x-C.x,q.z-C.z))[0]||null;}}
 }
 function useChip(i){const C=NET.on&&NET.guest?M:V;if(MODE!=='play'||paused||worldFrozen()||(C.busy||0)>0||C.down)return;const c=CHIPS_IN[i];if(!c)return;CHIPS_IN.splice(i,1);selSlot=Math.min(selSlot,Math.max(0,CHIPS_IN.length-1));renderChips();
  const id=c[0],aim=aimInfo();C.aimFace=Math.atan2(aim.x-C.x,aim.z-C.z);C.face=C.aimFace;C.faceHold=.5;C.busy=.25;
@@ -1716,7 +1844,7 @@ function playerStep(dt,t){const L=V;if(paused){L.moving=false;L.holding=false;L.
 }
 const BUSTER={volt:{nm:'サンダーバスター',cd:.12,chg:1.1,cc:'#ffe14d',n:{sp:38,dmg:4,col:'#fff3a0',r:.12},c:{sp:40,dmg:32,col:'#ffe14d',r:.34,kb:.6,pierce:1,charged:1,chain:1,life:1.2}},
  mist:{nm:'ミストバスター',cd:.22,chg:.85,cc:'#7fe6ff',n:{sp:27,dmg:3,col:'#c8f6ff',r:.11,life:.5,spread:1},c:{sp:17,dmg:30,col:'#7fe6ff',r:.5,charged:1,mist:1,R:2.8,life:1.4}}};
-function busterFire(C,aim,charged,extra){const B=C===M?BUSTER.mist:BUSTER.volt;const o=Object.assign({side:'P'},charged?B.c:B.n,extra||{});{const lv=buLv(C===M?'M':'V','a');if(o.dmg)o.dmg=charged?Math.round(o.dmg*(1+.15*lv)):o.dmg+lv;}
+function busterFire(C,aim,charged,extra){const B=C===M?BUSTER.mist:BUSTER.volt;const o=Object.assign({side:'P'},charged?B.c:B.n,extra||{});{const lv=buEff(C===M?'M':'V','a');if(o.dmg)o.dmg=charged?Math.round(o.dmg*(1+.15*lv)):o.dmg+lv;}
  if(o.spread){const a0=Math.atan2(aim.x-C.x,aim.z-C.z),d=Math.hypot(aim.x-C.x,aim.z-C.z)||1;[-.14,0,.14].forEach(da=>{const a=a0+da;fireAt(C,{x:C.x+Math.sin(a)*d,y:aim.y,z:C.z+Math.cos(a)*d},Object.assign({},o));});}
  else fireAt(C,aim,o);
  if(charged){glow(C.x,1,C.z,B.cc,3,.25,1.2);burst(C.x,1,C.z,B.cc,8,3);}}
@@ -1752,7 +1880,7 @@ function mistStep(dt){const F=M;if((NETCUR==='net1'||NETCUR==='net3'||NETCUR==='
 }
 // ---------- enemies ----------
 function nearestAlly(e){const c=[V,M].filter(a=>!a.down&&!(a===V&&MODE!=='play'));return c.sort((a,b)=>Math.hypot(a.x-e.x,a.z-e.z)-Math.hypot(b.x-e.x,b.z-e.z))[0];}
-function spawnEnemy(k,zn,x,z){const d=EDEF[k];const u=makeUnit(d.img,d.h,false);if(d.tint)u.tint=d.tint;if(k!=='boss')attach3DEnemy(u,k);Object.assign(u,{k,zone:zn,x,z,hx:x,hz:z,hp:Math.round(d.hp*(FL.ex?(k==='boss'?1.2:1.8):1)),max:Math.round(d.hp*(FL.ex?(k==='boss'?1.2:1.8):1)),cd:rnd(1.5,3),tele:0,pat:null,frozen:0,shield:k==='shielder',open:0,float:d.float,dead:false,deadT:0,name:d.n});
+function spawnEnemy(k,zn,x,z){const d=EDEF[k];const u=makeUnit(d.img,d.h,false);if(d.tint)u.tint=d.tint;if(k!=='boss')attach3DEnemy(u,k);Object.assign(u,{k,zone:zn,x,z,hx:x,hz:z,hp:Math.round(d.hp*(FL.ex?(k==='boss'?1.2:1.8):1)*DIFF().hp),max:Math.round(d.hp*(FL.ex?(k==='boss'?1.2:1.8):1)*DIFF().hp),cd:rnd(1.5,3),tele:0,pat:null,frozen:0,shield:k==='shielder',open:0,float:d.float,dead:false,deadT:0,name:d.n});
  const bar=document.createElement('div');bar.className='eb hide';bar.innerHTML='<i></i>';if(d.navi){bar.style.width='130px';bar.style.height='9px';}if(k==='boss'){bar.style.width='180px';bar.style.height='11px';}$('dmg').appendChild(bar);u.bar=bar;const hn=document.createElement('div');hn.className='ehp hide';$('dmg').appendChild(hn);u.hpn=hn;EN.push(u);return u;}
 function chargeFx(e,col){const m=new THREE.Mesh(new THREE.SphereGeometry(.5,16,12),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.75}));scene.add(m);e.cfx=m;e.cfxCol=col;}
 function clearCharge(e){if(e.cfx){scene.remove(e.cfx);e.cfx=null;}(e.warns||[]).forEach(w=>w.cancel=true);e.warns=[];}
@@ -1868,8 +1996,17 @@ function drawCharge(){const c=chgCv;c.clearRect(0,0,80,80);if(!V||!V.holding||V.
 const DLG={leo:{n:'レオ',img:'leo_e0',col:'#ffb347'},molly:{n:'モリー',img:'molly_e0',col:'#ff8fc8'},volt:{n:'ボルト',img:'volt_e0',col:'#ff5a5f'},mist:{n:'ミスト',img:'mist_e0',col:'#3fd0ff'},sys:{n:'',img:null},news:{n:'ニュース速報',img:null,col:'#ffd24a'},announce:{n:'空港アナウンス',img:null,col:'#9fe8ff'},mom1:{n:'レオのママ',img:null,col:'#ffb07a'},mom2:{n:'モリーのオンマ',img:null,col:'#8fe0b0'},dog:{n:'ボーダーコリーたち',img:'dogA_front',col:'#ffd24a'},jstaff:{n:'静岡空港スタッフ',img:'jstaff_e0',col:'#9fd0ff'},kstaff:{n:'金海空港スタッフ',img:'kstaff_e0',col:'#9fd0ff'},zero:{n:'ノイズ・ゼロ',img:'en_boss',col:'#ff4f7a'},jammer:{n:'ジャマー',img:'en_boss',col:'#ff4f7a'},voice:{n:'？？？の声',img:null,col:'#ff4f7a'},shade:{n:'？？？',img:null,col:'#b98cff'}};
 let DLGS=null;
 function say(who,text){if(NET.on&&NET.host&&NET.actor==='molly'){NET.send({t:'say',w:who,x:text,p:1});return new Promise(res=>{NET.gSayRes=res;});}
- const shared=NET.on&&NET.host&&NET.actor!=='leo';if(shared)NET.send({t:'say',w:who,x:text});return new Promise(res=>{const d=DLG[who]||DLG.sys;$('dlg').classList.remove('hide');const im=$('dlgimg');im.style.visibility=d.img?'visible':'hidden';if(d.img)im.src='sprites/'+d.img+'.webp';$('dlgn').textContent=d.n;$('dlgn').style.color=d.col||'#9ab';$('dlgt').textContent='';$('dlgm').style.visibility='hidden';DLGS={full:text,i:0,res,shared:NET.on&&NET.host&&NET.actor!=='leo'};SFX('jump');});}
-function dlgStep(dt){if(!DLGS)return;if(window.__autoDlg){DLGS.i=DLGS.full.length;dlgNext();return;}if(DLGS.i<DLGS.full.length){DLGS.i=Math.min(DLGS.full.length,DLGS.i+dt*45);$('dlgt').textContent=DLGS.full.slice(0,Math.floor(DLGS.i));}else $('dlgm').style.visibility='visible';}
+ const shared=NET.on&&NET.host&&NET.actor!=='leo';if(shared)NET.send({t:'say',w:who,x:text});return new Promise(res=>{const d=DLG[who]||DLG.sys;dlogPush(d,text);$('dlg').classList.remove('hide');const im=$('dlgimg');im.style.visibility=d.img?'visible':'hidden';if(d.img)im.src='sprites/'+d.img+'.webp';$('dlgn').textContent=d.n;$('dlgn').style.color=d.col||'#9ab';$('dlgt').textContent='';$('dlgm').style.visibility='hidden';DLGS={full:text,i:0,res,shared:NET.on&&NET.host&&NET.actor!=='leo'};SFX('jump');});}
+const DLOG=[];let DLG_AUTO=false,DLG_SKIP=false;
+function dlogPush(d,text){DLOG.push({n:d.n,col:d.col||'#9ab',t:text});if(DLOG.length>120)DLOG.shift();}
+function dlgFast(){return DLG_SKIP||K.ControlLeft||K.ControlRight;}
+function dlgBtns(){const a=$('dlgAuto'),b=$('dlgSkip');if(a)a.classList.toggle('on',DLG_AUTO);if(b)b.classList.toggle('on',DLG_SKIP);}
+function dlgToggleAuto(){DLG_AUTO=!DLG_AUTO;if(DLG_AUTO)DLG_SKIP=false;dlgBtns();}
+function dlgToggleSkip(){DLG_SKIP=!DLG_SKIP;if(DLG_SKIP)DLG_AUTO=false;dlgBtns();}
+function dlgLog(open){const el=$('dlogv');if(open===false||(!el.classList.contains('hide')&&open!==true)){el.classList.add('hide');return;}$('dlogl').innerHTML=DLOG.slice().reverse().map(x=>'<div class="dl"><b style="color:'+x.col+'">'+x.n+'</b>'+x.t.replace(/</g,'&lt;')+'</div>').join('')||'<div style="opacity:.6">まだ会話がありません</div>';el.classList.remove('hide');if(document.pointerLockElement)document.exitPointerLock();}
+function dlgStep(dt){if(!DLGS)return;{const now=performance.now();const rd=Math.min(.25,(now-(window.__dlL||now))/1000);window.__dlL=now;dt=Math.max(dt,rd);}if(window.__autoDlg){DLGS.i=DLGS.full.length;dlgNext();return;}
+ if(dlgFast()&&!CHOICE){DLGS.ft=(DLGS.ft||0)+dt;DLGS.i=DLGS.full.length;$('dlgt').textContent=DLGS.full;if(DLGS.ft>.09)dlgNext();return;}
+ if(DLGS.i<DLGS.full.length){DLGS.i=Math.min(DLGS.full.length,DLGS.i+dt*45);$('dlgt').textContent=DLGS.full.slice(0,Math.floor(DLGS.i));}else{$('dlgm').style.visibility='visible';if(DLG_AUTO){DLGS.at=(DLGS.at||0)+dt;if(DLGS.at>1.1+DLGS.full.length*.045)dlgNext();}}}
 function dlgNext(){if(!DLGS)return;if(DLGS.i<DLGS.full.length){DLGS.i=DLGS.full.length;$('dlgt').textContent=DLGS.full;return;}if(NET.on&&NET.guest){if(DLGS.personal){DLGS=null;$('dlg').classList.add('hide');NET.send({t:'dlgDone'});}else NET.send({t:'dlgNext'});return;}const r=DLGS.res,sh=DLGS.shared;DLGS=null;$('dlg').classList.add('hide');if(NET.on&&NET.host&&sh)NET.send({t:'dlgHide'});r();}
 let CHOICE=null;
 function choose(q,opts){if(NET.on&&NET.host&&NET.actor==='molly'&&!(window.__autoDlg&&window.__autoChoice!=null)){return new Promise(res=>{NET.send({t:'choose',q,o:opts});NET.waitChoice=res;NET.waitChoiceN=opts.length-1;});}return new Promise(res=>{if(window.__autoDlg&&window.__autoChoice!=null){res(window.__autoChoice);return;}const el=$('choice');el.innerHTML='<div class="cq">'+q+'</div>'+opts.map((o,i)=>'<button data-i="'+i+'"><b>'+(i+1)+'</b>　'+o+'</button>').join('');el.classList.remove('hide');if(document.pointerLockElement)document.exitPointerLock();
@@ -2665,8 +2802,8 @@ function loadPeer(){return new Promise((res,rej)=>{if(window.Peer)return res();c
 function peerOpts(){const o={debug:0};if(QS.get('ph')){o.host=QS.get('ph');o.port=+QS.get('pp')||9000;o.path='/';o.secure=false;}return o;}
 function onNetData(raw){let o;try{o=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){return;}if(o.t==='role'){if(NET.awaitRole){NET.awaitRole=false;NET.roleRes&&NET.roleRes(o.m);}return;}NET.peerSeen=1;if(NET.host)hostOnMsg(o);else guestOnMsg(o);}
 function onNetClose(){if(!NET.on&&!NET.ready&&!NET.gReady){netStatus('接続が切れました。ページを読み込み直してください。');return;}
- NET.cusG=false;if(NET.host){if(NET.gSayRes){const f=NET.gSayRes;NET.gSayRes=null;f();}if(NET.waitChoice){const f=NET.waitChoice;NET.waitChoice=null;f(NET.waitChoiceN||0);}NET.on=false;NET.conn=null;if(MODE!=='title'){banner('2Pとの接続が切れました（ミストはCPUが操作します）','#ffb0b0');}else netStatus('2Pとの接続が切れました。もう一度URLを送ってください。');}
- else{NET.on=false;if(document.pointerLockElement)document.exitPointerLock();showResult('接続が切れました','相手との接続が切れました。<br>ページを読み込み直して、新しいURLでもう一度つないでください。',()=>location.reload());}}
+ NET.cusG=false;if(NET.host){if(NET.gSayRes){const f=NET.gSayRes;NET.gSayRes=null;f();}if(NET.waitChoice){const f=NET.waitChoice;NET.waitChoice=null;f(NET.waitChoiceN||0);}NET.on=false;NET.conn=null;if(MODE!=='title'){banner('2Pとの接続が切れました（ミストはCPUが操作します）','#ffb0b0');}else netStatus('2Pとの接続が切れました。もう一度URLを送ってください。');if(MODE!=='title'&&NET.creator&&NET.code)setTimeout(()=>naviToast('sys','相手が同じ部屋コード <b style="color:#ffd24a">'+NET.code+'</b> で入り直すと、続きから合流できます。'),1600);}
+ else{NET.on=false;if(document.pointerLockElement)document.exitPointerLock();const rj=!NET.creator&&NET.rid;showResult('接続が切れました',rj?'相手との接続が切れました。<br>相手がゲームを開いたままなら、下のボタンで<b>続きから合流</b>できます。':'相手との接続が切れました。<br>相手にもう一度部屋を作ってもらって、つなぎ直してください。',()=>{if(rj)location.href=location.pathname+'?join='+NET.rid+(QS.get('bc')?'&bc=1':'');else location.reload();});}}
 const ROLE_TX={leo:'<b style="color:#9fe8ff">レオ＆ボルト</b>（天竜側）',molly:'<b style="color:#ff8fc8">モリー＆ミスト</b>（ウルサン側）'};
 function bcListen(id){NET.bc=new BroadcastChannel(id);NET.bc.onmessage=ev=>{if(ev.data.from!==(NET.host?'h':'g'))onNetData(ev.data.d);};}
 function hostLogicStart(){NET.ready=false;const st=$('lstat');if(st)st.textContent='つながりました！　読み込み中…';bootGame(true).then(()=>{NET.ready=true;hostMaybeReady();});}
@@ -2674,23 +2811,27 @@ async function guestLogicStart(){if(NET.gStarted)return;NET.gStarted=true;netSta
 function pickRole(){netStatus('<b>どっちで遊ぶ？</b><div style="font-size:13px;opacity:.8;margin:4px 0 10px">相手はもう一方のキャラになります</div><button class="big" id="rleo" style="margin:4px">レオ＆ボルト<br><span style="font-size:12px">天竜・静岡</span></button> <button class="big" id="rmol" style="margin:4px;background:linear-gradient(90deg,#ff8fc8,#ffb0d8)">モリー＆ミスト<br><span style="font-size:12px">ウルサン・韓国</span></button>');
  $('rleo').onclick=()=>netHost('leo');$('rmol').onclick=()=>netHost('molly');}
 async function netHost(role){role=role||'leo';const me=role==='molly'?'molly':'leo';NET.host=me==='leo';NET.guest=!NET.host;NET.creator=true;
- const CODEC='ABCDEFGHJKMNPQRSTUVWXYZ23456789';const code=Array.from({length:5},()=>CODEC[Math.floor(Math.random()*CODEC.length)]).join('');const rid='nlk-'+code;const url=location.origin+location.pathname+'?join='+rid+(me==='molly'?'&r=m':'')+(QS.get('bc')?'&bc=1':'')+(QS.get('ph')?'&ph='+QS.get('ph')+'&pp='+(QS.get('pp')||9000):'');
+ const CODEC='ABCDEFGHJKMNPQRSTUVWXYZ23456789';const code=Array.from({length:5},()=>CODEC[Math.floor(Math.random()*CODEC.length)]).join('');const rid='nlk-'+code;NET.code=code;const url=location.origin+location.pathname+'?join='+rid+(me==='molly'?'&r=m':'')+(QS.get('bc')?'&bc=1':'')+(QS.get('ph')?'&ph='+QS.get('ph')+'&pp='+(QS.get('pp')||9000):'');
  const other=me==='leo'?'molly':'leo';
  const showInv=()=>netStatus('<b>① 相手に「部屋コード」か URL を教えてください</b><div style="margin:8px 0 4px;font-size:13px;opacity:.8">部屋コード</div><div id="roomCode" style="font-family:Orbitron,sans-serif;font-size:38px;font-weight:900;letter-spacing:.3em;color:#ffd24a;text-shadow:0 0 14px #ffd24a88">'+code+'</div><div style="font-size:12px;opacity:.75;margin-bottom:6px">相手はタイトルで「ふたりで遊ぶ」→ コードを入れて「参加」</div><input id="invite" readonly value="'+url+'" style="width:100%;margin:8px 0;padding:8px;font-size:14px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"><button id="copyInv" style="background:#16224a;color:#fff;border:1px solid #3fd0ff;border-radius:8px;padding:7px 16px;font-weight:800;cursor:pointer">招待URLをコピー</button><div id="lstat" style="margin-top:10px">相手の参加を待っています…<br>あなた＝'+ROLE_TX[me]+'　／　相手＝'+ROLE_TX[other]+'</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');
  const onPeer=()=>{NET.send({t:'role',m:me});if(NET.host){NET.send({t:'hello'});hostLogicStart();}else guestLogicStart();};
  if(QS.get('bc')){bcListen(rid);showInv();NET.awaitHello=true;const ri=setInterval(()=>{if(NET.peerSeen){clearInterval(ri);return;}try{NET.bc.postMessage({from:'x',d:JSON.stringify({t:'role',m:me})});}catch(e){}},800);}
  else{netStatus('部屋を作っています…');try{await loadPeer();}catch(e){netStatus('オンラインの準備に失敗しました：'+e.message+'<br>ネットにつながっているか確認してください。');return;}
   const peer=NET.peer=new Peer(rid,peerOpts());peer.on('open',()=>showInv());peer.on('error',e=>{netStatus('オンラインの準備に失敗しました（'+(e.type||e)+'）。ページを読み込み直して、もう一度お試しください。');});
-  peer.on('connection',c=>{if(NET.conn&&NET.conn.open){c.close();return;}NET.conn=c;c.on('data',onNetData);c.on('close',onNetClose);c.on('open',onPeer);});}
+  peer.on('disconnected',()=>{try{peer.reconnect();}catch(e){}});peer.on('connection',c=>{if(NET.conn&&NET.conn.open){c.close();return;}NET.conn=c;c.on('data',onNetData);c.on('close',onNetClose);c.on('open',onPeer);});}
  const cp=()=>{const b=$('copyInv');if(b)b.onclick=()=>{const i=$('invite');i.select();try{navigator.clipboard.writeText(i.value);}catch(e){document.execCommand('copy');}b.textContent='コピーしました！';};};setTimeout(cp,50);setTimeout(cp,1500);
  bootGame(true);if(NET.host&&QS.get('bc'))hostLogicStart();}
-function hostMaybeReady(){const b=$('hstart'),st=$('lstat');if(!st)return;if(NET.gReady&&NET.ready){st.textContent='つながりました！　相手（モリー＆ミスト）の準備ができました。';b.classList.remove('hide');b.onclick=()=>{$('title').classList.add('hide');NET.on=true;renderHP();NET.send({t:'go'});netCall('progSync',[PROG.md]);netCall('buSync',[buData()]);netCall('qSync',[qData()]);netCall('bladeSync',[bladeData()]);startStory();};}
+function rejoinSync(){NET.on=true;NET.send({t:'go'});renderHP();netCall('progSync',[PROG.md]);netCall('buSync',[buData()]);netCall('qSync',[qData()]);netCall('bladeSync',[bladeData()]);
+ setTimeout(()=>{try{if(SCN==='net')netCall('enterNet',[NETCUR]);else netCall('enterRoomScene',[]);if(LEO)netCall('placeHuman',['leo',ROOM_OF.leo,LEO.x-ROOMS[ROOM_OF.leo].ox,LEO.z-ROOMS[ROOM_OF.leo].oz,LEO.face,NET.tpSeq]);if(MOLLY)netCall('placeHuman',['molly',ROOM_OF.molly,MOLLY.x-ROOMS[ROOM_OF.molly].ox,MOLLY.z-ROOMS[ROOM_OF.molly].oz,MOLLY.face,NET.tpSeq]);if(SCN==='net')tpM(M.x,M.z,M.face||0);}catch(e){console.warn('rejoin',e);}},400);
+ banner('2Pが合流した！','#7dff9a');}
+function hostMaybeReady(){const b=$('hstart'),st=$('lstat');if(!st)return;if(NET.gReady&&NET.ready){st.textContent='つながりました！　相手（モリー＆ミスト）の準備ができました。';b.classList.remove('hide');b.onclick=()=>{$('title').classList.add('hide');NET.on=true;NET.started=true;renderHP();NET.send({t:'go'});netCall('progSync',[PROG.md]);netCall('buSync',[buData()]);netCall('qSync',[qData()]);netCall('bladeSync',[bladeData()]);startStory();};}
  else if(NET.gReady)st.textContent='つながりました！　こちらの読み込みを待っています…';}
 function hostOnMsg(o){switch(o.t){
- case 'gready':NET.gReady=true;hostMaybeReady();break;
+ case 'gready':NET.gReady=true;if(NET.started&&MODE!=='title')rejoinSync();else hostMaybeReady();break;
  case 'hi':break;
  case 'st':NET.rs=o;break;
  case 'hpup':hpUpGive('M');break;
+ case 'ncp':NET.ncpM=o.v;applyHpUps();break;
  case 'slash':if(MODE==='play'&&!M.down)bladeSlash(M,!!o.c,{aim:o.a,remote:1});break;
  case 'arm':armSet('M',o.m);break;
  case 'buup':buUp('M',o.k);break;
@@ -2758,7 +2899,7 @@ function guestOnMsg(o){switch(o.t){
  case 'bust':$('bust').innerHTML=o.h;$('bust').onclick=()=>{$('bust').classList.add('hide');tryLock();};$('bust').classList.remove('hide');if(document.pointerLockElement)document.exitPointerLock();break;
  case 'phone':{const m={from:o.from,text:o.text};PHONE.push(m);phoneShow(m);break;}
  case 'bustHide':$('bust').classList.add('hide');tryLock();break;}}
-function gSay(who,text){const d=DLG[who]||DLG.sys;$('dlg').classList.remove('hide');const im=$('dlgimg');im.style.visibility=d.img?'visible':'hidden';if(d.img)im.src='sprites/'+d.img+'.webp';$('dlgn').textContent=d.n;$('dlgn').style.color=d.col||'#9ab';$('dlgt').textContent='';$('dlgm').style.visibility='hidden';DLGS={full:text,i:0,res:()=>{},g:1};}
+function gSay(who,text){const d=DLG[who]||DLG.sys;dlogPush(d,text);$('dlg').classList.remove('hide');const im=$('dlgimg');im.style.visibility=d.img?'visible':'hidden';if(d.img)im.src='sprites/'+d.img+'.webp';$('dlgn').textContent=d.n;$('dlgn').style.color=d.col||'#9ab';$('dlgt').textContent='';$('dlgm').style.visibility='hidden';DLGS={full:text,i:0,res:()=>{},g:1};}
 function guestCall(f,a){try{
  if(f==='placeHuman'){const c=WHOC(a[0]);if(!c)return;placeHuman(c,a[1],a[2],a[3],a[4]);if(a[0]==='molly'){NET.gseq=a[5];camTarget.set(c.x,1.4,c.z);}return;}
  if(f==='wallOn'||f==='wallOff'){const z=ZONES[a[0]];if(z){if(f==='wallOn'&&a[1]!=null){z.x=a[1];z.z=a[2];}window[f](z);}return;}
@@ -2775,7 +2916,7 @@ function guestCall(f,a){try{
  if(typeof window[f]==='function')window[f](...a);}catch(e){console.warn('guestCall',f,e);}}
 function guestHUD(){if(MODE==='play')['gauge','chips'].forEach(id=>$(id).classList.remove('hide'));$('help').textContent='左クリック バスター（長押しでチャージ）　1〜4／右クリック チップ　ホイール チップ選択　Tab カスタム　R 変形　F フォルダ／ショップ　E ミストのスキル　Space ジャンプ　C スライディング';
  $('roomhelp').textContent='WASD 移動　マウス 視点　F／左クリック 調べる　P スマホ　Shift ダッシュ　（あなたは モリー＆ミスト）';renderHP();}
-function guestInit(){NET.on=true;renderHP();ACT='molly';ACTC=MOLLY;$('gear').classList.remove('hide');MODE='room';SCN='room';enterRoomScene();guestHUD();tryLock();}
+function guestInit(){NET.on=true;setTimeout(()=>{try{ncpSync();}catch(e){}},500);renderHP();ACT='molly';ACTC=MOLLY;$('gear').classList.remove('hide');MODE='room';SCN='room';enterRoomScene();guestHUD();tryLock();}
 function lerpA(a,b,k){let d=b-a;d=Math.atan2(Math.sin(d),Math.cos(d));return a+d*k;}
 function guestApply(dt){const s=NET.snap;if(!s)return;const k=Math.min(1,dt*12);
  PH=s.ph;NETCUR=s.net;Object.assign(FL,s.fl);NET.fz=!!s.fz;NET.hc=!!s.hc;if(s.rof){ROOM_OF.leo=s.rof.leo;if(s.lock)ROOM_OF.molly=s.rof.molly;}
@@ -2833,7 +2974,7 @@ function guestRoomStep(dt){roomLight(ROOM_OF.molly);if(window.FUJI){const R=ROOM
  if(ROOMS.molly.terLight)ROOMS.molly.terLight.material.color.set(FL.terOff&&!FL.pc_molly?'#333':'#c8b070');
  ['hnd','icn'].forEach(k=>{const R=ROOMS[k];if(R.term)R.term.material.color.set(FL.airFixed?'#7dff9a':(Math.floor(T*2)%2?'#ff4f7a':'#5a1a2a'));});}
 function guestSendState(){const o={t:'st',seq:NET.gseq||0};if(MODE==='room'&&MOLLY)o.r=[r2(MOLLY.x),r2(MOLLY.z),r2(MOLLY.face),MOLLY.moving?1:0,MOLLY.sprint?1:0];if(MODE==='play'||MODE==='dead')o.n=[r2(M.x),r2(M.z),r2(M.y||0),r2(M.face),M.moving?1:0,M.slide>0?1:0,M.sprint?1:0];NET.send(o);}
-async function netJoin(id,byCode){let me=byCode?null:(QS.get('r')==='m'?'leo':'molly');if(me){NET.host=me==='leo';NET.guest=!NET.host;}$('modebtns').classList.add('hide');
+async function netJoin(id,byCode){NET.rid=id;let me=byCode?null:(QS.get('r')==='m'?'leo':'molly');if(me){NET.host=me==='leo';NET.guest=!NET.host;}$('modebtns').classList.add('hide');
  netStatus('<b>オンラインのゲームに参加します</b><br>'+(me?'あなたは '+ROLE_TX[me]+' です。':'部屋コード <b style="color:#ffd24a;letter-spacing:.2em">'+id.replace('nlk-','')+'</b>')+'<br><button class="big" id="gjoin" style="margin-top:10px">参加する</button>');
  const go=async()=>{audioInit();netStatus('相手に接続しています…');if(!me){NET.awaitRole=true;NET.rolePromise=new Promise(res=>{NET.roleRes=res;});}
   if(QS.get('bc')){bcListen(id);}
@@ -2867,19 +3008,19 @@ function spawnCores(b){EN.filter(x=>x.k==='ncore'&&x.zone===b.zone).forEach(c=>{
 let last=performance.now(),T=0;
 function cusUI(){const op=cusOpenH();let w=false,t='';if(NET.on&&MODE==='play'){if(NET.host){w=!op&&!!NET.cusG;t=NET.cusG?'モリー：チップを選んでいます…':'モリー：選択OK！';}else{w=!op&&!!NET.fz;t=NET.hc?'レオ：チップを選んでいます…':'レオ：選択OK！';}}$('cwait').classList.toggle('hide',!w);const cp=$('cpart');if(cp.textContent!==(NET.on?t:''))cp.textContent=NET.on?t:'';}
 function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);cusUI();if(window.SKYD){if(SCN==='net'&&(NETCUR==='net1'||NETCUR==='net3'||NETCUR==='inet'))SKYD.position.copy(camera.position);else SKYD.position.set(0,0,0);}worldVis();minimapStep(dt);if(SCN==='net'&&(NETCUR==='net1'||NETCUR==='net3'||NETCUR==='inet')&&(MODE==='play'||MODE==='dead')){worldVisual(dt);shopVisual(dt);if(NETCUR==='inet')inetGateStep(dt);}else if($('shopHint'))$('shopHint').classList.add('hide');
- if(NET.on&&NET.guest){guestApply(dt);if(MODE==='room'){T+=dt;guestRoomStep(dt);}if(MODE==='play'||MODE==='dead'){T+=dt;if(!paused&&!NET.fz)gaugeV=Math.min(1,gaugeV+dt/10);$('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';if(!NET.fz){guestPlayerStep(dt);projStep(dt);waveStep(dt);hazStep(dt);}else{M.moving=false;M.holding=false;}wallStep(dt);enVel(dt);guestVisualStep(dt);$('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:(()=>{const me=NET.on&&NET.guest?M:V;const w=wOf(me);const zs=ZONES.filter(z=>z.net===NETCUR&&!z.clear&&(w==='both'||(z.world||'both')===w||z.world==='both'));const rq=zs.filter(z=>z.req).length;return 'このエリアのウイルス 残り '+zs.length+(rq?'（必須 '+rq+'）':'');})();$('clickme').classList.toggle('hide',locked()||plFail);}
+ if(NET.on&&NET.guest){guestApply(dt);if(MODE==='room'){T+=dt;guestRoomStep(dt);}if(MODE==='play'||MODE==='dead'){T+=dt;if(!paused&&!NET.fz)gaugeV=Math.min(1,gaugeV+dt/10*(1+.25*((ncpOf(NET.on&&NET.guest?'M':'V').cust)||0)));$('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';if(!NET.fz){guestPlayerStep(dt);projStep(dt);waveStep(dt);hazStep(dt);}else{M.moving=false;M.holding=false;}wallStep(dt);enVel(dt);guestVisualStep(dt);$('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:(()=>{const me=NET.on&&NET.guest?M:V;const w=wOf(me);const zs=ZONES.filter(z=>z.net===NETCUR&&!z.clear&&(w==='both'||(z.world||'both')===w||z.world==='both'));const rq=zs.filter(z=>z.req).length;return 'このエリアのウイルス 残り '+zs.length+(rq?'（必須 '+rq+'）':'');})();$('clickme').classList.toggle('hide',locked()||plFail);}
   const nw=performance.now();if(nw-NET.lastSt>50){NET.lastSt=nw;guestSendState();}}
  else{if(NET.on){hostApplyGuest(dt);const nw=performance.now();if(nw-NET.lastSnap>66){NET.lastSnap=nw;hostSnap();}}
  if(MODE==='room'&&!paused){T+=dt;roomStep(dt);}
  if(MODE==='play'&&!worldFrozen()&&!DLGS){
   if(hitstop>0){hitstop-=dt;dt=0;}if(slowT>0){slowT-=dt;dt*=.35;}
   T+=dt;enVel(dt);playerStep(dt,T);if(NET.on)mistRemoteStep(dt);else mistStep(dt);EN.forEach(e=>enemyStep(e,dt));coreStep();petStep(dt);projStep(dt);waveStep(dt);hazStep(dt);wallStep(dt);ZONES.forEach(z=>{if(z.net===NETCUR&&!z.act&&!z.clear&&!z.sym&&z.hx!=null){z.x=z.hx;z.z=z.hz;makeSymbol(z);}symbolStep(z,dt);if(z.act&&!z.clear){if(zoneHas(z,V))confine(V,z);if(!M.down&&zoneHas(z,M))confine(M,z);}});
-  gaugeV=Math.min(1,gaugeV+dt/10);
+  gaugeV=Math.min(1,gaugeV+dt/10*(1+.25*((ncpOf(NET.on&&NET.guest?'M':'V').cust)||0)));
   pickupStep(dt);if(NETCUR==='net1')linkStep(dt);else if(NETCUR==='net3')link3Step(dt);else if(NETCUR==='inet')inetMDStep();ZONES.forEach(z=>{if(z.act&&!z.clear&&EN.filter(e=>e.zone===z).every(e=>e.dead)){z.clear=true;BATTLE_END=T;NET.cusG=false;wallOff(z);onZoneClear(z);const hv=zoneHas(z,V),hm=NET.on&&zoneHas(z,M);if(hv){if(!$('custom').classList.contains('hide')){$('custom').classList.add('hide');paused=false;}CHIPS_IN=[];hand=[];selSlot=0;renderChips();gaugeV=1;rawBanner('ALL DELETED!','#7dff9a');}if(hm)netCall('banner',['ALL DELETED!','#7dff9a']);flashScreen(.2);setTimeout(()=>{if(MODE==='play')showBust(z);},1100);}});
   const allClear=ZONES.every(z=>z.clear);gate.material.color.set(allClear?'#ffd24a':'#555a70');gateIn.material.opacity=allClear?.25+.15*Math.sin(T*4):.05;
   if(false){MODE='end';showResult('第1章 クリア','ケーブル管理ネットのノイズは消えた。<br>――でも、ノイズはどこから来たのか？<br><br>（つづく）',()=>location.reload());}
   $('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:(()=>{const me=NET.on&&NET.guest?M:V;const w=wOf(me);const zs=ZONES.filter(z=>z.net===NETCUR&&!z.clear&&(w==='both'||(z.world||'both')===w||z.world==='both'));const rq=zs.filter(z=>z.req).length;return 'このエリアのウイルス 残り '+zs.length+(rq?'（必須 '+rq+'）':'');})();
-  $('gbar').style.width=(gaugeV*100)+'%';{const inB=ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,NET.on&&NET.guest?M:V));$('gbar').parentElement.parentElement.style.visibility=inB?'visible':'hidden';}$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';$('gbar').style.background=gaugeV>=1?(Math.floor(T*6)%2?'#ffe14d':'#fff'):'#43e6ff';
+  $('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';$('gbar').style.background=gaugeV>=1?(Math.floor(T*6)%2?'#ffe14d':'#fff'):'#43e6ff';
   $('clickme').classList.toggle('hide',locked()||plFail);
  }}
  const FC=NET.on&&NET.guest?(MODE==='room'?MOLLY:M):MODE==='room'?ACTC:V;if(FC){const rtx=Math.cos(yaw),rtz=-Math.sin(yaw);const so=MODE==='room'?.3:.55;const tx=FC.x+rtx*so,tz=FC.z+rtz*so;camTarget.lerp(new THREE.Vector3(tx,(USE3D?1.5:1.35)+(FC.y||0)*.5,tz),Math.min(1,(dt||.016)*10));}
@@ -2892,13 +3033,15 @@ function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;dlgStep(dt);cu
  if(V){[V,M].concat(EN,PETS.map(p=>p.u),ZONES.filter(z=>z.sym).map(z=>z.sym)).forEach(u=>{u.flash=Math.max(0,(u.flash||0)-(dt||.016));updUnit(u,T);});
   const AIMT=MODE==='play'&&EN.length?aimInfo().t:null;EN.forEach(e=>{if(e.dead||!e.zone.act||MODE!=='play'){e.bar.style.display='none';e.hpn.style.display='none';return;}e.hpn.style.display='';const s=scr(e.x,(e.y||0)+e.h+(e.float?.6:.15),e.z);e.bar.style.display=s.vis?'':'none';e.bar.style.left=s.x+'px';e.bar.style.top=s.y+'px';e.bar.firstChild.style.width=(e.hp/e.max*100)+'%';e.hpn.classList.remove('hide');e.hpn.style.display=s.vis?'':'none';e.hpn.style.left=s.x+'px';e.hpn.style.top=(s.y-3)+'px';if(!(e===lockT||e===AIMT||T-(e.hitT||-9)<2.5||e.hp<e.max*.3))e.hpn.style.display='none';if(e.k==='boss'){e.bar.style.display='none';e.hpn.style.display='none';}e.hpn.textContent=(e.k==='boss'?'NOISE ZERO  ':'')+Math.max(0,Math.ceil(e.hp))+(e.k==='boss'&&e.dazed>0?'  ×1.6':'');});
   $('cross').className=(aimInfo().t?'lock':'')+(MODE==='play'?'':' hide');}
+ {const C=NET.on&&NET.guest?M:V;if(lockT&&(lockT.dead||!EN.includes(lockT))){const z=lockT.zone;lockT=liveEn().filter(x=>x.zone===z&&!x.dead).sort((p,q)=>Math.hypot(p.x-C.x,p.z-C.z)-Math.hypot(q.x-C.x,q.z-C.z))[0]||null;}
+  if(NET.on&&NET.guest&&lockT&&!lockT.dead){const ty=Math.atan2(C.x-lockT.x,C.z-lockT.z);let d=ty-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*Math.min(1,(dt||.016)*5);}}
  if(lockT&&!lockT.dead){lockMark.visible=true;lockMark.position.set(lockT.x,.06,lockT.z);lockMark.rotation.z+=(dt||.016)*2;const s=(lockT.k==='boss'?2:1)*(1+.08*Math.sin(T*8));lockMark.scale.setScalar(s);}else lockMark.visible=false;
  decor.forEach(c=>{c.rotation.x+=dt*.5;c.rotation.y+=dt*.7;});gate.rotation.z+=dt;
  for(let k=FX.length-1;k>=0;k--){const f=FX[k];f.t+=dt||.016;if(f.ring){const s=f.ring*(f.t/f.life);f.m.scale.setScalar(Math.max(.01,s));f.m.material.opacity=1-f.t/f.life;}else if(f.fade){if(f.group)f.m.traverse(o=>{if(o.material)o.material.opacity=Math.max(0,.35*(1-f.t/f.life));});else f.m.material.opacity=Math.max(0,1-f.t/f.life);}else if(f.to){f.m.position.lerp(f.to,Math.min(1,(dt||.016)*10));}else if(f.float){f.m.position.addScaledVector(f.v,dt);f.m.rotation.x+=dt*5;f.m.scale.setScalar(Math.max(.01,1-f.t/f.life));}else{f.m.position.addScaledVector(f.v,dt);f.v.y-=9*dt;}if(f.t>f.life){scene.remove(f.m);FX.splice(k,1);}}
  for(let k=pops.length-1;k>=0;k--){const p=pops[k];p.t+=dt||.016;const s=scr(p.x,p.y,p.z);p.d.style.left=s.x+'px';p.d.style.top=(s.y-p.t*40)+'px';p.d.style.opacity=s.vis?Math.min(1,2.2-p.t*2):0;if(p.t>1.1){p.d.remove();pops.splice(k,1);}}
  if(msgT>0){msgT-=dt||.016;$('msg').style.opacity=Math.min(1,msgT*3);}
- drawCharge();if(SND.ctx){const inB=ZONES.find(z=>z.act&&!z.clear);bgmSet(MODE==='room'?'room':!inB?'field':inB.boss?'boss':'battle');bgmTick();}{const be=EN.find(x=>x.k==='boss'&&!x.dead&&x.zone.act);$('bossbar').classList.toggle('hide',!be||MODE!=='play');if(be){$('bbf').style.width=Math.max(0,be.hp/be.max*100)+'%';$('bbp').textContent=['','第1形態','第2形態','第3形態：暴走'][be.phase||1]+(be.dazed>0?'　オーバーヒート中！ダメージ×1.6':'')+(be.binv>0?'　無敵':'');}}glowStep(dt||.016);vignT=Math.max(0,vignT-(dt||.016));wflashT=Math.max(0,wflashT-(dt||.016));$('vign').style.opacity=Math.min(1,vignT*2)+((NET.guest?M:V)&&(NET.guest?M:V).hp<(NET.guest?M:V).max*.25&&MODE==='play'?.35+.2*Math.sin(T*6):0);$('wflash').style.opacity=Math.min(.8,wflashT*3);
- envStep(dt||.016);renderFrame();requestAnimationFrame(frame);}
+ drawCharge();if(SND.ctx){const inB=ZONES.find(z=>z.act&&!z.clear);bgmSet(MODE==='room'?'room':!inB?fieldBgm():inB.boss?'boss':inB.navi?'navi':'battle');bgmTick();}{const be=EN.find(x=>x.k==='boss'&&!x.dead&&x.zone.act);$('bossbar').classList.toggle('hide',!be||MODE!=='play');if(be){$('bbf').style.width=Math.max(0,be.hp/be.max*100)+'%';$('bbp').textContent=['','第1形態','第2形態','第3形態：暴走'][be.phase||1]+(be.dazed>0?'　オーバーヒート中！ダメージ×1.6':'')+(be.binv>0?'　無敵':'');}}glowStep(dt||.016);vignT=Math.max(0,vignT-(dt||.016));{const now=performance.now(),rd=Math.min(.25,(now-(window.__wfL||now))/1000);window.__wfL=now;wflashT=Math.max(0,wflashT-Math.max(dt||.016,rd)*1.6);}$('vign').style.opacity=Math.min(1,vignT*2)+((NET.guest?M:V)&&(NET.guest?M:V).hp<(NET.guest?M:V).max*.25&&MODE==='play'?.35+.2*Math.sin(T*6):0);$('wflash').style.opacity=Math.min(.45,wflashT*1.5);
+ try{partnerStep(dt||.016);}catch(e){}if(!NET.guest&&MODE==='play'&&!paused)[V,M].forEach(A=>{if(!A||A.down)return;const n=ncpOf(A===M?'M':'V');if(n.regen&&A.hp<A.max&&ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,A))){A.rgT=(A.rgT||0)+(dt||.016);if(A.rgT>1.5){A.rgT=0;A.hp=Math.min(A.max,A.hp+2);renderHP();}}});{const me=NET.on&&NET.guest?M:V;const inB=me&&ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,me));const ge=$('gauge');if(ge)ge.style.visibility=inB?'visible':'hidden';}envStep(dt||.016);renderFrame();requestAnimationFrame(frame);}
 let BOOTED=null;function bootGame(quiet){if(BOOTED)return BOOTED;BOOTED=(async()=>{if(quiet){const lo=$('loading');lo.style.visibility='hidden';}
  if(GLL){$('loading').classList.remove('hide');try{await loadAssets();$('ldt').textContent='キャラを組み立て中…';await new Promise(r=>setTimeout(r,30));CH3D.V=await makeChar('fumi',{height:1.7,navi:'volt'});CH3D.M=await makeChar('shino',{height:1.58,navi:'mist'});CH3D.B=await makeChar('dark',{height:2.9,navi:'boss'});CH3D.B.g.visible=false;CH3D.B.shadow.visible=false;USE3D=true;}catch(err){console.warn('3D load failed',err);USE3D=false;$('ldt').textContent='3Dキャラの読み込みに失敗：'+(err&&err.message||err)+'（2Dで続行）';await new Promise(r=>setTimeout(r,2500));}$('loading').classList.add('hide');}
  else{$('loading').classList.remove('hide');$('ldt').textContent='3D読み込み機能（GLTFLoader）が読み込めませんでした（2Dで続行）';await new Promise(r=>setTimeout(r,2500));$('loading').classList.add('hide');}
