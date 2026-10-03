@@ -1505,12 +1505,12 @@ Object.assign(EDEF,{
  wave:{n:'ウェーブガード',img:'en_sparkle',tint:'#5ad8ff',hp:1300,h:2.4,sp:1.9,keep:7,cd:1.45,navi:1,pats:['flood','wave','homing','spread','flood','dash']},
  shade:{n:'シェイド',img:'en_phantom',tint:'#8a5aff',hp:1600,h:2.5,sp:2.2,keep:6,cd:1.3,navi:1,pats:['warp','beam3','homing','warp','spread','slam','tackle']},
  hanabi:{n:'ハナビガイスト',img:'en_sparkle',tint:'#ff8a3a',hp:1500,h:2.4,sp:1.8,keep:8,cd:1.4,navi:1,pats:['meteor','spread','rain','beam3','meteor','homing']},
- bamboo:{n:'バンブーガイスト',img:'en_driller',tint:'#7dff9a',hp:1500,h:2.6,sp:1.7,keep:6,cd:1.45,navi:1,pats:['wave','slam','drop','tackle','wave','beam3']},
+ bamboo:{n:'ブリッジガイスト',img:'en_driller',tint:'#7dff9a',hp:1500,h:2.6,sp:1.7,keep:6,cd:1.45,navi:1,pats:['wave','slam','drop','tackle','wave','beam3']},
  blackout:{n:'ブラックアウト',img:'en_boss',tint:'#ff3b5c',hp:2600,h:2.8,sp:2.2,keep:7,cd:1.25,navi:1,pats:['beam3','meteor','dash','warp','slam','homing','rain','spread']},
  shadesp:{n:'シェイド SP',img:'en_phantom',tint:'#ff5aff',hp:3200,h:2.6,sp:2.6,keep:6,cd:1.0,navi:1,pats:['warp','beam3','homing','warp','spread','slam','tackle','meteor']},
  blackoutsp:{n:'ブラックアウト SP',img:'en_boss',tint:'#ffd24a',hp:4200,h:2.9,sp:2.5,keep:7,cd:1.0,navi:1,pats:['beam3','meteor','dash','warp','slam','homing','rain','spread','flood']}});
 ['wave','shade','hanabi','bamboo','blackout','shadesp','blackoutsp'].forEach(k=>E3S[k]=k.startsWith('blackout')?1.45:1.3);
-setTimeout(()=>Object.assign(DLG,{wave:{n:'ウェーブガード',img:null,col:'#7fe6ff'},shade:{n:'シェイド',img:null,col:'#b98cff'},hanabi:{n:'ハナビガイスト',img:null,col:'#ffb04a'},bamboo:{n:'バンブーガイスト',img:null,col:'#9dff9a'},blackout:{n:'ブラックアウト',img:null,col:'#ff6b7f'},guard:{n:'ライフガード',img:null,col:'#ff9a7a'},vendor:{n:'アイス売りのおじさん',img:null,col:'#ffd27a'},chair:{n:'実行委員長',img:null,col:'#ffd27a'},tech:{n:'照明スタッフ',img:null,col:'#9dff9a'},stall:{n:'だんご屋さん',img:null,col:'#ffb0c0'},zeroc:{n:'ゼロ',img:null,col:'#d8c8ff'}}),0);
+setTimeout(()=>Object.assign(DLG,{wave:{n:'ウェーブガード',img:null,col:'#7fe6ff'},shade:{n:'シェイド',img:null,col:'#b98cff'},hanabi:{n:'ハナビガイスト',img:null,col:'#ffb04a'},bamboo:{n:'ブリッジガイスト',img:null,col:'#9dff9a'},blackout:{n:'ブラックアウト',img:null,col:'#ff6b7f'},guard:{n:'ライフガード',img:null,col:'#ff9a7a'},vendor:{n:'アイス売りのおじさん',img:null,col:'#ffd27a'},chair:{n:'実行委員長',img:null,col:'#ffd27a'},tech:{n:'照明スタッフ',img:null,col:'#9dff9a'},stall:{n:'だんご屋さん',img:null,col:'#ffb0c0'},zeroc:{n:'ゼロ',img:null,col:'#d8c8ff'}}),0);
 Object.assign(NAVI_TALK,{
  wave:{pre:[['wave','……ウミニ……チカヅクナ……。アブナイ……アブナイ……。'],['mist','ヘウンデの監視ドローンの管理ナビ……！　ノイズでおかしくなってる！'],['volt','うしろの監視ドローン管制サーバーが真っ黒だ……。ドローンが暴れてたのは、こいつのせいか！'],['wave','トドカナカッタ……「アリガトウ」……ノ コエ……！'],['mist','……！　助けてもらった人の「ありがとう」が、届かないままだったんだ……。今、止めてあげる！']],
   post:[['wave','……ハッ。浜辺は……海水浴のお客さんは、無事ですか！？'],['mist','うん、みんな無事だよ。ライフガードさんが避難させてくれた。'],['wave','よかった……。黒いカケラが入りこんで、「だれも海に近づけるな」って声がして……。'],['wave','お礼にこれを。浜辺を守るための、わたしのデータです。']],reward:['wavek','W']},
@@ -1518,8 +1518,8 @@ Object.assign(NAVI_TALK,{
   post:[['shade','……グッ……。コレガ……ツナガル チカラ……カ。'],['volt','言え！　ゼロってのは何者なんだ！'],['shade','ワレラ ロストリンクハ……送ラレナカッタ 言葉カラ 生マレタ ナビ。ゼロ様ハ……ソノ 最初ノ ヒトリ。'],['shade','6ツノ カケラハ……ゼロ様ノ 心ノ カケラダ。……ゼロ様ハ……ヒトリニ ナリタク……ナイ……ダケ……。'],['mist','……ひとりに、なりたくない……？'],['shade','……ブラックアウトニ 気ヲツケロ。アイツハ……オレホド 優シクナイ……。']],reward:['shadek','S']},
  hanabi:{pre:[['hanabi','ウチアゲ……ウチアゲ……ゼンブ……イマスグ……！'],['volt','天竜の花火大会の、打ち上げ管理ナビか！'],['volt','花火打ち上げ制御サーバーにノイズが……！　このままじゃ、人がいるのに全部いっぺんに上がっちまう！'],['hanabi','……ミテモラエナカッタ ハナビハ……ナイノト オナジ……！'],['volt','だからって、だれかがケガしたら意味ねえだろ！　止めてやる！']],
   post:[['hanabi','……ハッ！　あ、あぶないところだった……！　打ち上げは、ちゃんと夜の8時からだ！'],['hanabi','黒いカケラが「見てもらえなかった花火の分まで、ぜんぶ上げろ」って……。'],['volt','見てもらえなかった……か。'],['hanabi','今夜はちゃんと、みんなに見せるよ。……キミの友だちにもな。これ、受け取ってくれ！']],reward:['hanabik','H']},
- bamboo:{pre:[['bamboo','……ヒカルナ……ダレモ……ミテイナイ……。'],['mist','十里竹林のライトアップの管理ナビ……！'],['mist','竹林ライトアップ制御サーバーがノイズだらけ……。だから明かりが消えたり、ぜんぶ赤くなったりしてたんだ。'],['bamboo','……トドカナイ ヒカリハ……ケシテ シマエ……！'],['mist','届くよ。今夜は、海の向こうの花火とつながる日なんだから！']],
-  post:[['bamboo','……おや……竹林が、静かになった……。'],['bamboo','あの黒いカケラ、「だれにも届かない光なら消してしまえ」と泣いていました。'],['mist','……泣いてた？'],['bamboo','ええ。……お礼です。竹のように、まっすぐ届きますように。']],reward:['bambook','B']},
+ bamboo:{pre:[['bamboo','……ヒカルナ……ダレモ……ミテイナイ……。'],['mist','広安大橋のライトアップの管理ナビ……！'],['mist','橋のライトアップ制御サーバーがノイズだらけ……。だから明かりが消えたり、ぜんぶ赤くなったりしてたんだ。'],['bamboo','……トドカナイ ヒカリハ……ケシテ シマエ……！'],['mist','届くよ。今夜は、海の向こうの花火とつながる日なんだから！']],
+  post:[['bamboo','……おや……橋の光が、落ちついた……。'],['bamboo','あの黒いカケラ、「だれにも届かない光なら消してしまえ」と泣いていました。'],['mist','……泣いてた？'],['bamboo','ええ。……お礼です。この橋のように、海をこえて届きますように。']],reward:['bambook','B']},
  blackout:{pre:[['blackout','……ミツケタ。カケラ、6ツ。ゼンブ ソロッテイル。'],['blackout','オレハ ブラックアウト。ロストリンクノ 最後ノ 幹部ダ。'],['blackout','ネットスクエアゴト 真ッ暗ニ シテ、カケラヲ イタダク。'],['volt','させるかよ！'],['mist','わたしたち、もうひとりじゃない。……ふたりで、止める！']],
   post:[['blackout','……バカナ……真ッ暗ナ 中デモ……光ッテ イヤガル……。'],['blackout','……ゼロ……様……。カケラヲ……届ケ……ラレナ……カッタ……。'],['volt','……こいつらみんな、「届けられなかった」ばっかりだな。']],reward:['blackk','K']},
  shadesp:{pre:[['shade','……マタ 会ッタナ。今度ハ 本気ダ。ウラノ 深層デ、強クナッテ キタ。'],['volt','望むところだ！']],post:[['shade','……ヤハリ……オマエタチハ 強イ。……ゼロ様ハ 元気カ？'],['mist','うん。今は「配達係」をがんばってるよ。'],['shade','……ソウカ。……ソレハ……ヨカッタ。']],reward:['shadek','*']},
@@ -1528,7 +1528,7 @@ Object.assign(CH,{
  wavek:{n:'ウェーブガード',ic:'chip_wave',d:'ナビチップ：まわりに大波 80（全方向）'},
  shadek:{n:'シェイド',ic:'chip_data',d:'ナビチップ：いちばん近い敵の背後から斬る 150'},
  hanabik:{n:'ハナビガイスト',ic:'chip_bomb',d:'ナビチップ：ねらった所に花火3連発 各70'},
- bambook:{n:'バンブーガイスト',ic:'chip_long',d:'ナビチップ：竹やりが一直線に突き出す 100'},
+ bambook:{n:'ブリッジガイスト',ic:'chip_long',d:'ナビチップ：光のビームが一直線にのびる 100'},
  blackk:{n:'ブラックアウト',ic:'chip_data',d:'ナビチップ：暗闇から追尾弾8発 各35'}});
 Object.assign(NAVICHIP,{wavek:'wave',shadek:'shade',hanabik:'hanabi',bambook:'bamboo',blackk:'blackout'});
 function castNavi3(id,C,aim){
@@ -1590,11 +1590,15 @@ defArea('tenryu2',[-300,1830],{n:'テンリュウ 花火ネット',spawn:[0,-2],
  addMD({id:'t2_kasen',x:A.o[0]+32,z:A.o[1]+26,c:{chip:['hicannon','H']}});addMD({id:'t2_top',x:A.o[0]+10,z:A.o[1]+64,c:{ncp:'chg'}});
  addHeal(A.o[0],A.o[1]+44);}});
 // TAEHWA bamboo net (ch6)
-defArea('taehwa',[600,1830],{n:'ウルサン 竹林ネット',spawn:[0,-2],col:'#7dff9a',areas:[['ウルサン 竹林ネット',[-8,-8,8,40]],['竹の小道',[-34,10,-8,26]],['竹林の奥',[-14,40,14,70]]],build(A){
+defArea('taehwa',[600,1830],{n:'釜山 ブリッジネット',spawn:[0,-2],col:'#7dff9a',areas:[['釜山 ブリッジネット',[-8,-8,8,40]],['海辺のプロムナード',[-34,10,-8,26]],['橋のたもと',[-14,40,14,70]]],build(A){
  AK.floor(A,[-6,-6,6,6],AK.tex.bamboo,'#7dff9a','#04100a');AK.floor(A,[-4,6,4,42],AK.tex.bamboo,'#7dff9a','#04100a');
  AK.floor(A,[-20,14,-4,20],AK.tex.bamboo,'#c8ff9a','#04100a');AK.floor(A,[-34,8,-20,28],AK.tex.bamboo,'#7dff9a','#04100a');AK.floor(A,[-12,42,12,66],AK.tex.bamboo,'#7dff9a','#04100a');
- for(let i=0;i<70;i++){const x=rnd(-40,40),z=rnd(-10,76);if(Math.abs(x)<6&&z<44)continue;if(x<-3&&x>-35&&z>7&&z<29)continue;if(Math.abs(x)<13&&z>40)continue;const h=rnd(8,16);const b=new THREE.Mesh(new THREE.CylinderGeometry(.18,.22,h,6),new THREE.MeshBasicMaterial({color:i%3?'#2a7a3a':'#5ab85a'}));b.position.set(A.o[0]+x,h/2-1,A.o[1]+z);field.add(b);}
- AK.sign(A,[['태화강','#fff'],['TAEHWA BAMBOO NET','#7dff9a',24]],0,3,6.05,Math.PI,5,1.5,'#04100a','#7dff9a');
+ AK.water(A,20,30,120,120,-1.6);
+ [[22,20],[22,56]].forEach(([x,z])=>{wbox(1.2,24,1.2,'#dfe6ff',A.o[0]+x,10,A.o[1]+z);wbox(1.4,1,4,'#dfe6ff',A.o[0]+x,22,A.o[1]+z);});
+ wbox(1.6,.6,70,'#3a4a8a',A.o[0]+22,8,A.o[1]+38);
+ const bl=[];for(let i=0;i<34;i++){const l=new THREE.Mesh(new THREE.SphereGeometry(.3,8,6),new THREE.MeshBasicMaterial({color:'#7dff9a'}));l.position.set(A.o[0]+22,8.6,A.o[1]+5+i*2);field.add(l);bl.push(l);}
+ WANIM.push((dt,t)=>{bl.forEach((l,i)=>l.material.color.set(['#ff6b6b','#5ab8ff','#ffd24a'][Math.floor(i/3+t*.6)%3]));});
+ AK.sign(A,[['광안대교','#fff'],['BUSAN BRIDGE NET','#7dff9a',24]],0,3,6.05,Math.PI,5,1.5,'#04100a','#7dff9a');
  envRing(A.o[0],A.o[1]+30,100,160,24,['#d8ffd8','#7dff9a','#ffd24a'],8,30);
  gateFace(addGate(A,-5,1,'hub','ネットスクエアへ','#ffd24a'),Math.PI/2);
  addZone(A,{req:1,x:0,z:18,r:8,list:[['driller',-3,2],['driller',3,2],['medic',0,-2],['sparkle',0,3]]});
@@ -1645,7 +1649,7 @@ defArea('urad',[-300,1160],{n:'ウラ 深層',spawn:[0,-2],col:'#ff5aff',areas:[
  addZone(A,{x:0,z:66,r:11,navi:'blackoutsp',list:[['blackoutsp',0,3]]});
  addMD({id:'ud_1',x:A.o[0]+12,z:A.o[1]+38,c:{ncp:'fbar'}});addMD({id:'ud_2',x:A.o[0]-12,z:A.o[1]+76,c:{chip:['giga','G']}});addHeal(A.o[0],A.o[1]+46);}});
 // hub: Blackout arena (ch6) + extra gates
-function hubExtra(){const A=IAREAS.hub;addGate(A,-11,11,'tenryu2','静岡・天竜の花火','#ff8a3a','hubCh6');addGate(A,11,11,'taehwa','ウルサンの竹林','#7dff9a','hubCh6');
+function hubExtra(){const A=IAREAS.hub;addGate(A,-11,11,'tenryu2','静岡・天竜の花火','#ff8a3a','hubCh6');addGate(A,11,11,'taehwa','釜山の広安大橋','#7dff9a','hubCh6');
  IGATES.filter(G=>G.A==='hub'&&(G.to==='tenryu2'||G.to==='taehwa')).forEach(G=>{const a=Math.atan2(G.x-A.o[0],G.z-A.o[1]);G.grp.rotation.y=a+Math.PI;WG.i_hub.add(G.grp);});
  const z=addZone(A,{req:0,navi:'blackout',x:0,z:9,r:7,list:[['blackout',0,3]]});z.clear=true;if(z.sym){scene.remove(z.sym.g);z.sym=null;}}
 hubExtra();
@@ -1716,7 +1720,7 @@ function buildTrader(S){const g=new THREE.Group();g.position.set(S.x,0,S.z);g.ro
 SHOPS.slice(-2).forEach(S=>S.trader?buildTrader(S):buildShopNpc(S));
 const IALL=[].concat(...Object.values(IAREAS).map(A=>A.rects));
 // ---- servers under attack (motif for navi/boss fights) ----
-const SRV_NAME={wave:'ヘウンデ 監視ドローン管制サーバー',shade:'陸揚げ局 国際中継サーバー',hanabi:'天竜 花火打ち上げ制御サーバー',bamboo:'十里竹林 ライトアップ制御サーバー',blackout:'ネットスクエア 中央サーバー',dam:'天竜ダム 水門制御サーバー',crane:'ウルサン港 荷役管理サーバー',neon:'明洞 街頭ビジョン配信サーバー',liner:'山手線 運行管理サーバー',boss:'空港 管制コアサーバー'};const SERVERS=[];
+const SRV_NAME={wave:'ヘウンデ 監視ドローン管制サーバー',shade:'陸揚げ局 国際中継サーバー',hanabi:'天竜 花火打ち上げ制御サーバー',bamboo:'広安大橋 ライトアップ制御サーバー',blackout:'ネットスクエア 中央サーバー',dam:'天竜ダム 水門制御サーバー',crane:'ウルサン港 荷役管理サーバー',neon:'明洞 街頭ビジョン配信サーバー',liner:'山手線 運行管理サーバー',boss:'空港 管制コアサーバー'};const SERVERS=[];
 function zoneStartPt(zn){if(zn.net==='inet'){const A=IAREAS[zn.world];return A?A.spawn:[zn.x,zn.z-10];}const W=(zn.net==='net3'?WORLDS3:WORLDS)[zn.world];return W?W.start:[zn.x,zn.z-10];}
 function makeServer(zn){const k=zn.final?null:zn.navi||(zn.boss?'boss':null);if(!k||!SRV_NAME[k])return;const st=zoneStartPt(zn);let dx=zn.x-st[0],dz=zn.z-st[1];const d=Math.hypot(dx,dz)||1;dx/=d;dz/=d;const D=zn.r+2.6;const signs=[];field.traverse(o=>{if(o.userData&&o.userData.sign){const p=o.getWorldPosition(new THREE.Vector3());signs.push(p);}});scene.children.forEach(o=>{if(o.userData&&o.userData.sign)signs.push(o.position);});
  let best=null,bs=-1;[0,.6,-.6,1.2,-1.2,Math.PI/2,-Math.PI/2].forEach(a=>{if(bs>=6)return;const cx=dx*Math.cos(a)-dz*Math.sin(a),cz=dx*Math.sin(a)+dz*Math.cos(a);const px=zn.x+cx*D,pz=zn.z+cz*D;let md=99;signs.forEach(p=>{md=Math.min(md,Math.hypot(p.x-px,p.z-pz));});if(md>bs+.5){bs=md;best=[px,pz,cx,cz];}if(bs>=6&&best)return;});
@@ -1855,19 +1859,29 @@ function buildTenryu(){const key='tenryu';const g=outdoorBase(key,{ox:-900,oz:-7
  ROOMS.tenryu.pad=mkPad(key,7,-.4,'#ff8a3a');
  INTER.push({room:key,x:7,z:-.5,r:1.2,label:'本部のタブレット',fn:talkTablet},{room:key,x:5.2,z:.2,r:1.2,label:'実行委員長',fn:talkChair},{room:key,x:0,z:2.1,r:1.3,label:'打ち上げプログラム',fn:talkProgram},
   {room:key,x:-11,z:-2.1,r:1.2,label:'石碑',fn:talkMonument},{room:key,x:-8,z:3,r:1.3,label:'だんご屋',fn:talkDango},{room:key,x:-6,z:-1,r:1.3,label:'ママ',fn:talkMom6},{room:key,x:13.3,z:-2.8,r:1.2,label:'滝の裏',fn:talkJizo},{room:key,x:11.4,z:-3,r:1,label:'滝',fn:async()=>{await say('leo','天竜の滝。……水しぶきがつめたい。うしろのほう、なんか空洞っぽいな。');}});}
-function buildBamboo(){const key='bamboo';const g=outdoorBase(key,{ox:-1500,oz:400,w:26,d:18,sky:[[0,'#040818'],[.42,'#141a40'],[.5,'#4a3a6a'],[.52,'#101a20'],[1,'#04060a']],stars:1,ground:'#1e2a1a',hemi:.5,hcol:'#d8ffd8'});
- const lights=[];for(let i=0;i<140;i++){const x=rnd(-16,16),z=rnd(-12,12);if(Math.abs(x)<9&&Math.abs(z)<5)continue;if(Math.abs(x)<2.2)continue;if(Math.hypot(x+11.4,z+6.2)<2.2)continue;const h=rnd(6,11);cyl(g,x,h/2,z,.12,h,i%3?'#3a7a3a':'#5a9a4a');if(i%9===0){const l=new THREE.Mesh(new THREE.SphereGeometry(.22,8,6),new THREE.MeshBasicMaterial({color:'#ffd27a'}));l.position.set(x,.3,z);g.add(l);lights.push(l);}if(Math.abs(x)<13&&Math.abs(z)<9&&Math.hypot(x+11.4,z+6.2)>2.4)block(key,x,z,.4,.4);}
+function buildBamboo(){const key='bamboo';const g=outdoorBase(key,{ox:-1500,oz:400,w:26,d:18,sky:[[0,'#040818'],[.42,'#141a40'],[.5,'#4a3a6a'],[.52,'#101a20'],[1,'#04060a']],stars:1,ground:'#3a3640',hemi:.55,hcol:'#e0e4ff'});
+ const lights=[];
+ const sea=new THREE.Mesh(new THREE.PlaneGeometry(200,90),new THREE.MeshBasicMaterial({color:'#0a1a34'}));sea.rotation.x=-Math.PI/2;sea.position.set(0,.01,-55);g.add(sea);
+ box(g,0,.15,-9.6,40,.3,.4,'#5a5a64');
+ // Gwangan bridge in the distance
+ const BZ=-38;box(g,0,7,BZ,140,.8,2.2,'#2a3048');box(g,0,5.2,BZ,140,.5,1.8,'#22283c');
+ [-22,22].forEach(x=>{[-1,1].forEach(k=>box(g,x,10,BZ+k*.9,1,20,.8,'#dfe6f0'));box(g,x,19.5,BZ,1,1,2.6,'#dfe6f0');
+  for(let i=0;i<14;i++){const t=(i+1)/15;[-1,1].forEach(sd=>{const xx=x+sd*t*20;const h=19-t*11.5;const c=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,Math.hypot(t*20,19-h),4),new THREE.MeshBasicMaterial({color:'#9fb8ff'}));c.position.set((x+xx)/2,(19+h)/2+7.4-7,BZ);c.rotation.z=Math.atan2(xx-x,19-h)*-1;g.add(c);});}});
+ for(let i=0;i<40;i++){const l=new THREE.Mesh(new THREE.SphereGeometry(.35,8,6),new THREE.MeshBasicMaterial({color:'#5a3a4a'}));l.position.set(-60+i*3,7.6,BZ+1.2);g.add(l);lights.push(l);}
+ // promenade lamps
+ for(let i=0;i<6;i++){const x=-12+i*4.8;cyl(g,x,1.8,-8.6,.07,3.6,'#3a3a44');const l=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),new THREE.MeshBasicMaterial({color:'#ffe0a0'}));l.position.set(x,3.7,-8.6);g.add(l);block(key,x,-8.6,.3,.3);}
+ for(let i=0;i<5;i++){box(g,-9+i*4.5,.4,4.8,2.2,.15,.6,'#6a5040');block(key,-9+i*4.5,4.8,2.2,.6);}
  ROOMS.bamboo.lights=lights;
  // controller
- box(g,5,.6,-2,1.2,1.2,.8,'#2a3a2a');box(g,5,1.25,-1.6,.9,.5,.05,'#7dff9a',1);block(key,5,-2,1.3,.9);outSign(g,[['竹林ライトアップ 制御盤','#fff'],['십리대숲 조명','#7dff9a',22]],5,1.9,-1.55,Math.PI,1.8,.5,'#0a1a0a','#7dff9a');
+ box(g,5,.6,-2,1.2,1.2,.8,'#2a3a2a');box(g,5,1.25,-1.6,.9,.5,.05,'#7dff9a',1);block(key,5,-2,1.3,.9);outSign(g,[['広安大橋ライトアップ 制御盤','#fff'],['광안대교 조명','#7dff9a',22]],5,1.9,-1.55,Math.PI,1.8,.5,'#0a1a0a','#7dff9a');
  // poster about exchange event
  box(g,-4,1,3.5,2,1.6,.1,'#1a2a1a');block(key,-4,3.5,2,.3);outSign(g,[['日韓交流ライトアップ','#ffd27a',22],['「海をこえて、同じ色」','#fff',22],['天竜の花火と同じ順番で光ります','#9dff9a',18]],-4,1.05,3.44,Math.PI,1.9,1.2,'#0a1a0a','#ffd27a');
  // magpie nest (hidden, high on a bamboo at the edge)
- cyl(g,-11.5,4,-7,.14,8,'#3a7a3a');const nest=new THREE.Mesh(new THREE.TorusGeometry(.35,.15,6,12),toon('#6a4a2a'));nest.rotation.x=Math.PI/2;nest.position.set(-11.5,5.5,-7);g.add(nest);
+ cyl(g,-11.5,2.6,-7,.09,5.2,'#3a3a44');box(g,-11.5,5.2,-7,.6,.08,.6,'#3a3a44');const nest=new THREE.Mesh(new THREE.TorusGeometry(.35,.15,6,12),toon('#6a4a2a'));nest.rotation.x=Math.PI/2;nest.position.set(-11.5,5.4,-7);g.add(nest);
  ROOMS.bamboo.pad=mkPad(key,5,-1.1,'#7dff9a');
- INTER.push({room:key,x:5,z:-1.2,r:1.2,label:'制御盤',fn:talkCtrl},{room:key,x:2.5,z:0,r:1.3,label:'照明スタッフ',fn:talkTech},{room:key,x:-4,z:2.8,r:1.3,label:'ポスター',fn:talkPoster},{room:key,x:-2,z:-1,r:1.3,label:'オモニ',fn:talkOmma6},{room:key,x:-11.4,z:-6.2,r:.8,label:'高い竹の上',fn:talkNest});}
+ INTER.push({room:key,x:5,z:-1.2,r:1.2,label:'制御盤',fn:talkCtrl},{room:key,x:2.5,z:0,r:1.3,label:'照明スタッフ',fn:talkTech},{room:key,x:-4,z:2.8,r:1.3,label:'ポスター',fn:talkPoster},{room:key,x:-2,z:-1,r:1.3,label:'オモニ',fn:talkOmma6},{room:key,x:-11.4,z:-6.2,r:.8,label:'高い街灯の上',fn:talkNest});}
 const _buildHome0=buildHome;buildHome=async function(){await _buildHome0();try{buildBeach();buildTenryu();buildBamboo();}catch(e){console.warn('outdoor',e);}};
-function locOf(k){return ({arr:'金海空港',hnd:'静岡空港',icn:'金海空港',beach:'プサン',tenryu:'静岡・天竜',bamboo:'ウルサン',molly:'ウルサン',mollyL:'ウルサン',leo:'静岡',leoL:'静岡'})[k]||'';}
+function locOf(k){return ({arr:'金海空港',hnd:'静岡空港',icn:'金海空港',beach:'プサン',tenryu:'静岡・天竜',bamboo:'釜山',molly:'ウルサン',mollyL:'ウルサン',leo:'静岡',leoL:'静岡'})[k]||'';}
 function dressP3(){FL.dress='dressP3';recolorChar(NPC1,{Tops:'#d83a3a',Bottoms:'#1a2a4a',Shoes:'#e8e4dc'},'#2a2020');recolorChar(NPC2,{Tops:'#e8e4dc',Bottoms:'#3a4a3a',Shoes:'#3a3030'},'#3a2a20');}
 function dressP3b(){FL.dress='dressP3b';recolorChar(NPC1,{Tops:'#2a3a8a',Bottoms:'#2a2a30',Shoes:'#15161a'},'#9a9a9a');recolorChar(NPC2,{Tops:'#2a5a3a',Bottoms:'#2a2a30',Shoes:'#15161a'},'#2a2020');}
 // ---- CHAPTER 5: Busan beach ----
@@ -1919,18 +1933,18 @@ async function ch6Start(){chapReached('p2c6');busyStory=true;dressStaff();FL.fra
  fade(true);await wait(500);placeHuman(LEO,'arr',-2,1,Math.PI/2);placeHuman(MOLLY,'arr',-.8,1,-Math.PI/2);ACT='leo';ACTC=LEO;enterRoomScene();fade(false);
  await chapter('CHAPTER 6','ふたつの空');
  await say('sys','――5日目の朝。金海空港の出発ロビー。');await say('molly','……来たときは「到着」の出口だったのにね。');await say('leo','今日は「出発」の入り口か。……なんか、さみしいな。');
- await say('molly','レオ。これ。');await say('sys','モリーは、小さな竹細工のキーホルダーをくれた。「ウルサンの十里竹林のおみやげ」だという。');
+ await say('molly','レオ。これ。');await say('sys','モリーは、小さな橋のキーホルダーをくれた。「釜山の広安大橋（クァンアンデギョ）のおみやげ」だという。');
  await say('leo','……じゃあ、オレからはこれ。');await say('sys','レオは、天竜の花火大会のうちわをわたした。「今夜、天竜で花火大会があるんだ。見れたら、写真送る」');
  await say('volt','（スマホ）ミスト、またネットでな！');await say('mist','（スマホ）うん。……すぐ、またね。');
- fade(true);await wait(800);await say('sys','（――その日の夜。静岡・天竜川の河原。花火大会の夜）');await say('sys','（同じころ、ウルサン・ウルサンの十里竹林では、日韓交流のライトアップが始まろうとしていた）');
+ fade(true);await wait(800);await say('sys','（――その日の夜。静岡・天竜川の河原。花火大会の夜）');await say('sys','（同じころ、モリーはオンマと釜山に残っていた。海にかかる広安大橋（クァンアンデギョ）で、日韓交流のライトアップが始まろうとしていた）');
  dressP3b();placeHuman(LEO,'tenryu',-4,0,Math.PI*.6);placeHuman(MOM1,'tenryu',-6,-1,Math.PI*.6);placeHuman(NPC1,'tenryu',5.2,.6,Math.PI);placeHuman(MOLLY,'bamboo',-1,1,Math.PI);placeHuman(MOM2,'bamboo',-2,-.6,Math.PI);placeHuman(NPC2,'bamboo',2.6,.6,Math.PI);
  enterRoomScene();yaw=Math.PI*.1;pitch=.25;dist=4.4;fade(false);PH='c6';
  SFX('phase');shakeT=.4;await say('chair','うわあ！　打ち上げの予定が、ぜんぶ「今すぐ」になってる！？　打ち上げ場所のそばで、まだスタッフが準備してるのに！');
  await say('volt','（レオのスマホ）レオ！　花火の制御システムにノイズだ！　しかもウルサンのほうでも……！');
- await say('molly','（通話）レオ！　こっちの竹林のライト、真っ赤になったり消えたり……！');await say('mist','（モリーのスマホ）また、あのノイズだよ！');
+ await say('molly','（通話）レオ！　こっちの橋のライト、真っ赤になったり消えたり……！');await say('mist','（モリーのスマホ）また、あのノイズだよ！');
  await say('leo','……2人とも、ちょうどいい場所にいるってことだな。いくぞ、モリー！');await say('molly','うん！');
  updCh6();busyStory=false;tryLock();}
-function updCh6(){if(PH!=='c6')return;const t=(k,s)=>(FL[k]?'✔ ':'・ ')+s;objective2('花火と竹林、両方のシステムを止めよう（X で切りかえ）<br>'+t('c6chair','レオ：実行委員長に話を聞く')+'<br>'+t('c6prog','レオ：打ち上げプログラム（本部前の掲示板）を見て、モリーに送る')+'<br>'+t('c6tab','レオ：本部のタブレットのロックを外す')+'<br>'+t('c6tech','モリー：照明スタッフに話を聞く')+'<br>'+t('c6ctrl','モリー：制御盤に光る順番を入れる'));
+function updCh6(){if(PH!=='c6')return;const t=(k,s)=>(FL[k]?'✔ ':'・ ')+s;objective2('花火と橋、両方のシステムを止めよう（X で切りかえ）<br>'+t('c6chair','レオ：実行委員長に話を聞く')+'<br>'+t('c6prog','レオ：打ち上げプログラム（本部前の掲示板）を見て、モリーに送る')+'<br>'+t('c6tab','レオ：本部のタブレットのロックを外す')+'<br>'+t('c6tech','モリー：照明スタッフに話を聞く')+'<br>'+t('c6ctrl','モリー：制御盤に光る順番を入れる'));
  if(FL.c6tab&&FL.c6ctrl&&PH==='c6'){PH='c6pad';objective2('レオは本部のパネル、モリーは制御盤のパネルへ（同時にダイブ）');setPads([ROOMS.tenryu.pad,ROOMS.bamboo.pad],c6Dive);}}
 async function talkChair(){if(!FL.c6chair){await say('chair','きみ、ネットナビを持ってるのかい！？　本部のタブレットから、制御システムに入れるはずだ。');await say('chair','でも、ロックがかかっててなあ。パスワードは……「この花火大会がはじまった年」だ。年をとると、ど忘れしちゃってな……。');
   await say('chair','たしか河原の石碑に書いてあったはずだよ。');FL.c6chair=1;SFX('chip');updCh6();return;}await say('chair','タブレットは本部のテントの中だよ！');}
@@ -1945,16 +1959,16 @@ async function talkJizo(){if(FL.c6jizo){await say('sys','滝の裏のお地蔵�
  await say('sys','滝の裏に、せまい空洞がある。……奥に、小さなお地蔵さんがいた。');if(!FL.c6dango){await say('leo','……なにかお供えしたいな。だんご屋さんで、なにか買ってこようか。');return;}
  const i=await choose('みたらしだんごをお供えする？',['お供えする','やめる']);if(i!==0)return;FL.c6jizo=1;SFX('bust');await say('sys','だんごをそなえて、手を合わせた。……お地蔵さんの足もとで、なにかが光った。');
  if(secGot('jizo')){await say('sys','（お地蔵さんの宝物は、前にもう受け取っている）');}else{secReward('jizo');await say('sys','プログラム「HP+100」と チップ「インビジブル *」と 2000ゼニー を手に入れた！');}await say('volt','（スマホ）……滝の裏にお地蔵さんって、なんかいいな。');}
-async function talkTech(){if(!FL.c6tech){await say('tech','きみ、さっき日本の友だちと通話してた子だよね？　ネットナビで制御盤を直せるって、ほんと？');await say('tech','制御盤を動かすには、光らせる「色の順番」を入れないといけないんだ。今年は日韓交流イベントで……ポスターに書いてあるよ。');FL.c6tech=1;SFX('chip');updCh6();return;}await say('tech','制御盤は、竹林の小道の先だよ。');}
-async function talkPoster(){await say('sys','「日韓交流ライトアップ　海をこえて、同じ色　――天竜の花火と同じ順番で光ります」');if(!FL.c6poster){FL.c6poster=1;await say('molly','天竜の花火と同じ順番……。レオに聞かなきゃ！');phoneSend('molly','竹林のライト、天竜の花火と同じ色の順番なんだって。プログラム見れる？');SFX('chip');}}
+async function talkTech(){if(!FL.c6tech){await say('tech','きみ、さっき日本の友だちと通話してた子だよね？　ネットナビで制御盤を直せるって、ほんと？');await say('tech','制御盤を動かすには、光らせる「色の順番」を入れないといけないんだ。今年は日韓交流イベントで……ポスターに書いてあるよ。');FL.c6tech=1;SFX('chip');updCh6();return;}await say('tech','制御盤は、プロムナードの先だよ。');}
+async function talkPoster(){await say('sys','「日韓交流ライトアップ　海をこえて、同じ色　――天竜の花火と同じ順番で光ります」');if(!FL.c6poster){FL.c6poster=1;await say('molly','天竜の花火と同じ順番……。レオに聞かなきゃ！');phoneSend('molly','橋のライト、天竜の花火と同じ色の順番なんだって。プログラム見れる？');SFX('chip');}}
 async function talkCtrl(){if(FL.c6ctrl){await say('sys','「LIGHT CONTROL — 認証済み。ダイブ待機中」');return;}if(!FL.c6tech){await say('sys','制御盤。真っ赤なランプが点滅している。……だれかに聞いてみよう。');return;}
  const i=await choose('光らせる色の順番は？',['赤 → 青 → 金','青 → 赤 → 金','金 → 青 → 赤','やめる']);if(i===3)return;if(i===0){SFX('bust');await say('sys','ピピッ！「パターン認証OK」');FL.c6ctrl=1;(ROOMS.bamboo.lights||[]).forEach((l,k)=>l.material.color.set(['#ff5a5a','#5ab8ff','#ffd24a'][k%3]));await say('mist','（スマホ）入れる！　レオのほうは？');updCh6();}
  else{SFX('hurt');await say('sys','ブブー！「パターンが一致しません」');await say('mist','（スマホ）天竜の花火の順番……レオに聞いてみよ？');}}
 async function talkOmma6(){await say('mom2','モリー、さっきからスマホとにらめっこして……。レオと話してるのね？');}
-async function talkNest(){if(FL.c6nest){await say('sys','カササギの巣。もう何もない。');return;}await say('sys','高い竹のてっぺんに、カササギの巣がある。……巣のふちに、キラキラしたものがひっかかっている。');
- await say('molly','カササギは、うれしい知らせを運ぶ鳥なんだって。……ちょっと失礼して。');FL.c6nest=1;SFX('bust');if(secGot('nest')&&!(NET.on&&NET.actor==='molly')){await say('sys','（巣の宝物は、前にもう受け取っている）');}else{secReward('nest');await say('sys','チップ「サンダーボール *」と 2000ゼニー を手に入れた！');}}
+async function talkNest(){if(FL.c6nest){await say('sys','カモメの巣。もう何もない。');return;}await say('sys','高い街灯のてっぺんに、カモメの巣がある。……巣のふちに、キラキラしたものがひっかかっている。');
+ await say('molly','カモメは、港に帰ってくる船の目じるしなんだって。……ちょっと失礼して。');FL.c6nest=1;SFX('bust');if(secGot('nest')&&!(NET.on&&NET.actor==='molly')){await say('sys','（巣の宝物は、前にもう受け取っている）');}else{secReward('nest');await say('sys','チップ「サンダーボール *」と 2000ゼニー を手に入れた！');}}
 async function c6Dive(){await say('leo','モリー、せーので！');await say('molly','せーの……！');await say('leo','リンク・ダイブ！');flashScreen(.6);SFX('phase');await wait(500);fade(true);await wait(600);PH='c6net';FL.hubCh6=1;enterNet('inet');V.x=0;V.z=1497;fade(false);
- await say('mist','ネットスクエアに、天竜とウルサンの竹林へのゲートが出てる！');await say('volt','2か所とも止めるぞ。どっちからでもいい！');objective2('ネットスクエアの「天竜」と「ウルサンの竹林」のゲートから、2つのシステムを止めよう');tryLock();}
+ await say('mist','ネットスクエアに、天竜と釜山の広安大橋へのゲートが出てる！');await say('volt','2か所とも止めるぞ。どっちからでもいい！');objective2('ネットスクエアの「天竜」と「釜山の広安大橋」のゲートから、2つのシステムを止めよう');tryLock();}
 async function ch6Blackout(){busyStory=true;await wait(600);SFX('phase');shakeT=.8;flashScreen(.4);
  await say('mist','……待って！　ネットスクエアの中央サーバーに、すごく強い反応……！');await say('volt','カケラが6つそろったのを、待ってやがったな……！');
  const z=ZONES.find(z=>z.navi==='blackout');if(z&&z.clear){z.clear=false;z.hx=z.x;z.hz=z.z;makeSymbol(z);}FL.c6blk=1;
@@ -1967,8 +1981,8 @@ async function ch6End(){busyStory=true;await wait(600);SFX('phase');shakeT=.6;
  await say('mist','……それって。だれかを、守ろうとしてるの……？');await say('zero','……ウラヘ 来イ。カケラヲ 持ッテ。……ソコデ、オワラセル。');await say('zero','……タダシ、ウラノ 扉ハ 3ツノ「ウラコード」デ 閉ジテイル。……ソレスラ 見ツケラレヌナラ、来ル 資格ハ ナイ。');
  FL.hubUra=1;SFX('custom');await say('sys','ネットスクエアの南に、ウラインターネットへのゲートがあらわれた。……でも、3つのカギ穴が光っている。');
  await jackOut();busyStory=true;placeHuman(LEO,'leo',0,.3,Math.PI);placeHuman(MOLLY,'molly',0,.3,Math.PI);ACT='leo';ACTC=LEO;enterRoomScene();
- await say('sys','――そして、夜8時。天竜の空には、ちゃんと花火があがった。ウルサンの竹林も、赤・青・金の順番に光った。');
- await say('molly','（通話）レオ、見えた？　竹林、きれいに光ったよ。');await say('leo','こっちも。……花火、ちゃんと夜8時にあがった。');await say('molly','同じ時間に、同じ色。……海をこえて、ちゃんとつながってた。');
+ await say('sys','――そして、夜8時。天竜の空には、ちゃんと花火があがった。釜山の広安大橋も、赤・青・金の順番に光った。');
+ await say('molly','（通話）レオ、見えた？　橋、きれいに光ったよ。');await say('leo','こっちも。……花火、ちゃんと夜8時にあがった。');await say('molly','同じ時間に、同じ色。……海をこえて、ちゃんとつながってた。');
  await say('leo','……ゼロのやつ、「もうだれも自分みたいにならないように」って言ってたな。');await say('molly','うん。……悪いやつ、なのかな。');await say('leo','わかんない。だから……会って、たしかめよう。');
  await ch7Start();}
 // ---- CHAPTER 7 ----
@@ -2023,7 +2037,7 @@ Object.assign(AREA_INTRO,{
  busan:async()=>{await say('mist','ヘウンデ ビーチネット……！　波の音のデータまである。');await say('volt','ドローン管制サーバーは、奥の灯台のあたりだな。');await say('sys','床の矢印パネルが正規ルート。点々のパネルは寄り道だ。');objective2('ヘウンデ ビーチネット：奥の灯台前へ。ドローン管制サーバーのノイズを止めろ');},
  landing:async()=>{await say('mist','ここが、日本と韓国のケーブルが陸に上がる場所……。');await say('volt','つながりの根っこってわけか。……いやな気配がする。');objective2('陸揚げ局：奥のケーブル陸揚げ室へ');},
  tenryu2:async()=>{await say('volt','天竜の花火ネット！　河原の屋台まで、データになってる。');objective2('テンリュウ 花火ネット：奥の打ち上げ台へ');},
- taehwa:async()=>{await say('mist','ウルサンの竹林ネット……。竹がずっと上までのびてる。');objective2('ウルサン 竹林ネット：竹林の奥へ');},
+ taehwa:async()=>{await say('mist','釜山のブリッジネット……。光の橋が、海の上にのびてる。');objective2('釜山 ブリッジネット：橋のたもとへ');},
  ura:async()=>{FL.uraIn=1;await say('mist','……ここが、ウラインターネット。');await say('volt','空気が重てえ……。ウイルスもかなり強いぞ。');await say('sys','ウラインターネット：光る矢印パネルが正規ルート。点々のパネルの先は寄り道（強いウイルスとお宝）。');await say('volt','……おい、あの赤い壁。正規ルートの途中に、鍵がかかってるぞ。');updC7();},
  zcore:async()=>{await say('volt','ここが……ゼロの間。');objective2('ゼロの間：ノイズ・ゼロのもとへ');},
  urad:async()=>{await say('mist','ウラの深層……。前に戦ったあの2人の気配がする。');objective2('ウラ 深層：シェイド SP と ブラックアウト SP に挑戦');}});
@@ -2033,7 +2047,7 @@ const _inetNaviDone0=inetNaviDone;inetNaviDone=async function(zn){const n=zn.nav
  if(n==='shade'&&!FL.frag4){FL.frag4=1;await say('sys','シェイドの消えたあとに、カケラが残った。「黒いメッセージのカケラ」を手に入れた。（4/6）');await say('volt','ロストリンク……「送られなかった言葉から生まれたナビ」か。');await ch5End();return;}
  if((n==='hanabi'&&!FL.frag5)||(n==='bamboo'&&!FL.frag6)){if(n==='hanabi')FL.frag5=1;else FL.frag6=1;const c=[1,2,3,4,5,6].filter(i=>FL['frag'+i]).length;
   await say('sys','「黒いメッセージのカケラ」を手に入れた。（'+c+'/6）');await say('origin',n==='hanabi'?'……ミテ……モライタカッタ……。':'……ヒカリ……トドイテ……。');
-  if(FL.frag5&&FL.frag6){await ch6Blackout();}else{objective2('ネットスクエアにもどって、もうひとつのゲート（'+(FL.frag5?'ウルサンの竹林':'天竜')+'）へ');}return;}
+  if(FL.frag5&&FL.frag6){await ch6Blackout();}else{objective2('ネットスクエアにもどって、もうひとつのゲート（'+(FL.frag5?'釜山の広安大橋':'天竜')+'）へ');}return;}
  if(n==='blackout'){await ch6End();return;}
  if(n==='shadesp'||n==='blackoutsp'){SAVE.x=SAVE.x||{};SAVE.x[n]=1;saveGame();qAdd('sp');await say('sys',(n==='shadesp'?'シェイド SP':'ブラックアウト SP')+'をたおした！');return;}
  return _inetNaviDone0(zn);};
@@ -2578,7 +2592,7 @@ function buildLiving(key){const who=key==='leoL'?'leo':'molly';const R=ROOMS[key
  // mom
  const mom=who==='leo'?MOM1:MOM2;if(mom){placeHuman(mom,key,-3.4,.9,Math.PI/2);ROOM_OF[mom===MOM1?'mom1':'mom2']=key;}
  INTER.push({room:key,x:-3.4,z:.9,r:1.4,label:who==='leo'?'ママ':'オンマ（엄마）',fn:who==='leo'?talkMom:talkOmma},
-  {room:key,x:1.5,z:-hd+1,r:1.3,label:'テレビ',fn:()=>talkTV(who)},{room:key,x:-4.4,z:3.2,r:1,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-1.5,z:-hd+.5,r:1,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、ウルサンの竹林の写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
+  {room:key,x:1.5,z:-hd+1,r:1.3,label:'テレビ',fn:()=>talkTV(who)},{room:key,x:-4.4,z:3.2,r:1,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-1.5,z:-hd+.5,r:1,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、ウルサン大公園の写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
 async function talkMom(){if(PH==='rooms1'){if(!FL.passport){await say('mom1','レオ、パスポートでしょ？　なくさないように、ママが預かってたのよ。');await say('leo','あ……助かった。スーツケースに入れたつもりだった。');await say('mom1','はい。それと、これ。モリーちゃんのおうちへのおみやげ、うなぎパイ。ちゃんと「はじめまして」って言うのよ。');await say('leo','わかってるって。……ありがと。');await say('sys','パスポートと、モリーの家族へのおみやげを受け取った。');FL.passport=1;phoneSend('leo','パスポート、ママが預かってた……あぶねー。うなぎパイも持ってく！');SFX('chip');updRooms1();return;}
   await say('mom1','明日は早いんでしょ。夜ふかししないで、ちゃんと寝なさいね。');return;}
  if(PH==='rooms0'||PH==='rooms0pad'){await say('mom1','レオ、さっきから停電みたいにネットが切れてるけど、大丈夫？');await say('leo','うん、ちょっとボルトと調べてくる。');return;}
@@ -2854,7 +2868,7 @@ function buildLiving2(key){const who=key==='leoL'?'leo':'molly',isL=who==='leo';
  // mom
  const mom=who==='leo'?MOM1:MOM2;if(mom){placeHuman(mom,key,-2.35,.55,Math.PI/2);ROOM_OF[mom===MOM1?'mom1':'mom2']=key;}
  INTER.push({room:key,x:-2.35,z:.55,r:1.2,label:who==='leo'?'ママ':'オンマ（엄마）',fn:who==='leo'?talkMom:talkOmma},
-  {room:key,x:hw-1.0,z:.1,r:1.0,label:'テレビ',fn:()=>talkTV(who)},{room:key,x:kx+.75,z:hd-.55,r:.8,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-.9,z:-hd+.6,r:.8,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、ウルサンの竹林の写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
+  {room:key,x:hw-1.0,z:.1,r:1.0,label:'テレビ',fn:()=>talkTV(who)},{room:key,x:kx+.75,z:hd-.55,r:.8,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-.9,z:-hd+.6,r:.8,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、ウルサン大公園の写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
 function R_BED_DOOR_Z(){return ROOMS.leo.d/2-.75;}
 
 // ---------- 3D pets (toon, matching the characters) ----------
