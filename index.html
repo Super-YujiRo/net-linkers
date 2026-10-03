@@ -760,7 +760,7 @@ function areaAt(x,z){return AREAS.find(a=>x>a.r[0]&&x<a.r[2]&&z>a.r[1]&&z<a.r[3]
 // ---------- textures ----------
 function wcvTex(w,h,draw,rep){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');draw(g,w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;if(rep)t.repeat.set(rep[0],rep[1]);return t;}
 function signTex(lines,w,h,bg,fg){return wcvTex(w,h,(g)=>{g.fillStyle=bg;g.fillRect(0,0,w,h);g.strokeStyle=fg;g.lineWidth=4;g.strokeRect(4,4,w-8,h-8);g.textAlign='center';g.textBaseline='middle';const n=lines.length;lines.forEach((L,i)=>{const s=Array.isArray(L)?L:[L];g.fillStyle=s[1]||fg;g.font='900 '+(s[2]||Math.floor(h/(n+1.4)))+'px "M PLUS Rounded 1c",sans-serif';g.shadowColor=s[1]||fg;g.shadowBlur=10;g.fillText(s[0],w/2,h*(i+1)/(n+1));});});}
-function signMesh(lines,w,h,bg,fg,pw,ph){const t=signTex(lines,w,h,bg,fg);t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;const m=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));return m;}
+function signMesh(lines,w,h,bg,fg,pw,ph){const t=signTex(lines,w,h,bg,fg);t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;const m=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));m.userData.sign=1;return m;}
 const TX={
  piano:wcvTex(256,256,(g)=>{g.fillStyle='#3a3f66';g.fillRect(0,0,256,256);g.strokeStyle='#ff8fc8';g.lineWidth=2;g.shadowColor='#ff8fc8';g.shadowBlur=6;for(let i=0;i<=8;i++){g.beginPath();g.moveTo(i*32,0);g.lineTo(i*32,256);g.stroke();}g.shadowBlur=0;g.fillStyle='#0b0c1c';[0,1,3,4,5].forEach(k=>g.fillRect(k*32+22,0,20,150));g.fillStyle='rgba(255,143,200,.35)';g.fillRect(0,250,256,6);}),
  road:wcvTex(256,256,(g)=>{g.fillStyle='#16182a';g.fillRect(0,0,256,256);for(let i=0;i<500;i++){g.fillStyle='rgba(255,255,255,'+rnd(.02,.07)+')';g.fillRect(rnd(0,256),rnd(0,256),2,2);}g.fillStyle='#ffd24a';for(let x=0;x<256;x+=64)g.fillRect(x+8,124,36,8);g.fillStyle='#e8ecff';g.fillRect(0,6,256,5);g.fillRect(0,245,256,5);}),
@@ -841,8 +841,8 @@ wgroup('jp',__wn);__wn=field.children.length;
 wgroup('kr',__wn);__wn=field.children.length;
 // ===== Cable =====
 { RECT_CB.forEach(r=>floorRect(r,TX.sea,'#7fd8ff','#04101e'));
- const tube=new THREE.Mesh(new THREE.CylinderGeometry(4.4,4.4,30,32,1,true),new THREE.MeshBasicMaterial({color:'#7fd8ff',transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false}));tube.rotation.z=Math.PI/2;tube.position.set(800,1.5,0);field.add(tube);
- for(let i=0;i<7;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(4.45,.08,6,40),new THREE.MeshBasicMaterial({color:'#7fd8ff'}));r.rotation.y=Math.PI/2;r.position.set(786+i*4.6,1.5,0);field.add(r);}
+ [790.5,809.5].forEach(cx=>{const tube=new THREE.Mesh(new THREE.CylinderGeometry(4.4,4.4,11,32,1,true),new THREE.MeshBasicMaterial({color:'#7fd8ff',transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false}));tube.rotation.z=Math.PI/2;tube.position.set(cx,1.5,0);field.add(tube);});
+ [786,790.6,795,805,809.4,814].forEach(x=>{const r=new THREE.Mesh(new THREE.TorusGeometry(4.45,x===795||x===805?.16:.08,6,40),new THREE.MeshBasicMaterial({color:x===795||x===805?'#ffd24a':'#7fd8ff'}));r.rotation.y=Math.PI/2;r.position.set(x,1.5,0);field.add(r);});
  const dome=new THREE.Mesh(new THREE.SphereGeometry(18,32,16,0,Math.PI*2,0,Math.PI/2),new THREE.MeshBasicMaterial({color:'#5ac8ff',transparent:true,opacity:.08,side:THREE.DoubleSide,depthWrite:false}));dome.position.set(800,0,32);field.add(dome);
  const csg=signMesh([['日韓 海底ケーブル','#e8fbff'],['JAPAN ⇄ KOREA  中継ホール','#7fd8ff',24]],512,150,'#04101e','#7fd8ff',7,2.1);csg.position.set(800,4.6,-7.95);field.add(csg);
  const jf=signMesh([['日本側','#fff']],256,96,'#3a0a10','#ff6b6b',2.4,.9);jf.position.set(789,2.6,-7.95);field.add(jf);const kf=signMesh([['한국측 韓国側','#fff']],256,96,'#0a1a3a','#7fb0ff',2.4,.9);kf.position.set(811,2.6,-7.95);field.add(kf);
@@ -1701,7 +1701,9 @@ const IALL=[].concat(...Object.values(IAREAS).map(A=>A.rects));
 // ---- servers under attack (motif for navi/boss fights) ----
 const SRV_NAME={wave:'ヘウンデ 監視ドローン管制サーバー',shade:'陸揚げ局 国際中継サーバー',hanabi:'天竜 花火打ち上げ制御サーバー',bamboo:'十里竹林 ライトアップ制御サーバー',blackout:'ネットスクエア 中央サーバー',dam:'天竜ダム 水門制御サーバー',crane:'ウルサン港 荷役管理サーバー',neon:'明洞 街頭ビジョン配信サーバー',liner:'山手線 運行管理サーバー',boss:'空港 管制コアサーバー'};const SERVERS=[];
 function zoneStartPt(zn){if(zn.net==='inet'){const A=IAREAS[zn.world];return A?A.spawn:[zn.x,zn.z-10];}const W=(zn.net==='net3'?WORLDS3:WORLDS)[zn.world];return W?W.start:[zn.x,zn.z-10];}
-function makeServer(zn){const k=zn.final?null:zn.navi||(zn.boss?'boss':null);if(!k||!SRV_NAME[k])return;const st=zoneStartPt(zn);let dx=zn.x-st[0],dz=zn.z-st[1];const d=Math.hypot(dx,dz)||1;dx/=d;dz/=d;const D=zn.r+2.2;const x=zn.x+dx*D,z=zn.z+dz*D;
+function makeServer(zn){const k=zn.final?null:zn.navi||(zn.boss?'boss':null);if(!k||!SRV_NAME[k])return;const st=zoneStartPt(zn);let dx=zn.x-st[0],dz=zn.z-st[1];const d=Math.hypot(dx,dz)||1;dx/=d;dz/=d;const D=zn.r+2.6;const signs=[];field.traverse(o=>{if(o.userData&&o.userData.sign){const p=o.getWorldPosition(new THREE.Vector3());signs.push(p);}});scene.children.forEach(o=>{if(o.userData&&o.userData.sign)signs.push(o.position);});
+ let best=null,bs=-1;[0,.6,-.6,1.2,-1.2,Math.PI/2,-Math.PI/2].forEach(a=>{if(bs>=6)return;const cx=dx*Math.cos(a)-dz*Math.sin(a),cz=dx*Math.sin(a)+dz*Math.cos(a);const px=zn.x+cx*D,pz=zn.z+cz*D;let md=99;signs.forEach(p=>{md=Math.min(md,Math.hypot(p.x-px,p.z-pz));});if(md>bs+.5){bs=md;best=[px,pz,cx,cz];}if(bs>=6&&best)return;});
+ const x=best[0],z=best[1];dx=best[2];dz=best[3];
  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=Math.atan2(-dx,-dz);
  const rack=new THREE.Mesh(new THREE.BoxGeometry(2.4,4.6,1.2),new THREE.MeshBasicMaterial({color:'#1a2238'}));rack.position.y=2.3;g.add(rack);
  const frame=new THREE.Mesh(new THREE.BoxGeometry(2.5,4.7,1.1),new THREE.MeshBasicMaterial({color:'#3fd0ff',wireframe:true}));frame.position.y=2.3;g.add(frame);
