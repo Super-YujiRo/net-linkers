@@ -720,7 +720,8 @@ RECTS.forEach(([x0,z0,x1,z1])=>{const w=x1-x0,d=z1-z0;const t=GRID.clone();t.nee
  [[.09,.07,d,x0,cz],[.09,.07,d,x1,cz]].forEach(([a,b,c,x,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),EM);m.position.set(x,.02,z);field.add(m);const m2=new THREE.Mesh(new THREE.BoxGeometry(.06,.05,c),EM2);m2.position.set(x,-1.5,z);field.add(m2);});
  if(w*d<150)return;const st=scanTex.clone();st.needsUpdate=true;st.repeat.set(1,d/30);const sc=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:scanTex,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false}));sc.rotation.x=-Math.PI/2;sc.position.set(cx,.012,cz);field.add(sc);});
 const R3=[[394,-6,406,6],[398,6,402,16],[390,16,410,30],[398,30,402,38],[388,38,412,56]];
-const inRect=(x,z)=>ALLRECTS.some(([x0,z0,x1,z1])=>x>x0&&x<x1&&z>z0&&z<z1)&&!lgBlock(x,z);
+const inRect=(x,z)=>ALLRECTS.some(([x0,z0,x1,z1])=>x>x0&&x<x1&&z>z0&&z<z1)&&!lgBlock(x,z)&&!uraLockBlock(x,z);
+function uraLockBlock(x,z){return NETCUR==='inet'&&!PROG.md.key_uraGate&&x>32.5&&x<39.5&&z>1160+47.6&&z<1160+49.4;}
 let SCN='net';const walk=(x,z,m)=>{m=m==null?.35:m;if(SCN==='room')return walkRoom(x,z,m);return inRect(x-m,z-m)&&inRect(x+m,z-m)&&inRect(x-m,z+m)&&inRect(x+m,z+m);};
 const nearFloor=(x,z)=>RECTS.some(([x0,z0,x1,z1])=>x>x0-1&&x<x1+1&&z>z0-1&&z<z1+1);
 const decor=[];
@@ -887,6 +888,7 @@ const MDV={};let PROG={md:{}};
   const r=new THREE.Mesh(new THREE.RingGeometry(.55,.7,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.y=.06;grp.add(r);MDV[d.id]={grp,m};});}
 function mdOpen(id,who){if(PROG.md[id])return;const d=MDS.find(x=>x.id===id);if(!d)return;PROG.md[id]=1;const v=MDV[id];if(v)v.grp.visible=false;const A=who==='M'?M:V;qAdd('md');
  let msg='';const mineM=!NET.on||NET.guest===(who==='M');if(d.c.chip){PACK.push(d.c.chip.slice());libAdd(d.c.chip[0]);saveGame();msg='チップ「'+CH[d.c.chip[0]].n+' '+d.c.chip[1]+'」をゲット！（パックに追加）';}
+ else if(d.c.key){msg=({ukA:'ウラコード・α',ukB:'ウラコード・β',ukC:'ウラコード・γ',uraGate:'ウラ回廊の鍵'})[d.c.key]+' を手に入れた！';setTimeout(()=>{try{updC7();}catch(e){}},300);}
  else if(d.c.ncp){if(mineM)ncpGive(d.c.ncp);msg='プログラム「'+NCP_DEF[d.c.ncp].n+'」をゲット！（ナビカスタマイザーで使える）';}
  else if(d.c.z){if(!NET.on||NET.guest===(who==='M'))zenny+=d.c.z;msg=d.c.z+' ゼニー ゲット！';}
  else if(d.c.pu){if(!NET.guest)buUp(who,d.c.pu);msg='パワーアップデータ！ '+(who==='M'?'ミスト':'ボルト')+'のバスター'+BU_NAMES[d.c.pu]+'+1！';}
@@ -904,7 +906,7 @@ function tpM(x,z,face){M.x=x;M.z=z;M.y=0;if(face!=null)M.face=face;if(NET.on&&NE
 const LGS={inJ:[],inK:[],onJ:-1,onK:-1,tT:0,solo:{}};let AREA_SHOWN={V:null,M:null};
 function areaBanner(a){const el=$('areaName');if(!el)return;el.innerHTML='<small>AREA</small>'+a.n;el.style.borderColor=(NETCUR==='net3'?WORLDS3[a.w]:WORLDS[a.w]||{col:'#fff'}).col;el.classList.remove('hide');el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.add('hide'),3200);}
 function worldVis(){const me=NET.on&&NET.guest?M:V;const on=SCN==='net'&&NETCUR==='net1';const w=on&&me?wOf(me):null;['jp','kr','cb'].forEach(k=>{if(WG[k])WG[k].visible=on&&w===k;});if(WG.kr3)WG.kr3.visible=SCN==='net'&&NETCUR==='net3'&&me&&wOf(me)==='kr';for(const k in IAREAS){const g=WG['i_'+k];if(g)g.visible=SCN==='net'&&NETCUR==='inet'&&me&&wOf(me)===k;}}
-function worldVisual(dt){const t=T;WANIM.forEach(f=>f(dt,t));if(typeof serverStep==='function')serverStep(t);MDS.forEach(d=>{const v=MDV[d.id];if(!v)return;if(PROG.md[d.id]||(d.ex&&!FL.ex))v.grp.visible=false;else if(d.ex)v.grp.visible=true;if(v.grp.visible){v.m.rotation.y+=dt*1.6;v.m.position.y=.9+Math.sin(t*2.2)*.12;}});
+function worldVisual(dt){const t=T;WANIM.forEach(f=>f(dt,t));if(typeof serverStep==='function')serverStep(t);MDS.forEach(d=>{const v=MDV[d.id];if(!v)return;if(PROG.md[d.id]||(d.ex&&!FL.ex)||(d.need&&!FL[d.need]))v.grp.visible=false;else if(d.ex)v.grp.visible=true;if(v.grp.visible){v.m.rotation.y+=dt*1.6;v.m.position.y=.9+Math.sin(t*2.2)*.12;}});
  LGATES.forEach(g=>{const v=LGV.gates[g.k];const o=lgOpen(g.k);v.h+=((o?0:1)-v.h)*Math.min(1,dt*5);v.grp.scale.y=Math.max(.02,v.h);v.grp.visible=v.h>.04;v.wall.material.opacity=.22+.16*Math.abs(Math.sin(t*3));});
  drawMon('j');drawMon('k');
  Object.entries(LGV.pads).forEach(([k,p])=>{p.ring.material.opacity=.4+.4*Math.abs(Math.sin(t*4));});
@@ -932,7 +934,7 @@ function linkStep(dt){if(NETCUR!=='net1'||MODE!=='play'||busyStory||DLGS)return;
  if(NET.on&&mOn&&!vOn&&!LGS.waitMsgM){LGS.waitMsgM=1;popup(M.x,2.4,M.z,'ボルトを待っています…','#ffd24a',16);}if(!mOn)LGS.waitMsgM=0;
  if(vOn&&mOn&&!FL.met){FL.met=1;linkMeet();}
  // mystery data + heal (host)
- MDS.forEach(d=>{if(PROG.md[d.id]||(d.ex&&!FL.ex))return;if(lgOnPad(V,d.x,d.z,1.1))mdOpen(d.id,'V');else if(NET.on&&lgOnPad(M,d.x,d.z,1.1))mdOpen(d.id,'M');});}
+ MDS.forEach(d=>{if(PROG.md[d.id]||(d.ex&&!FL.ex)||(d.need&&!FL[d.need]))return;if(lgOnPad(V,d.x,d.z,1.1))mdOpen(d.id,'V');else if(NET.on&&lgOnPad(M,d.x,d.z,1.1))mdOpen(d.id,'M');});}
 // solo: CPU ミスト runs her side
 function soloMist(dt){const S=LGS.solo;S.t=(S.t||0)+dt;
  if(!S.arr&&wOf(V)==='jp'&&V.x>82.5){S.arr=1;S.t=0;naviSay('mist','ボルト、こちら韓国側。わたしも釜山ゲートに着いたよ。造船所のクレーンナビも、ノイズから助けといた！');MDS.filter(d=>d.id[0]==='k').forEach(d=>mdOpen(d.id,'M'));if(!FL.krNavi){FL.krNavi=1;folderAdd(['cranek','C']);hpUpGive('M');bladeUnlock('M');}}
@@ -1440,7 +1442,7 @@ AK.route=function(A,pts,col,side){const o=A.o;let k=0;const mats=[];for(let i=0;
  for(let s=0;s<pts.length-1;s++){const [x0,z0]=pts[s],[x1,z1]=pts[s+1];const L=Math.hypot(x1-x0,z1-z0),n=Math.max(1,Math.floor(L/2.4));const ang=Math.atan2(x1-x0,z1-z0);
   for(let i=0;i<n;i++){const t=(i+.5)/n;const m=new THREE.Mesh(ROUTE_GEO,mats[k%4]);m.rotation.set(-Math.PI/2,0,ang+Math.PI);m.position.set(o[0]+x0+(x1-x0)*t,.035,o[1]+z0+(z1-z0)*t);field.add(m);k++;}}
  if(!side)WANIM.push((dt,t)=>{mats.forEach((m,i)=>{const w=((t*1.6-i*.5)%2+2)%2;m.opacity=.35+.45*Math.max(0,1-Math.abs(w-.5)*2);});});};
-function addMD(d){MDS.push(d);const g=new THREE.OctahedronGeometry(.42);const grp=new THREE.Group();grp.position.set(d.x,0,d.z);field.add(grp);const col=d.c.hp?'#3fa8ff':d.c.pu?'#ff8a3a':'#5cff8a';const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85}));m.position.y=.9;grp.add(m);const w=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#fff',wireframe:true}));w.scale.setScalar(1.25);m.add(w);const r=new THREE.Mesh(new THREE.RingGeometry(.55,.7,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.y=.06;grp.add(r);MDV[d.id]={grp,m};if(PROG.md[d.id])grp.visible=false;}
+function addMD(d){MDS.push(d);const g=new THREE.OctahedronGeometry(.42);const grp=new THREE.Group();grp.position.set(d.x,0,d.z);field.add(grp);const col=d.c.key?'#c87aff':d.c.hp?'#3fa8ff':d.c.pu?'#ff8a3a':'#5cff8a';if(d.c.key)g.scale&&0;const m=new THREE.Mesh(d.c.key?new THREE.TorusKnotGeometry(.28,.09,48,8):g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85}));m.position.y=.9;grp.add(m);const w=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#fff',wireframe:true}));w.scale.setScalar(1.25);m.add(w);const r=new THREE.Mesh(new THREE.RingGeometry(.55,.7,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.y=.06;grp.add(r);MDV[d.id]={grp,m};if(PROG.md[d.id])grp.visible=false;}
 function addHeal(x,z){const m=new THREE.Mesh(new THREE.OctahedronGeometry(.35),new THREE.MeshBasicMaterial({color:'#7dff9a'}));m.position.set(x,1,z);scene.add(m);const ring=new THREE.Mesh(new THREE.RingGeometry(.5,.6,28),new THREE.MeshBasicMaterial({color:'#7dff9a',transparent:true,opacity:.6,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.set(x,.05,z);scene.add(ring);HEALPT.push({x,z,m,ring,used:false});}
 function addZone(A,z){const zn=Object.assign({net:'inet',world:A.id,act:false,clear:false},z);zn.x=A.o[0]+z.x;zn.z=A.o[1]+z.z;zn.hx=zn.x;zn.hz=zn.z;ZONES.push(zn);return zn;}
 function addGate(A,x,z,to,label,col,need){const gx=A.o[0]+x,gz=A.o[1]+z;const grp=new THREE.Group();grp.position.set(gx,0,gz);field.add(grp);
@@ -1469,7 +1471,7 @@ defArea('hub',[0,1500],{n:'ネットスクエア',spawn:[0,-3],col:'#ffd24a',are
  for(let i=0;i<12;i++){const a=i/12*Math.PI*2;AK.lamp(A,Math.sin(a)*14.5,Math.cos(a)*14.5,i%2?'#ffd24a':'#7fd8ff');}
  envRing(A.o[0],A.o[1],90,150,36,['#d8e4ff','#ffd24a','#3fd0ff','#ff5ad8'],10,60);
  addGate(A,29,0,'seoul','ソウル','#ff5ad8');addGate(A,-29,0,'tokyo','東京','#3fd0ff','hubTokyo');
- addGate(A,0,29,'busan','釜山','#5ad8ff','hubBusan');addGate(A,0,-29,'ura','ウラインターネット','#b98cff','hubUra');
+ addGate(A,0,29,'busan','釜山','#5ad8ff','hubBusan');addGate(A,0,-29,'ura','ウラインターネット','#b98cff','uraKeys');
  IGATES.filter(G=>G.A==='hub').forEach(G=>{const a=Math.atan2(G.x-A.o[0],G.z-A.o[1]);G.grp.rotation.y=a+Math.PI;});
  addHeal(A.o[0]+6,A.o[1]+6);}});
 
@@ -1539,7 +1541,7 @@ defArea('busan',[0,1830],{n:'ヘウンデ ビーチネット',spawn:[0,-2],col:'
  addZone(A,{req:1,x:0,z:34,r:7,list:[['driller',-3,0],['driller',3,0],['sparkle',0,2],['bitton',0,-2]]});
  addZone(A,{x:-25,z:23,r:6,list:[['shielder',-2,0],['shielder',2,0],['medic',0,2]]});
  addZone(A,{req:1,navi:'wave',x:0,z:54,r:9,list:[['wave',0,3]]});
- addMD({id:'b_sand',x:A.o[0]+34,z:A.o[1]+26,c:{chip:['wide','W']}});addMD({id:'b_iso',x:A.o[0]-30,z:A.o[1]+28,c:{ncp:'rap'}});addMD({id:'b_road',x:A.o[0]-2,z:A.o[1]+40,c:{z:1200}});addMD({id:'b_lh',x:A.o[0]+10,z:A.o[1]+64,c:{hp:'M'}});
+ addMD({id:'key_ukC',x:A.o[0]-21,z:A.o[1]+27,need:'c7keys',c:{key:'ukC'}});addMD({id:'b_sand',x:A.o[0]+34,z:A.o[1]+26,c:{chip:['wide','W']}});addMD({id:'b_iso',x:A.o[0]-30,z:A.o[1]+28,c:{ncp:'rap'}});addMD({id:'b_road',x:A.o[0]-2,z:A.o[1]+40,c:{z:1200}});addMD({id:'b_lh',x:A.o[0]+10,z:A.o[1]+64,c:{hp:'M'}});
  addHeal(A.o[0],A.o[1]+44);}});
 // LANDING station
 defArea('landing',[300,1830],{n:'海底ケーブル 陸揚げ局',spawn:[0,-2],col:'#9fe8ff',areas:[['陸揚げ局 ロビー',[-8,-8,8,24]],['ケーブル保管庫',[8,10,34,26]],['ケーブル陸揚げ室',[-16,24,16,58]]],build(A){
@@ -1595,14 +1597,15 @@ defArea('ura',[0,1160],{n:'ウラインターネット',spawn:[0,-2],col:'#b98cf
  const words=['トドカナカッタ','ゴメンネ','マタアシタ','アイタイ','アリガトウ','ダイスキ','ハナシタイ','ヘンジシテ'];words.forEach((w,i)=>{const s=AK.sign(A,[[w,'#d8c8ff']],(i%2?1:-1)*rnd(10,30),rnd(4,9),20+i*11,rnd(-.5,.5),3,.8,'#0a0612','#5a3a7a');WANIM.push((dt,t)=>{s.position.y=6+Math.sin(t*.8+i)*1.2;});});
  AK.sign(A,[['URA INTERNET','#b98cff'],['ウラインターネット','#fff',26]],0,3.2,6.05,Math.PI,5,1.5,'#05020a','#b98cff');
  envRing(A.o[0],A.o[1]+50,110,170,30,['#3a2a5a','#b98cff','#ff3b5c'],10,60);
- gateFace(addGate(A,-5,1,'hub','ネットスクエアへ','#ffd24a'),Math.PI/2);addGate(A,37,96,'zcore','？？？ ―― ゼロの間','#ff3b5c','uraCore');addGate(A,66,40,'urad','ウラ 深層','#ff5aff','clear2');
+ gateFace(addGate(A,-5,1,'hub','ネットスクエアへ','#ffd24a'),Math.PI/2);{const lw=new THREE.Group();lw.position.set(A.o[0]+36,0,A.o[1]+48.5);field.add(lw);const wm=new THREE.Mesh(new THREE.BoxGeometry(6.2,3.2,.4),new THREE.MeshBasicMaterial({color:'#ff3b5c',transparent:true,opacity:.45}));wm.position.y=1.6;lw.add(wm);const lk=AK.sign(A,[['🔒 ウラ回廊','#fff'],['鍵がかかっている','#ff9ab0',22]],36,3.9,48.2,Math.PI,3,.8,'#1a0610','#ff3b5c');WANIM.push((dt,t)=>{const o=!!PROG.md.key_uraGate;lw.visible=!o;lk.visible=!o;wm.material.opacity=.3+.15*Math.sin(t*3);});}
+ addGate(A,37,96,'zcore','？？？ ―― ゼロの間','#ff3b5c','uraCore');addGate(A,66,40,'urad','ウラ 深層','#ff5aff','clear2');
  addZone(A,{req:1,x:0,z:16,r:7,list:[['phantom',-3,2],['phantom',3,2],['shielder',0,-2],['sparkle',0,3]],ura:1});
  addZone(A,{req:1,x:0,z:40,r:7.5,list:[['shielder',-3,1],['shielder',3,1],['driller',0,-2],['medic',0,3],['sparkle',2,-3]],ura:1});
  addZone(A,{req:1,x:36,z:58,r:6,list:[['driller',-2,1],['driller',2,1],['phantom',0,-2],['phantom',0,3]],ura:1});
  addZone(A,{req:1,x:37,z:86,r:9,list:[['shielder',-3,1],['shielder',3,1],['phantom',-3,-2],['phantom',3,-2],['medic',0,3],['sparkle',0,0]],ura:1});
  addZone(A,{x:-25,z:23,r:7,list:[['phantom',-2,0],['phantom',2,0],['phantom',0,2],['medic',0,-2]],ura:1});
  addZone(A,{x:63,z:44,r:6.5,list:[['driller',-2,0],['driller',2,0],['shielder',0,2]],ura:1});
- addMD({id:'u_side1',x:A.o[0]-30,z:A.o[1]+30,c:{chip:['giga','*']}});addMD({id:'u_side2',x:A.o[0]+66,z:A.o[1]+34,c:{ncp:'armor'}});addMD({id:'u_side3',x:A.o[0]+2,z:A.o[1]+88,c:{chip:['dream','*']}});addMD({id:'u_main',x:A.o[0]+5,z:A.o[1]+44,c:{hp:'V'}});
+ addMD({id:'key_uraGate',x:A.o[0]-31,z:A.o[1]+15,c:{key:'uraGate'}});addMD({id:'u_side1',x:A.o[0]-30,z:A.o[1]+30,c:{chip:['giga','*']}});addMD({id:'u_side2',x:A.o[0]+66,z:A.o[1]+34,c:{ncp:'armor'}});addMD({id:'u_side3',x:A.o[0]+2,z:A.o[1]+88,c:{chip:['dream','*']}});addMD({id:'u_main',x:A.o[0]+5,z:A.o[1]+44,c:{hp:'V'}});
  addHeal(A.o[0],A.o[1]+28);addHeal(A.o[0]+36,A.o[1]+70);}});
 // ZERO core
 defArea('zcore',[300,1160],{n:'ゼロの間',spawn:[0,-2],col:'#ff3b5c',areas:[['ゼロの間',[-20,-8,20,40]]],build(A){
@@ -1657,7 +1660,7 @@ defArea('seoul',[300,1500],{n:'ソウル ネオンストリート',spawn:[0,-2],
  addZone(A,{x:-24,z:29,r:6,list:[['phantom',-2,0],['phantom',2,0],['sparkle',0,2]]});
  addZone(A,{req:1,x:0,z:33,r:7,list:[['driller',-3,0],['driller',3,0],['medic',0,2],['sparkle',0,-2]]});
  addZone(A,{req:1,navi:'neon',x:0,z:62,r:9,list:[['neon',0,3]]});
- addMD({id:'s_market',x:A.o[0]+34,z:A.o[1]+28,c:{chip:['heatshot','H']}});addMD({id:'s_alley',x:A.o[0]+-28,z:A.o[1]+36,c:{pu:'r'}});addMD({id:'s_street',x:A.o[0]+4,z:A.o[1]+39,c:{z:800}});addMD({id:'s_tower',x:A.o[0]+11,z:A.o[1]+70,c:{hp:'M'}});
+ addMD({id:'key_ukA',x:A.o[0]-30,z:A.o[1]+24,need:'c7keys',c:{key:'ukA'}});addMD({id:'s_market',x:A.o[0]+34,z:A.o[1]+28,c:{chip:['heatshot','H']}});addMD({id:'s_alley',x:A.o[0]+-28,z:A.o[1]+36,c:{pu:'r'}});addMD({id:'s_street',x:A.o[0]+4,z:A.o[1]+39,c:{z:800}});addMD({id:'s_tower',x:A.o[0]+11,z:A.o[1]+70,c:{hp:'M'}});
  addHeal(A.o[0],A.o[1]+46);}});
 // ===== TOKYO =====
 defArea('tokyo',[-300,1500],{n:'トーキョー シブヤネット',spawn:[0,-2],col:'#3fd0ff',
@@ -1684,7 +1687,7 @@ defArea('tokyo',[-300,1500],{n:'トーキョー シブヤネット',spawn:[0,-2]
  addZone(A,{x:0,z:52,r:8,list:[['shielder',-2,1],['phantom',2,1],['medic',0,-2],['sparkle',0,3]]});
  addZone(A,{x:-29,z:17,r:6,list:[['sparkle',-2,0],['bitton',2,0],['medic',0,2]]});
  addZone(A,{req:1,navi:'liner',x:55,z:18,r:8,list:[['liner',0,3]]});
- addMD({id:'t_cross',x:A.o[0]+12,z:A.o[1]+28,c:{chip:['firesword','F']}});addMD({id:'t_alley',x:A.o[0]-32,z:A.o[1]+24,c:{pu:'c'}});addMD({id:'t_tower',x:A.o[0]+10,z:A.o[1]+60,c:{z:800}});addMD({id:'t_plat',x:A.o[0]+44,z:A.o[1]+15.5,c:{hp:'V'}});
+ addMD({id:'key_ukB',x:A.o[0]-31,z:A.o[1]+12,need:'c7keys',c:{key:'ukB'}});addMD({id:'t_cross',x:A.o[0]+12,z:A.o[1]+28,c:{chip:['firesword','F']}});addMD({id:'t_alley',x:A.o[0]-32,z:A.o[1]+24,c:{pu:'c'}});addMD({id:'t_tower',x:A.o[0]+10,z:A.o[1]+60,c:{z:800}});addMD({id:'t_plat',x:A.o[0]+44,z:A.o[1]+15.5,c:{hp:'V'}});
  addHeal(A.o[0],A.o[1]+38);}});
 function buildTrader(S){const g=new THREE.Group();g.position.set(S.x,0,S.z);g.rotation.y=S.face;field.add(g);
  const b=new THREE.Mesh(new THREE.BoxGeometry(1.8,2.6,1.2),new THREE.MeshBasicMaterial({color:'#3a1a5a'}));b.position.y=1.3;g.add(b);
@@ -1723,7 +1726,7 @@ function inetWarp(a,to){const A=IAREAS[to];if(!A)return;const S=A.spawn;glow(a.x
  if(a===V){V.x=S[0];V.z=S[1]+1.5;V.face=0;trail=[];if(!NET.on){M.x=S[0]-1;M.z=S[1]+.3;}}else tpM(S[0]+1,S[1]+1.5,0);
  if(a===V&&!NET.on)flashScreen(.6);if(NET.on&&a===M)netCall('flashScreen',[.6]);else if(a===V)flashScreen(.6);
  setTimeout(()=>{try{inetEnter(to,a);}catch(e){}},300);}
-function inetMDStep(){MDS.forEach(d=>{if(PROG.md[d.id]||(d.ex&&!FL.ex))return;if(lgOnPad(V,d.x,d.z,1.1))mdOpen(d.id,'V');else if(NET.on&&lgOnPad(M,d.x,d.z,1.1))mdOpen(d.id,'M');});}
+function inetMDStep(){MDS.forEach(d=>{if(PROG.md[d.id]||(d.ex&&!FL.ex)||(d.need&&!FL[d.need]))return;if(lgOnPad(V,d.x,d.z,1.1))mdOpen(d.id,'V');else if(NET.on&&lgOnPad(M,d.x,d.z,1.1))mdOpen(d.id,'M');});}
 
 ALLRECTS.push(...IALL);
 
@@ -1942,8 +1945,8 @@ async function ch6End(){busyStory=true;await wait(600);SFX('phase');shakeT=.6;
  await say('zero','……ロストリンクハ……ミナ……キエタ……。ワタシノ……カケラヲ……カエシテ……。');await say('volt','お前が……「ゼロ様」か！');await say('zero','……ゼロ。ノイズ・ゼロ。……ソウ 呼バレテイル。');
  await say('zero','ワタシハ……送ラレナカッタ 言葉。消サレタ 下書キ。途切レタ 通話ノ ツヅキ……。');
  await say('zero','ツナガッテモ、イツカ 途切レル。ダカラ ワタシハ、ツナガリヲ ゼンブ 断ツ。……モウ ダレモ、ワタシノヨウニ ナラナイヨウニ。');
- await say('mist','……それって。だれかを、守ろうとしてるの……？');await say('zero','……ウラヘ 来イ。カケラヲ 持ッテ。……ソコデ、オワラセル。');
- FL.hubUra=1;SFX('custom');await say('sys','ネットスクエアの南に、ウラインターネットへのゲートが開いた。');
+ await say('mist','……それって。だれかを、守ろうとしてるの……？');await say('zero','……ウラヘ 来イ。カケラヲ 持ッテ。……ソコデ、オワラセル。');await say('zero','……タダシ、ウラノ 扉ハ 3ツノ「ウラコード」デ 閉ジテイル。……ソレスラ 見ツケラレヌナラ、来ル 資格ハ ナイ。');
+ FL.hubUra=1;SFX('custom');await say('sys','ネットスクエアの南に、ウラインターネットへのゲートがあらわれた。……でも、3つのカギ穴が光っている。');
  await jackOut();busyStory=true;placeHuman(LEO,'leo',0,.3,Math.PI);placeHuman(MOLLY,'molly',0,.3,Math.PI);ACT='leo';ACTC=LEO;enterRoomScene();
  await say('sys','――そして、夜8時。天竜の空には、ちゃんと花火があがった。ウルサンの竹林も、赤・青・金の順番に光った。');
  await say('molly','（通話）レオ、見えた？　竹林、きれいに光ったよ。');await say('leo','こっちも。……花火、ちゃんと夜8時にあがった。');await say('molly','同じ時間に、同じ色。……海をこえて、ちゃんとつながってた。');
@@ -1957,8 +1960,12 @@ async function ch7Start(){chapReached('p2c7');busyStory=true;FL.frag5=FL.frag5||
  await say('volt','レオ。ウラインターネットは、ふつうのナビは近づかない場所だ。……本気でいくぞ。');await say('mist','モリー。わたし、こわくないよ。ボルトがいるし、モリーもいるから。');
  await say('molly','……ねえレオ。ゼロに会ったら、なんて言う？');await say('leo','……まだ決めてない。でも、言いたいことはある気がする。');
  objective2('2人とも、PCの前の光るパネルに立とう（ウラインターネットへ）');setPads([ROOMS.leo.pad,ROOMS.molly.pad],c7Dive);busyStory=false;tryLock();}
-async function c7Dive(){await say('leo','いくぞ、モリー。');await say('molly','うん。');await say('leo','リンク・ダイブ！');flashScreen(.6);SFX('phase');await wait(500);fade(true);await wait(600);PH='c7net';enterNet('inet');V.x=0;V.z=1497;fade(false);
- objective2('ネットスクエアの南のゲートから、ウラインターネットへ');tryLock();}
+async function c7Dive(){await say('leo','いくぞ、モリー。');await say('molly','うん。');await say('leo','リンク・ダイブ！');flashScreen(.6);SFX('phase');await wait(500);fade(true);await wait(600);PH='c7net';FL.c7keys=1;enterNet('inet');V.x=0;V.z=1497;fade(false);
+ await say('mist','ウラの扉のカギ……「ウラコード」の反応が3つ。ソウル、東京、釜山の、寄り道のいちばん奥だよ。');await say('volt','どれも番人みたいなウイルスがいるな。……全部そろえて、ウラに乗りこむぞ！');updC7();tryLock();}
+function ukHave(k){return !!PROG.md['key_'+k];}
+function updC7(){if(PH!=='c7net')return;const t=(k,s)=>(ukHave(k)?'✔ ':'・ ')+s;if(!FL.uraKeys&&!(ukHave('ukA')&&ukHave('ukB')&&ukHave('ukC'))){objective2('ウラインターネットの扉には「ウラコード」が3つ必要<br>'+t('ukA','ソウル：うら路地の奥（紫のデータ）')+'<br>'+t('ukB','東京：センター街の奥')+'<br>'+t('ukC','釜山：磯のデータの奥'));return;}
+ FL.uraKeys=1;if(!FL.uraIn){objective2('ウラコードがそろった！　ネットスクエアの南のゲートから、ウラインターネットへ');return;}if(!ukHave('uraGate'))objective2('ウラインターネット：正規ルートの途中に鍵のかかった扉。寄り道（点々パネル）の奥で「ウラ回廊の鍵」をさがそう');else if(!FL.uraCore)objective2('ウラインターネット：回廊の扉が開いた！　正規ルートのウイルスをすべてデリートして、最奥のゲートを開けろ');}
+function mdTargetP3(me,w){if(PH!=='c7net')return null;const ids=w==='ura'?(ukHave('uraGate')?[]:['key_uraGate']):['key_ukA','key_ukB','key_ukC'];const d=MDS.find(d=>ids.includes(d.id)&&!PROG.md[d.id]&&worldOf(d.x,d.z)===w);return d?{x:d.x,z:d.z}:null;}
 async function finalTalk(){await say('zero','……来タカ。カケラヲ 持ッテ。');await say('sys','部屋の奥で、巨大な黒い心臓のようなデータが脈打っている。6つのカケラが、それに引きよせられていく。');
  await say('origin','……ワタシハ……トドケタイ……。');await say('zero','……ダマレ。届カナイ。届カナカッタカラ、ワタシハ ココニ イル。');
  await say('volt','……そっか。お前、ひとりの中に2つの声があるんだな。「届けたい」と「もう傷つきたくない」。');
@@ -1990,7 +1997,7 @@ async function finalDefeated(){busyStory=true;FL.ending=1;await wait(1800);
  await say('molly','……ねえ、レオ。明日も、話せる？');await say('leo','……あたりまえだろ。');
  SAVE.clear2=1;SAVE.x=SAVE.x||{};SAVE.x.clear2=1;FL.clear2=1;chapReached('post');saveGame();
  showResult('THE END','ネットリンカーズ　完<br><br>ここまで遊んでくれて、ありがとう！<br><span style="color:#ff9aff">クリア後：ウラインターネットの奥に「ウラ 深層」が開いた。最強のナビたちが待っている。</span>',()=>{postStart();});}
-async function postStart(){busyStory=true;FL.clear2=1;FL.hubUra=1;FL.hubCh6=1;FL.hubBusan=1;FL.hubTokyo=1;FL.ending=1;PH='post';ZONES.forEach(z=>{if(z.net!=='inet'){z.clear=true;if(z.sym){scene.remove(z.sym.g);z.sym=null;}}});
+async function postStart(){busyStory=true;FL.clear2=1;FL.uraKeys=1;FL.c7keys=1;FL.hubUra=1;FL.hubCh6=1;FL.hubBusan=1;FL.hubTokyo=1;FL.ending=1;PH='post';ZONES.forEach(z=>{if(z.net!=='inet'){z.clear=true;if(z.sym){scene.remove(z.sym.g);z.sym=null;}}});
  fade(true);await wait(400);enterNet('inet');V.x=0;V.z=1497;fade(false);objective2('クリア後：ウラインターネットの「ウラ 深層」で最強のナビに挑戦！　ミステリーデータ・依頼・図鑑もコンプリートしよう');busyStory=false;tryLock();}
 // ---- area intros & navi results ----
 Object.assign(AREA_INTRO,{
@@ -1998,7 +2005,7 @@ Object.assign(AREA_INTRO,{
  landing:async()=>{await say('mist','ここが、日本と韓国のケーブルが陸に上がる場所……。');await say('volt','つながりの根っこってわけか。……いやな気配がする。');objective2('陸揚げ局：奥のケーブル陸揚げ室へ');},
  tenryu2:async()=>{await say('volt','天竜の花火ネット！　河原の屋台まで、データになってる。');objective2('テンリュウ 花火ネット：奥の打ち上げ台へ');},
  taehwa:async()=>{await say('mist','テファガンの竹林ネット……。竹がずっと上までのびてる。');objective2('テファガン 竹林ネット：竹林の奥へ');},
- ura:async()=>{await say('mist','……ここが、ウラインターネット。');await say('volt','空気が重てえ……。ウイルスもかなり強いぞ。');await say('sys','ウラインターネット：光る矢印パネルが正規ルート。点々のパネルの先は寄り道（強いウイルスとお宝）。');objective2('ウラインターネット：正規ルートのウイルスをすべてデリートして、最奥のゲートを開けろ');},
+ ura:async()=>{FL.uraIn=1;await say('mist','……ここが、ウラインターネット。');await say('volt','空気が重てえ……。ウイルスもかなり強いぞ。');await say('sys','ウラインターネット：光る矢印パネルが正規ルート。点々のパネルの先は寄り道（強いウイルスとお宝）。');await say('volt','……おい、あの赤い壁。正規ルートの途中に、鍵がかかってるぞ。');updC7();},
  zcore:async()=>{await say('volt','ここが……ゼロの間。');objective2('ゼロの間：ノイズ・ゼロのもとへ');},
  urad:async()=>{await say('mist','ウラの深層……。前に戦ったあの2人の気配がする。');objective2('ウラ 深層：シェイド SP と ブラックアウト SP に挑戦');}});
 const _inetNaviDone0=inetNaviDone;inetNaviDone=async function(zn){const n=zn.navi;
@@ -2011,16 +2018,17 @@ const _inetNaviDone0=inetNaviDone;inetNaviDone=async function(zn){const n=zn.nav
  if(n==='blackout'){await ch6End();return;}
  if(n==='shadesp'||n==='blackoutsp'){SAVE.x=SAVE.x||{};SAVE.x[n]=1;saveGame();qAdd('sp');await say('sys',(n==='shadesp'?'シェイド SP':'ブラックアウト SP')+'をたおした！');return;}
  return _inetNaviDone0(zn);};
-function p3Step(){if(NET.guest||SCN!=='net'||NETCUR!=='inet')return;if(!FL.uraCore&&PH==='c7net'){const zs=ZONES.filter(z=>z.world==='ura'&&z.req);if(zs.length&&zs.every(z=>z.clear)){FL.uraCore=1;naviToast('sys','ウラインターネットの最奥のゲートが開いた！（正規ルートの先）');SFX('bust');objective2('ウラインターネット：最奥のゲートから「ゼロの間」へ');}}
+function p3Step(){if(NET.guest||SCN!=='net'||NETCUR!=='inet')return;if(PH==='c7net'&&!FL.uraKeys&&ukHave('ukA')&&ukHave('ukB')&&ukHave('ukC')){FL.uraKeys=1;naviToast('sys','ウラコードが3つそろった！　ウラインターネットの扉が開く');SFX('bust');updC7();}
+ if(PH==='c7net'&&wOf(V)==='ura'&&!ukHave('uraGate')&&Math.abs(V.x-36)<4&&V.z>1160+44&&V.z<1160+48&&!(FL.lockMsgT>T)){FL.lockMsgT=T+8;naviToast('volt','カギがかかってる……！　寄り道の奥で「ウラ回廊の鍵」をさがそうぜ');}if(!FL.uraCore&&PH==='c7net'&&ukHave('uraGate')){const zs=ZONES.filter(z=>z.world==='ura'&&z.req);if(zs.length&&zs.every(z=>z.clear)){FL.uraCore=1;naviToast('sys','ウラインターネットの最奥のゲートが開いた！（正規ルートの先）');SFX('bust');objective2('ウラインターネット：最奥のゲートから「ゼロの間」へ');}}
  if(FL.clear2&&!FL.uraCore)FL.uraCore=1;}
-function nextGateP3(w){if(w==='hub'){if(PH==='c5net'&&!FL.frag4)return 'busan';if(PH==='c6net'&&!FL.c6blk)return !FL.frag5?'tenryu2':!FL.frag6?'taehwa':null;if(PH==='c7net')return 'ura';}
+function nextGateP3(w){if(PH==='c7net'&&!FL.uraKeys){const miss=[['ukA','seoul'],['ukB','tokyo'],['ukC','busan']].filter(([k])=>!ukHave(k));if(miss.length){if(w==='hub')return miss[0][1];if(!miss.some(m=>m[1]===w))return 'hub';return null;}}if(w==='hub'){if(PH==='c5net'&&!FL.frag4)return 'busan';if(PH==='c6net'&&!FL.c6blk)return !FL.frag5?'tenryu2':!FL.frag6?'taehwa':null;if(PH==='c7net')return 'ura';}
  if(w==='busan'&&FL.frag3&&!FL.frag4)return 'landing';if((w==='tenryu2'&&FL.frag5)||(w==='taehwa'&&FL.frag6))return 'hub';if(w==='ura'&&FL.uraCore&&PH==='c7net')return 'zcore';return null;}
 
 // ===================== MINIMAP =====================
 let MMT=0;
 function rectsOfWorld(w){if(NETCUR==='inet')return IAREAS[w]?IAREAS[w].rects:[];if(NETCUR==='net1')return w==='kr'?RECT_KR:w==='cb'?RECT_CB:RECTS;if(NETCUR==='net3')return w==='kr'?RECT_K3:w==='core'?R3.slice(3):R3.slice(0,3);return [];}
 
-function objTarget(me,w){if(PH==='end')return null;
+function objTarget(me,w){if(PH==='end')return null;if(typeof mdTargetP3==='function'){const t=mdTargetP3(me,w);if(t)return t;}
  const zs=ZONES.filter(z=>!z.clear&&z.net===NETCUR&&(z.req||z.boss||z.navi)).map(z=>({z,x:z.sym?z.sym.x:z.x,zz:z.sym?z.sym.z:z.z})).filter(o=>worldOf(o.x,o.zz)===w);
  const d=o=>Math.hypot(o.x-me.x,o.zz-me.z);
  const r=zs.filter(o=>!o.z.boss&&!o.z.navi).sort((a,b)=>d(a)-d(b));if(r.length)return {x:r[0].x,z:r[0].zz};
