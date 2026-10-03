@@ -163,12 +163,34 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 #mg{position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:11;min-width:min(420px,90vw);padding:10px 18px;background:rgba(8,14,36,.92);border:1px solid #ffd24a;color:#fff;font-weight:800;text-align:center;pointer-events:none}#mg small{display:block;font-weight:500;opacity:.8;margin-top:4px}
 .mgbar{position:relative;height:14px;margin-top:6px;background:#0a1028;outline:1px solid #ffffff55}.mgbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3fd0ff,#ffd24a,#ff5a5f)}.mgok{position:absolute;right:0;top:-2px;bottom:-2px;width:10%;border:2px solid #7dff9a}
 #armInd{position:fixed;left:50%;top:58px;transform:translateX(-50%);z-index:5;padding:3px 14px;background:rgba(6,10,30,.85);border:1px solid #3fd0ff;color:#fff;font-weight:900;font-size:13px;pointer-events:none;white-space:nowrap}#armInd small{font-weight:600;opacity:.7;margin-left:8px;font-size:11px}
+#title .ttl{text-align:center}
+#title .hide{display:none!important}
+#title .logo{font-family:Orbitron,sans-serif;font-size:46px;letter-spacing:.08em;margin:4px 0 0;color:#e8f4ff;text-shadow:0 0 18px #3fd0ff88}
+#title .logo em{font-style:normal;color:#3fd0ff}
+#title .tagline{font-size:13px;opacity:.75;margin-bottom:16px;letter-spacing:.2em}
+#title .seg{display:inline-flex;border:1px solid #3fd0ff88;border-radius:999px;overflow:hidden;margin-bottom:12px}
+#title .seg button{background:transparent;color:#cfe6ff;border:0;padding:9px 20px;font-weight:800;font-size:14px;cursor:pointer}
+#title .seg button[aria-pressed="true"]{background:#3fd0ff;color:#06102a}
+#title .netbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:6px auto 12px;max-width:520px}
+#title .netbox .lnk{background:#16224a;color:#fff;border:1px solid #3fd0ff;border-radius:8px;padding:9px 16px;font-weight:800;cursor:pointer}
+#title .netbox .lnk:hover{background:#21336a}
+#title .netbox .or{opacity:.7;font-size:13px}
+#title #codeIn{font-family:Orbitron,sans-serif;font-size:18px;letter-spacing:.2em;width:150px;text-align:center;padding:7px;background:#0b1226;color:#ffd24a;border:1px solid #ffd24a;border-radius:8px;text-transform:uppercase}
+#title .netbox .note{font-size:12px;opacity:.7;width:100%}
+#title .howto{text-align:left;margin-top:14px}
+#title .howto summary{cursor:pointer;font-weight:800;opacity:.85;text-align:center}
 #mmap{position:fixed;right:12px;bottom:46px;z-index:5;width:170px;height:170px;border:1px solid #3fd0ff88;box-shadow:0 0 0 2px #000a;pointer-events:none}
 @media (max-width:700px){#mmap{width:120px;height:120px}}
 </style></head><body>
-<div id="title" class="ov"><div class="card">
-<h1>NET LINKERS ― アクション試作</h1>
-<div>ロックマンDASH風。フィールドを歩くウイルスに<b>ぶつかるとバトル開始</b>（その場にバトルエリアが張られ、全滅させるまで出られない）。<b>スライディングでぶつかるか、後ろからぶつかると先制攻撃</b>。バスターはバトル中だけ撃てる。ミストはCPUとして一緒に戦います。ウイルスを全部デリートして、奥の金色のゲートへ。</div>
+<div id="title" class="ov"><div class="card ttl">
+<h1 class="logo">NET <em>LINKERS</em></h1><div class="tagline">ネットの海で、ふたりはつながる</div>
+<div class="seg" id="pSeg" role="group" aria-label="プレイ人数"><button id="p1" aria-pressed="true">ひとりで遊ぶ</button><button id="p2" aria-pressed="false">ふたりで遊ぶ（オンライン）</button></div>
+<div id="chapsel" class="hide" style="margin-bottom:10px;font-weight:800">どこから遊ぶ？　<select id="chapv" style="font-size:15px;padding:6px 10px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"></select></div><div id="modebtns">
+<div id="netBox" class="netbox hide"><button class="lnk" id="onl">部屋を作る</button><span class="or">または</span><input id="codeIn" maxlength="8" placeholder="部屋コード" autocomplete="off" onkeydown="if(event.key==='Enter')joinByCode()"><button class="lnk" onclick="joinByCode()">参加</button>
+<div id="codeMsg" style="font-size:12px;color:#ffb0b0;min-height:16px;width:100%"></div><div class="note">相手は登録なしで参加できます。部屋を作った人が、どっちのキャラで遊ぶか選べます</div></div>
+<button class="big" id="start">ゲームスタート</button></div>
+<details class="howto"><summary>あそびかた</summary>
+<div class="box">レオ＆ボルト（静岡・天竜）とモリー＆ミスト（ウルサン）の物語。部屋ではキャラを切りかえて調べもの、ネットではナビを操作してウイルスとバトル。フィールドのウイルスに<b>ぶつかるとバトル開始</b>（スライディングか後ろからぶつかると先制攻撃）。</div>
 <div class="box"><b>基本</b>　画面をクリックするとマウスで視点（Escで解除）<br>
 移動 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>　ダッシュ <kbd>Shift</kbd>　ジャンプ <kbd>Space</kbd>　スライディング <kbd>C</kbd>（無敵で回避）<br>
 <b>バスター</b>：左クリック（押しっぱなしでチャージ→離して強い一発）　<b>ロックオン</b>：<kbd>Q</kbd></div>
@@ -176,7 +198,8 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <b>バトルが始まると自動でカスタム画面</b>が開く。戦闘中もゲージが溜まれば <kbd>Tab</kbd> でもう一度：配られた6枚から、<b>同じコード</b>か<b>同じ名前</b>のチップを最大4枚選ぶ（<b>＊</b>はどのコードとも組める）<br>
 <b style="color:#ff7bf0">プログラムアドバンス</b>：ソード→ワイドソード→ロングソード（コードS）の順で選ぶと「ドリームソード」。キャノンA→B→Cで「ギガキャノン」<br><b>ペットチップ</b>：「コリーダッシュ」でレオの犬2匹が突進、「トカゲガード」でモリーのトカゲ5匹が周りを回って敵の弾を消す（どちらもコード＊）</div>
 <div class="box"><b>敵の攻撃</b>　敵は光を溜めてから攻撃する（技名が出る）。溜め中にチャージショットやチップを当てると<b>カウンター</b>で止められる<br>ビーム：地面に赤い線→線から横に逃げる／赤い円：その中から出る／地面を走る波・広がる輪：ジャンプ／弾：横移動かスライディング（無敵）<br>シールダーは正面を盾で防ぐ→突進の後か横・後ろから、またはブレイクハンマー。最後にボスがいます</div>
-<div id="chapsel" class="hide" style="margin-bottom:10px;font-weight:800">どこから遊ぶ？　<select id="chapv" style="font-size:15px;padding:6px 10px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"></select></div><div id="modebtns"><button class="big" id="start">ひとりで遊ぶ</button>　<button class="big" id="onl" style="background:linear-gradient(90deg,#ff8fc8,#3fd0ff)">ふたりで遊ぶ（オンライン）</button>　<button class="big" id="codeBtn" style="background:linear-gradient(90deg,#ffd24a,#ffb13c)" onclick="document.getElementById('codeBox').classList.toggle('hide')">コードで参加</button><div id="codeBox" class="hide" style="margin-top:10px"><input id="codeIn" maxlength="8" placeholder="部屋コード" style="font-family:Orbitron,sans-serif;font-size:22px;letter-spacing:.25em;width:220px;text-align:center;padding:8px;background:#0b1226;color:#ffd24a;border:1px solid #ffd24a;text-transform:uppercase" onkeydown="if(event.key==='Enter')joinByCode()"> <button class="big" onclick="joinByCode()">参加する</button><div id="codeMsg" style="font-size:12px;color:#ffb0b0;min-height:16px"></div></div><div style="font-size:12px;opacity:.75;margin-top:6px">オンライン：URLを送るだけで、相手は登録なしで参加できます（どっちのキャラで遊ぶか選べます）</div></div><div id="lobby" class="hide box" style="text-align:center"></div>
+</details>
+<div id="lobby" class="hide box" style="text-align:center"></div>
 </div></div>
 <div id="loading" class="ov hide"><div class="card" style="max-width:420px;text-align:center"><h1 style="font-size:22px">NOW LOADING</h1><div id="ldt" style="margin:8px 0">3Dキャラを読み込み中…</div><div class="bar" style="height:10px"><i id="ldb" style="width:0;background:#3fd0ff"></i></div></div></div>
 <div id="custom" class="ov hide"><div class="card" style="max-width:860px">
@@ -345,9 +368,10 @@ function emblemTex(kind){const c=document.createElement('canvas');c.width=c.heig
  const t=new THREE.CanvasTexture(c);return t;}
 function decorateNavi(tb,kind){const P=b=>b.getWorldPosition(new THREE.Vector3());
  tb.Head.scale.setScalar(1.22); // cuter proportions
+ if(kind==='volt')tb.Head.position.multiplyScalar(.72); // shorter neck so the helmet sits on the collar
  tb.Head.parent.updateMatrixWorld(true);tb.Head.updateMatrixWorld(true);
  const head=P(tb.Head),neck=P(tb.Neck),chest=P(tb.UpperChest),hips=P(tb.Hips);
- const hs=1.22,hc=head.clone().add(new THREE.Vector3(0,.085*hs,-.005));const R=.118*hs;
+ const hs=1.22,hc=head.clone().add(new THREE.Vector3(0,.075*hs,-.005));const R=(kind==='boss'?.118:.106)*hs;
  const V=kind==='volt'||kind==='boss',BS=kind==='boss',cA=BS?'#2a2140':V?'#e03040':'#e2e8f2',cB=BS?'#120c1e':V?'#1c2348':'#49b8ff',cG=BS?'#ff2a4a':V?'#ffd23a':'#5ee8ff',cT=BS?'#ff2a4a':V?'#ffd23a':'#ffd24a';
  const T=(bone,geo,col,x,y,z,glow,rot)=>{const m=new THREE.Mesh(geo,naviMat(col,glow));if(rot)m.rotation.set(rot[0],rot[1],rot[2]);return attachTo(bone,m,x,y,z,glow);};
  // ---- helmet (covers hair, face stays visible) ----
@@ -355,16 +379,16 @@ function decorateNavi(tb,kind){const P=b=>b.getWorldPosition(new THREE.Vector3()
  const back=new THREE.Mesh(new THREE.SphereGeometry(R*.99,28,16,Math.PI*.25,Math.PI*.5,Math.PI*.35,Math.PI*.45),naviMat(cA));back.rotation.y=Math.PI;attachTo(tb.Head,back,hc.x,hc.y,hc.z-.012,false);
  const band=new THREE.Mesh(new THREE.TorusGeometry(R*1.0,.011,8,40,Math.PI*1.25),naviMat(cT,true));band.rotation.set(-.32-Math.PI/2+Math.PI/2,0,0);band.rotation.set(0,0,0);band.rotation.x=Math.PI/2-.32;band.rotation.z=Math.PI*.875;attachTo(tb.Head,band,hc.x,hc.y+R*.18,hc.z,true);
  // ear pods
- [-1,1].forEach(sd=>{T(tb.Head,new THREE.CylinderGeometry(.066*hs,.06*hs,.06,28),cA,hc.x+sd*R*.98,hc.y-R*.28,hc.z,false,[0,0,Math.PI/2]);
-  T(tb.Head,new THREE.CircleGeometry(.044*hs,24),cB,hc.x+sd*(R*.98+.031),hc.y-R*.28,hc.z,false,[0,sd*Math.PI/2,0]);
-  T(tb.Head,new THREE.TorusGeometry(.046*hs,.007,6,28),cG,hc.x+sd*(R*.98+.032),hc.y-R*.28,hc.z,true,[0,sd*Math.PI/2,0]);
-  T(tb.Head,new THREE.CircleGeometry(.018*hs,16),cG,hc.x+sd*(R*.98+.033),hc.y-R*.28,hc.z,true,[0,sd*Math.PI/2,0]);
+ [-1,1].forEach(sd=>{T(tb.Head,new THREE.CylinderGeometry(.056*hs,.051*hs,.05,28),cA,hc.x+sd*R*.98,hc.y-R*.28,hc.z,false,[0,0,Math.PI/2]);
+  T(tb.Head,new THREE.CircleGeometry(.037*hs,24),cB,hc.x+sd*(R*.98+.031),hc.y-R*.28,hc.z,false,[0,sd*Math.PI/2,0]);
+  T(tb.Head,new THREE.TorusGeometry(.039*hs,.006,6,28),cG,hc.x+sd*(R*.98+.032),hc.y-R*.28,hc.z,true,[0,sd*Math.PI/2,0]);
+  T(tb.Head,new THREE.CircleGeometry(.015*hs,16),cG,hc.x+sd*(R*.98+.033),hc.y-R*.28,hc.z,true,[0,sd*Math.PI/2,0]);
   if(V)T(tb.Head,new THREE.ConeGeometry(.02,.12,8),cT,hc.x+sd*R*.95,hc.y-R*.05,hc.z-.03,false,[-.5,0,-sd*.5]);
   else T(tb.Head,new THREE.ConeGeometry(.045,.1,4),cA,hc.x+sd*R*.6,hc.y+R*.9,hc.z-.01,false,[0,0,-sd*.35]);});
  if(BS){[-1,1].forEach(sd=>{T(tb.Head,new THREE.ConeGeometry(.035,.22,8),cA,hc.x+sd*R*.55,hc.y+R*1.1,hc.z-.02,false,[-.3,0,-sd*.55]);T(tb.Head,new THREE.ConeGeometry(.012,.12,6),cG,hc.x+sd*R*.62,hc.y+R*1.18,hc.z,true,[-.3,0,-sd*.55]);});T(tb.Head,new THREE.BoxGeometry(R*1.5,.02,.02),cG,hc.x,hc.y-R*.02,hc.z+R*.92,true);}
  else if(V){ // crest fin
-  T(tb.Head,new THREE.BoxGeometry(.03,.07,R*1.7),cT,hc.x,hc.y+R*.98,hc.z-.02,false,[-.2,0,0]);
-  T(tb.Head,new THREE.BoxGeometry(.012,.012,R*1.6),cG,hc.x,hc.y+R*1.04,hc.z-.02,true,[-.2,0,0]);
+  T(tb.Head,new THREE.BoxGeometry(.03,.06,R*1.5),cT,hc.x,hc.y+R*.84,hc.z-.035,false,[-.32,0,0]);
+  T(tb.Head,new THREE.BoxGeometry(.012,.012,R*1.4),cG,hc.x,hc.y+R*.9,hc.z-.035,true,[-.32,0,0]);
  }else{ // halo + inner ear glow
   T(tb.Head,new THREE.TorusGeometry(.13,.013,8,40),'#ffd24a',hc.x,hc.y+R*1.45,hc.z-.03,true,[Math.PI/2-.25,0,0]);
   [-1,1].forEach(sd=>T(tb.Head,new THREE.ConeGeometry(.026,.06,4),cG,hc.x+sd*R*.6,hc.y+R*.88,hc.z+.012,true,[0,0,-sd*.35]));}
@@ -400,8 +424,8 @@ function naviExe(tb,kind,o){const {P,T,hc,R,hs,chest,hips,cA,cB,cG,cT,V}=o;const
  T(tb.Head,new THREE.BoxGeometry(R*1.1,.022,.03),cA,hc.x,hc.y+R*.36,hc.z+R*.9,false,[-.25,0,0]);
  // helmet seam lines
  // chin guard / collar
- const nk=P(tb.Neck);T(tb.Neck,new THREE.CylinderGeometry(.07,.085,.07,20,1,true),cB,nk.x,nk.y-.01,nk.z,false);
- T(tb.Neck,new THREE.TorusGeometry(.083,.007,6,24),cG,nk.x,nk.y-.045,nk.z,true,[Math.PI/2,0,0]);
+ const nk=P(tb.Neck);T(tb.Neck,new THREE.CylinderGeometry(.062,.09,.11,20,1,true),V?'#2a3568':cB,nk.x,nk.y+.02,nk.z,false);
+ T(tb.Neck,new THREE.TorusGeometry(.092,.008,6,24),cG,nk.x,nk.y-.042,nk.z,true,[Math.PI/2,0,0]);
  ['L','R'].forEach(S=>{const sd=S==='L'?1:-1;
   const ua=P(tb[S+'_UpperArm']),la=P(tb[S+'_LowerArm']),hd=P(tb[S+'_Hand']),ul=P(tb[S+'_UpperLeg']),ll=P(tb[S+'_LowerLeg']),ft=P(tb[S+'_Foot']);
   // glowing body lines
@@ -2605,7 +2629,7 @@ const QS=new URLSearchParams(location.search);
 const NET={on:false,host:false,guest:false,conn:null,peer:null,bc:null,ready:false,gReady:false,actor:null,tpSeq:0,rs:null,rsSeq:0,lastSnap:0,lastSt:0,waitChoice:null,dedupe:{},pjm:new Map(),skillCD:0,
  send(o){try{const s=JSON.stringify(o);if(this.bc)this.bc.postMessage({from:this.host?'h':'g',d:s});else if(this.conn&&this.conn.open)this.conn.send(s);}catch(e){console.warn('net send',e);}}};
 let NID=0;
-function netStatus(h){const el=$('lobby');el.classList.remove('hide');el.innerHTML=h;}
+function netStatus(h){$('pSeg')&&$('pSeg').classList.add('hide');const ht=document.querySelector('#title .howto');if(ht)ht.classList.add('hide');const el=$('lobby');el.classList.remove('hide');el.innerHTML=h;}
 function loadPeer(){return new Promise((res,rej)=>{if(window.Peer)return res();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';s.onload=()=>res();s.onerror=()=>rej(new Error('通信ライブラリを読み込めませんでした'));document.head.appendChild(s);});}
 function peerOpts(){const o={debug:0};if(QS.get('ph')){o.host=QS.get('ph');o.port=+QS.get('pp')||9000;o.path='/';o.secure=false;}return o;}
 function onNetData(raw){let o;try{o=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){return;}if(o.t==='role'){if(NET.awaitRole){NET.awaitRole=false;NET.roleRes&&NET.roleRes(o.m);}return;}NET.peerSeen=1;if(NET.host)hostOnMsg(o);else guestOnMsg(o);}
@@ -2621,7 +2645,7 @@ function pickRole(){netStatus('<b>どっちで遊ぶ？</b><div style="font-size
 async function netHost(role){role=role||'leo';const me=role==='molly'?'molly':'leo';NET.host=me==='leo';NET.guest=!NET.host;NET.creator=true;
  const CODEC='ABCDEFGHJKMNPQRSTUVWXYZ23456789';const code=Array.from({length:5},()=>CODEC[Math.floor(Math.random()*CODEC.length)]).join('');const rid='nlk-'+code;const url=location.origin+location.pathname+'?join='+rid+(me==='molly'?'&r=m':'')+(QS.get('bc')?'&bc=1':'')+(QS.get('ph')?'&ph='+QS.get('ph')+'&pp='+(QS.get('pp')||9000):'');
  const other=me==='leo'?'molly':'leo';
- const showInv=()=>netStatus('<b>① 相手に「部屋コード」か URL を教えてください</b><div style="margin:8px 0 4px;font-size:13px;opacity:.8">部屋コード</div><div id="roomCode" style="font-family:Orbitron,sans-serif;font-size:38px;font-weight:900;letter-spacing:.3em;color:#ffd24a;text-shadow:0 0 14px #ffd24a88">'+code+'</div><div style="font-size:12px;opacity:.75;margin-bottom:6px">相手はタイトルの「コードで参加」に入力するだけ</div><input id="invite" readonly value="'+url+'" style="width:100%;margin:8px 0;padding:8px;font-size:14px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"><button id="copyInv">URLをコピー</button><div id="lstat" style="margin-top:10px">相手の参加を待っています…<br>あなた＝'+ROLE_TX[me]+'　／　相手＝'+ROLE_TX[other]+'</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');
+ const showInv=()=>netStatus('<b>① 相手に「部屋コード」か URL を教えてください</b><div style="margin:8px 0 4px;font-size:13px;opacity:.8">部屋コード</div><div id="roomCode" style="font-family:Orbitron,sans-serif;font-size:38px;font-weight:900;letter-spacing:.3em;color:#ffd24a;text-shadow:0 0 14px #ffd24a88">'+code+'</div><div style="font-size:12px;opacity:.75;margin-bottom:6px">相手はタイトルで「ふたりで遊ぶ」→ コードを入れて「参加」</div><input id="invite" readonly value="'+url+'" style="width:100%;margin:8px 0;padding:8px;font-size:14px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"><button id="copyInv" style="background:#16224a;color:#fff;border:1px solid #3fd0ff;border-radius:8px;padding:7px 16px;font-weight:800;cursor:pointer">招待URLをコピー</button><div id="lstat" style="margin-top:10px">相手の参加を待っています…<br>あなた＝'+ROLE_TX[me]+'　／　相手＝'+ROLE_TX[other]+'</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');
  const onPeer=()=>{NET.send({t:'role',m:me});if(NET.host){NET.send({t:'hello'});hostLogicStart();}else guestLogicStart();};
  if(QS.get('bc')){bcListen(rid);showInv();NET.awaitHello=true;const ri=setInterval(()=>{if(NET.peerSeen){clearInterval(ri);return;}try{NET.bc.postMessage({from:'x',d:JSON.stringify({t:'role',m:me})});}catch(e){}},800);}
  else{netStatus('部屋を作っています…');try{await loadPeer();}catch(e){netStatus('オンラインの準備に失敗しました：'+e.message+'<br>ネットにつながっているか確認してください。');return;}
@@ -2851,6 +2875,8 @@ let BOOTED=null;function bootGame(quiet){if(BOOTED)return BOOTED;BOOTED=(async()
  initWorld();if(USE3D)await buildHome();$('loading').style.visibility='';})();return BOOTED;}
 $('start').onclick=async()=>{audioInit();$('title').classList.add('hide');await bootGame();if(USE3D){startStory();}else{MODE='play';['hp','gauge','chips','cross','help','area','gear'].forEach(id=>$(id).classList.remove('hide'));tryLock();banner('ウイルスにぶつかるとバトル開始！','#ffe14d');}};
 $('onl').onclick=()=>{audioInit();$('modebtns').classList.add('hide');pickRole();};
+function setPlayers(n){$('p1').setAttribute('aria-pressed',n===1);$('p2').setAttribute('aria-pressed',n===2);$('netBox').classList.toggle('hide',n!==2);$('start').classList.toggle('hide',n===2);}
+$('p1').onclick=()=>setPlayers(1);$('p2').onclick=()=>setPlayers(2);
 if(QS.get('join'))netJoin(QS.get('join'));
 netInstallWraps();requestAnimationFrame(frame);
 window.__t={get NET(){return NET},guestShot,guestSkill,get ACT(){return ACT},get NETCUR(){return NETCUR},get busy(){return busyStory},get LEO(){return LEO},get MOLLY(){return MOLLY},dlgNext,get PH(){return PH},FL,ROOMS,switchHuman,roomInteract,get DLGS(){return DLGS},get CHOICE(){return CHOICE},coreEvent,bossDefeated,setCam:(y,p,d)=>{yaw=y;pitch=p;dist=d;},CHARS,get USE3D(){return USE3D},showBust,closeBust,get HAZ(){return HAZ},get V(){return V},get M(){return M},get EN(){return EN},ZONES,openCustom,closeCustom,togglePick,useChip,get CHIPS_IN(){return CHIPS_IN},get hand(){return hand},MS,aimInfo,get MODE(){return MODE}};
