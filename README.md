@@ -37,7 +37,8 @@
 
 ## クレジット
 - 3Dモデル：VRoid Studio サンプルモデル（CC0）
-- 敵ナビ・ウイルス・攻撃オブジェ・ネットの遠景：Blenderで自作（敵ナビの素体は VRoid サンプル CC0）
+- 敵ナビ：ChatGPTで描いたオリジナル設定画を Tencent HY 3D Global（Hunyuan3D）で立体化し、Blenderで骨入れ・顔修正（`models/hy_*.glb`、参照画像は `tools/ref/`）
+- ウイルス・攻撃オブジェ・ネットの遠景：Blenderで自作
 - モーション：Quaternius Universal Animation Library（CC0）
 - チップアイコン：game-icons.net（Lorc・Delapouite ほか / CC BY 3.0）
 - 描画：three.js ／ 通信：PeerJS

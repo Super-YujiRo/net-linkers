@@ -215,7 +215,7 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <b style="color:#ff7bf0">プログラムアドバンス</b>：ソード→ワイドソード→ロングソード（コードS）の順で選ぶと「ドリームソード」。キャノンA→B→Cで「ギガキャノン」<br><b>ペットチップ</b>：「コリーダッシュ」でレオの犬2匹が突進、「トカゲガード」でモリーのトカゲ5匹が周りを回って敵の弾を消す（どちらもコード＊）</div>
 <div class="box"><b>敵の攻撃</b>　敵は光を溜めてから攻撃する（技名が出る）。溜め中にチャージショットやチップを当てると<b>カウンター</b>で止められる<br>ビーム：地面に赤い線→線から横に逃げる／赤い円：その中から出る／地面を走る波・広がる輪：ジャンプ／弾：横移動かスライディング（無敵）<br>シールダーは正面を盾で防ぐ→突進の後か横・後ろから、またはブレイクハンマー。最後にボスがいます</div>
 </details>
-<div style="font-size:10px;opacity:.5;margin-top:10px">3Dモデル：VRoid サンプル（CC0）をベースに Blender で改造／モーション：Quaternius（CC0）／チップアイコン：game-icons.net（Lorc・Delapouite ほか, CC BY 3.0）／three.js・PeerJS</div>
+<div style="font-size:10px;opacity:.5;margin-top:10px">3Dモデル：VRoid サンプル（CC0）をベースに Blender で改造／敵ナビ：オリジナルイラストから Tencent HY 3D（Hunyuan3D）で立体化し Blender でリグ・修正／モーション：Quaternius（CC0）／チップアイコン：game-icons.net（Lorc・Delapouite ほか, CC BY 3.0）／three.js・PeerJS</div>
 <div id="lobby" class="hide box" style="text-align:center"></div>
 </div></div>
 <div id="loading" class="ov hide"><div class="card" style="max-width:420px;text-align:center"><h1 style="font-size:22px">NOW LOADING</h1><div id="ldt" style="margin:8px 0">3Dキャラを読み込み中…</div><div class="bar" style="height:10px"><i id="ldb" style="width:0;background:#3fd0ff"></i></div></div></div>
@@ -351,11 +351,14 @@ function virPut(E,k,grp,parent,op){(__VIR[k].parts||[]).forEach((p,i)=>{if(p.g!=
  else{const mt=netRim(new THREE.MeshToonMaterial({color:p.c,gradientMap:toonGrad,emissive:'#000000',transparent:!!op,opacity:op||1}),(EDEF[k]&&EDEF[k].tint)||(k==='bitton'?'#7fe8ff':'#6fdcff'),.42);E.mats.push(mt);m=new THREE.Mesh(g,mt);m.castShadow=!op;m.userData.dark3d=BLACKM;BLOOM_3D.push(m);const ol=new THREE.Mesh(g,OUTN.r);m.add(ol);BLOOM_HIDE.push(ol);}
  parent.add(m);});}
 function virGrp(k,n){const G=new THREE.Group();const t=__VIR[k].G[n]||[0,0,0];G.position.set(t[0],t[1],t[2]);return G;}
-let VNAV=null;
+let VNAV=null;const HY_KEYS=['dam','crane','neon','liner','wave','shade','hanabi','bamboo','blackout'];const HY_ALT={shadesp:['shade','#e6a8ff'],blackoutsp:['blackout','#ffb0a0']};
 async function loadVnav(){if(!window.__VNAV||!GLL||!THREE.SkeletonUtils)return;try{const V={tpl:{},clips:{}};for(const mdl of ['fumi','shino']){if(!ASSETS[mdl])continue;const g=await parseGLB(ASSETS[mdl]);V.tpl[mdl]=g.scene;V.clips[mdl]={};V.hy=V.hy||{};{g.scene.updateMatrixWorld(true);const hb=g.scene.getObjectByName('J_Bip_C_Hips');V.hy[mdl]=hb?hb.getWorldPosition(new THREE.Vector3()).y:1;}const A=__VNAV.anim[mdl]||{};
  for(const n in A){const a=A[n];const tr=a.tr.map(t=>new THREE.QuaternionKeyframeTrack(t.n+'.quaternion',a.t,t.q));tr.push(new THREE.VectorKeyframeTrack(a.hn+'.position',a.t,a.hp));V.clips[mdl][n]=new THREE.AnimationClip(n,a.d,tr);}}
  // Tripo等で作って自動リグしたモデル（fumiの骨を流用）
- for(const k in (__VNAV.tripo||{})){try{const g=await parseGLB(b64u8(__VNAV.tripo[k]).buffer);const key='t_'+k;V.tpl[key]=g.scene;g.scene.updateMatrixWorld(true);
+ const HYB={};window.__HYB=window.__HYB||{};await Promise.all(HY_KEYS.map(k=>new Promise(res=>{if(window.__HYB[k]){res();return;}const sc=document.createElement('script');sc.src='models/hy_'+k+'.js';sc.onload=res;sc.onerror=res;document.head.appendChild(sc);})));
+ HY_KEYS.forEach(k=>{if(window.__HYB[k]){try{HYB[k]=b64u8(window.__HYB[k]).buffer;}catch(e){}delete window.__HYB[k];}});
+ const TSRC=Object.assign({},__VNAV.tripo||{},HYB);
+ for(const k in TSRC){try{const g=await parseGLB(typeof TSRC[k]==='string'?b64u8(TSRC[k]).buffer:TSRC[k]);const key='t_'+k;V.tpl[key]=g.scene;g.scene.updateMatrixWorld(true);
   const hb=g.scene.getObjectByName('J_Bip_C_Hips'),fb=V.tpl.fumi&&V.tpl.fumi.getObjectByName('J_Bip_C_Hips');const ratio=hb&&fb&&fb.position.y?hb.position.y/fb.position.y:1;
   V.hy[key]=hb?hb.getWorldPosition(new THREE.Vector3()).y:1;V.clips[key]={};
   for(const n in V.clips.fumi){const c=V.clips.fumi[n].clone();c.tracks.forEach(t=>{if(/\.position$/.test(t.name)){for(let i=0;i<t.values.length;i++)t.values[i]*=ratio;}});V.clips[key][n]=c;}}catch(e){console.warn('tripo',k,e);}}
@@ -367,14 +370,14 @@ function netSuit(mt,col,hy){mt.userData.rim=new THREE.Color(col);mt.userData.hy=
  sh.vertexShader='varying vec3 vOP;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvOP=position;');
  sh.fragmentShader='uniform vec3 uRim;\nuniform float uHy;\nvarying vec3 vOP;\nfloat bnd(float v,float c,float w){return 1.0-smoothstep(w*.5,w,abs(v-c));}\n'+sh.fragmentShader.replace('#include <dithering_fragment>','#include <dithering_fragment>\n{vec3 nn=normalize(vNormal);vec3 vd=normalize(vViewPosition);float f=pow(1.0-clamp(abs(dot(nn,vd)),0.0,1.0),2.6);vec3 n=vOP/uHy;float L=0.0;float ax=abs(n.x);\nif(ax<0.22){L+=bnd(n.y,1.0,.018)+bnd(n.y,1.24,.014);if(n.y>0.98&&n.y<1.36)L+=bnd(ax,0.0,.012)*0.8;}\nif(n.y>1.15&&ax>0.25){L+=bnd(ax,0.36,.02)+bnd(ax,0.5,.02);}\nif(n.y<0.95&&ax<0.2){L+=bnd(n.y,0.5,.02)+bnd(n.y,0.2,.02);}\ngl_FragColor.rgb+=uRim*(f*0.4+clamp(L,0.0,1.0)*0.85);}');};return mt;}
 const OUTV=(()=>{const m=new THREE.MeshBasicMaterial({color:'#15121a',side:THREE.BackSide,skinning:true});m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed += normal * 0.008;');};return m;})();
-function buildVnav(E,k){const L=NAVI_LOOK[k]||NAVI_LOOK.dam;const B=E.body,P=E.parts;P.knav=1;const TRP=!!VNAV.tpl['t_'+k];const mdl=TRP?'t_'+k:((__VNAV.map||{})[k]||'fumi');
+function buildVnav(E,k){const L=NAVI_LOOK[k]||NAVI_LOOK.dam;const B=E.body,P=E.parts;P.knav=1;const ALT=!VNAV.tpl['t_'+k]&&HY_ALT[k]&&VNAV.tpl['t_'+HY_ALT[k][0]]?HY_ALT[k]:null;const TRP=!!VNAV.tpl['t_'+k]||!!ALT;const mdl=ALT?'t_'+ALT[0]:TRP?'t_'+k:((__VNAV.map||{})[k]||'fumi');
  const m=THREE.SkeletonUtils.clone(VNAV.tpl[mdl]);const SU={Body:L.c2,Tops:L.c1,Bottoms:L.c2,Shoes:L.c1,Accessory:L.c3};
  const meshes=[];m.traverse(o=>{if(o.isMesh)meshes.push(o);});
  meshes.forEach(o=>{o.frustumCulled=false;const sk=!!o.isSkinnedMesh;const conv=mt=>{const tex=mt.userData&&mt.userData.tex?modelTex(mt.userData.tex):mt.map;const nm=new THREE.MeshToonMaterial({map:tex,color:0xffffff,gradientMap:toonGrad,skinning:sk,transparent:mt.transparent,alphaTest:mt.alphaTest||0,side:mt.side,emissive:'#000000'});const n=mt.name||'';
-   if(TRP){}else if(/HAIR/i.test(n))nm.visible=false;else if(/Body_00_SKIN/i.test(n)){nm.map=null;nm.color.set(SU.Body);}else{for(const part of ['Tops','Bottoms','Shoes','Accessory'])if(new RegExp(part,'i').test(n)){nm.map=null;nm.color.set(SU[part]);}}
+   if(TRP){if(ALT)nm.color.set(ALT[1]);}else if(/HAIR/i.test(n))nm.visible=false;else if(/Body_00_SKIN/i.test(n)){nm.map=null;nm.color.set(SU.Body);}else{for(const part of ['Tops','Bottoms','Shoes','Accessory'])if(new RegExp(part,'i').test(n)){nm.map=null;nm.color.set(SU[part]);}}
    nm.name=n;if(!TRP&&/Body_00_SKIN|Tops|Bottoms/i.test(n))netSuit(nm,L.aura,VNAV.hy[mdl]||1);else netRim(nm,L.aura,.4);E.mats.push(nm);return nm;};
   o.material=Array.isArray(o.material)?o.material.map(conv):conv(o.material);const mm=Array.isArray(o.material)?o.material[0]:o.material;if(mm.visible===false)o.visible=false;
-  if(sk&&o.visible&&!/Eye|Face|Mouth|Brow|Lash/i.test(mm.name||'')){const ol=new THREE.SkinnedMesh(o.geometry,OUTV);ol.bind(o.skeleton,o.bindMatrix);ol.frustumCulled=false;o.parent.add(ol);ol.position.copy(o.position);ol.quaternion.copy(o.quaternion);ol.scale.copy(o.scale);BLOOM_HIDE.push(ol);}
+  if(sk&&o.visible&&!TRP&&!/Eye|Face|Mouth|Brow|Lash/i.test(mm.name||'')){const ol=new THREE.SkinnedMesh(o.geometry,OUTV);ol.bind(o.skeleton,o.bindMatrix);ol.frustumCulled=false;o.parent.add(ol);ol.position.copy(o.position);ol.quaternion.copy(o.quaternion);ol.scale.copy(o.scale);BLOOM_HIDE.push(ol);}
   o.userData.dark3d=new THREE.MeshBasicMaterial({color:0,skinning:sk});BLOOM_3D.push(o);});
  m.updateMatrixWorld(true);const hips=m.getObjectByName('J_Bip_C_Hips'),la=m.getObjectByName('J_Bip_L_UpperArm');const hp=hips.getWorldPosition(new THREE.Vector3()),lp=la.getWorldPosition(new THREE.Vector3());
  const inner=new THREE.Group();inner.add(m);inner.rotation.y=(lp.x-hp.x)>0?0:Math.PI;inner.scale.setScalar(2.0/(hp.y*1.9));B.add(inner);
