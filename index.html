@@ -353,7 +353,13 @@ function virPut(E,k,grp,parent,op){(__VIR[k].parts||[]).forEach((p,i)=>{if(p.g!=
 function virGrp(k,n){const G=new THREE.Group();const t=__VIR[k].G[n]||[0,0,0];G.position.set(t[0],t[1],t[2]);return G;}
 let VNAV=null;
 async function loadVnav(){if(!window.__VNAV||!GLL||!THREE.SkeletonUtils)return;try{const V={tpl:{},clips:{}};for(const mdl of ['fumi','shino']){if(!ASSETS[mdl])continue;const g=await parseGLB(ASSETS[mdl]);V.tpl[mdl]=g.scene;V.clips[mdl]={};V.hy=V.hy||{};{g.scene.updateMatrixWorld(true);const hb=g.scene.getObjectByName('J_Bip_C_Hips');V.hy[mdl]=hb?hb.getWorldPosition(new THREE.Vector3()).y:1;}const A=__VNAV.anim[mdl]||{};
- for(const n in A){const a=A[n];const tr=a.tr.map(t=>new THREE.QuaternionKeyframeTrack(t.n+'.quaternion',a.t,t.q));tr.push(new THREE.VectorKeyframeTrack(a.hn+'.position',a.t,a.hp));V.clips[mdl][n]=new THREE.AnimationClip(n,a.d,tr);}}VNAV=V;}catch(e){console.warn('vnav',e);VNAV=null;}}
+ for(const n in A){const a=A[n];const tr=a.tr.map(t=>new THREE.QuaternionKeyframeTrack(t.n+'.quaternion',a.t,t.q));tr.push(new THREE.VectorKeyframeTrack(a.hn+'.position',a.t,a.hp));V.clips[mdl][n]=new THREE.AnimationClip(n,a.d,tr);}}
+ // Tripo等で作って自動リグしたモデル（fumiの骨を流用）
+ for(const k in (__VNAV.tripo||{})){try{const g=await parseGLB(b64u8(__VNAV.tripo[k]).buffer);const key='t_'+k;V.tpl[key]=g.scene;g.scene.updateMatrixWorld(true);
+  const hb=g.scene.getObjectByName('J_Bip_C_Hips'),fb=V.tpl.fumi&&V.tpl.fumi.getObjectByName('J_Bip_C_Hips');const ratio=hb&&fb&&fb.position.y?hb.position.y/fb.position.y:1;
+  V.hy[key]=hb?hb.getWorldPosition(new THREE.Vector3()).y:1;V.clips[key]={};
+  for(const n in V.clips.fumi){const c=V.clips.fumi[n].clone();c.tracks.forEach(t=>{if(/\.position$/.test(t.name)){for(let i=0;i<t.values.length;i++)t.values[i]*=ratio;}});V.clips[key][n]=c;}}catch(e){console.warn('tripo',k,e);}}
+ VNAV=V;}catch(e){console.warn('vnav',e);VNAV=null;}}
 const VGEO={};function vnavGeo(k,i){const key=k+'#'+i;if(VGEO[key])return VGEO[key];const p=__VNAV.parts[k][i];const q=new Uint16Array(b64u8(p.p).buffer),nn=new Int8Array(b64u8(p.n).buffer),ib=b64u8(p.i).buffer;
  const pos=new Float32Array(q.length),nor=new Float32Array(nn.length);for(let j=0;j<q.length;j++){const c=j%3;pos[j]=p.mn[c]+q[j]/65535*p.sc[c];nor[j]=nn[j]/127;}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(nor,3));g.setIndex(new THREE.BufferAttribute(p.i32?new Uint32Array(ib):new Uint16Array(ib),1));g.computeBoundingSphere();return VGEO[key]=g;}
@@ -361,23 +367,23 @@ function netSuit(mt,col,hy){mt.userData.rim=new THREE.Color(col);mt.userData.hy=
  sh.vertexShader='varying vec3 vOP;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvOP=position;');
  sh.fragmentShader='uniform vec3 uRim;\nuniform float uHy;\nvarying vec3 vOP;\nfloat bnd(float v,float c,float w){return 1.0-smoothstep(w*.5,w,abs(v-c));}\n'+sh.fragmentShader.replace('#include <dithering_fragment>','#include <dithering_fragment>\n{vec3 nn=normalize(vNormal);vec3 vd=normalize(vViewPosition);float f=pow(1.0-clamp(abs(dot(nn,vd)),0.0,1.0),2.6);vec3 n=vOP/uHy;float L=0.0;float ax=abs(n.x);\nif(ax<0.22){L+=bnd(n.y,1.0,.018)+bnd(n.y,1.24,.014);if(n.y>0.98&&n.y<1.36)L+=bnd(ax,0.0,.012)*0.8;}\nif(n.y>1.15&&ax>0.25){L+=bnd(ax,0.36,.02)+bnd(ax,0.5,.02);}\nif(n.y<0.95&&ax<0.2){L+=bnd(n.y,0.5,.02)+bnd(n.y,0.2,.02);}\ngl_FragColor.rgb+=uRim*(f*0.4+clamp(L,0.0,1.0)*0.85);}');};return mt;}
 const OUTV=(()=>{const m=new THREE.MeshBasicMaterial({color:'#15121a',side:THREE.BackSide,skinning:true});m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed += normal * 0.008;');};return m;})();
-function buildVnav(E,k){const L=NAVI_LOOK[k]||NAVI_LOOK.dam;const B=E.body,P=E.parts;P.knav=1;const mdl=(__VNAV.map||{})[k]||'fumi';
+function buildVnav(E,k){const L=NAVI_LOOK[k]||NAVI_LOOK.dam;const B=E.body,P=E.parts;P.knav=1;const TRP=!!VNAV.tpl['t_'+k];const mdl=TRP?'t_'+k:((__VNAV.map||{})[k]||'fumi');
  const m=THREE.SkeletonUtils.clone(VNAV.tpl[mdl]);const SU={Body:L.c2,Tops:L.c1,Bottoms:L.c2,Shoes:L.c1,Accessory:L.c3};
  const meshes=[];m.traverse(o=>{if(o.isMesh)meshes.push(o);});
  meshes.forEach(o=>{o.frustumCulled=false;const sk=!!o.isSkinnedMesh;const conv=mt=>{const tex=mt.userData&&mt.userData.tex?modelTex(mt.userData.tex):mt.map;const nm=new THREE.MeshToonMaterial({map:tex,color:0xffffff,gradientMap:toonGrad,skinning:sk,transparent:mt.transparent,alphaTest:mt.alphaTest||0,side:mt.side,emissive:'#000000'});const n=mt.name||'';
-   if(/HAIR/i.test(n))nm.visible=false;else if(/Body_00_SKIN/i.test(n)){nm.map=null;nm.color.set(SU.Body);}else{for(const part of ['Tops','Bottoms','Shoes','Accessory'])if(new RegExp(part,'i').test(n)){nm.map=null;nm.color.set(SU[part]);}}
-   nm.name=n;if(/Body_00_SKIN|Tops|Bottoms/i.test(n))netSuit(nm,L.aura,VNAV.hy[mdl]||1);else netRim(nm,L.aura,.4);E.mats.push(nm);return nm;};
+   if(TRP){}else if(/HAIR/i.test(n))nm.visible=false;else if(/Body_00_SKIN/i.test(n)){nm.map=null;nm.color.set(SU.Body);}else{for(const part of ['Tops','Bottoms','Shoes','Accessory'])if(new RegExp(part,'i').test(n)){nm.map=null;nm.color.set(SU[part]);}}
+   nm.name=n;if(!TRP&&/Body_00_SKIN|Tops|Bottoms/i.test(n))netSuit(nm,L.aura,VNAV.hy[mdl]||1);else netRim(nm,L.aura,.4);E.mats.push(nm);return nm;};
   o.material=Array.isArray(o.material)?o.material.map(conv):conv(o.material);const mm=Array.isArray(o.material)?o.material[0]:o.material;if(mm.visible===false)o.visible=false;
   if(sk&&o.visible&&!/Eye|Face|Mouth|Brow|Lash/i.test(mm.name||'')){const ol=new THREE.SkinnedMesh(o.geometry,OUTV);ol.bind(o.skeleton,o.bindMatrix);ol.frustumCulled=false;o.parent.add(ol);ol.position.copy(o.position);ol.quaternion.copy(o.quaternion);ol.scale.copy(o.scale);BLOOM_HIDE.push(ol);}
   o.userData.dark3d=new THREE.MeshBasicMaterial({color:0,skinning:sk});BLOOM_3D.push(o);});
  m.updateMatrixWorld(true);const hips=m.getObjectByName('J_Bip_C_Hips'),la=m.getObjectByName('J_Bip_L_UpperArm');const hp=hips.getWorldPosition(new THREE.Vector3()),lp=la.getWorldPosition(new THREE.Vector3());
  const inner=new THREE.Group();inner.add(m);inner.rotation.y=(lp.x-hp.x)>0?0:Math.PI;inner.scale.setScalar(2.0/(hp.y*1.9));B.add(inner);
  const mi=new THREE.Matrix4().copy(m.matrixWorld).invert(),tmp=new THREE.Matrix4(),W=new THREE.Matrix4();P.glw=[];
- (__VNAV.parts[k]||[]).forEach((p,i)=>{const bone=m.getObjectByName(p.b);if(!bone)return;const g=vnavGeo(k,i);let pm;
+ (TRP?[]:(__VNAV.parts[k]||[])).forEach((p,i)=>{const bone=m.getObjectByName(p.b);if(!bone)return;const g=vnavGeo(k,i);let pm;
   if(p.g){pm=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:p.c}));E.glows.push(pm);P.glw.push(pm);}
   else{const mt=netRim(new THREE.MeshToonMaterial({color:p.c,gradientMap:toonGrad,emissive:'#000000'}),L.aura,.35);pm=new THREE.Mesh(g,mt);E.mats.push(mt);pm.castShadow=true;pm.userData.dark3d=BLACKM;BLOOM_3D.push(pm);const ol=new THREE.Mesh(g,OUTN.r);pm.add(ol);BLOOM_HIDE.push(ol);}
   tmp.multiplyMatrices(mi,bone.matrixWorld).invert();W.fromArray(p.w);tmp.multiply(W);tmp.decompose(pm.position,pm.quaternion,pm.scale);pm.frustumCulled=false;bone.add(pm);});
- ((__VNAV.hide||{})[k]||[]).forEach(n=>{const b=m.getObjectByName(n);if(b)b.scale.setScalar(.001);});
+ (TRP?[]:((__VNAV.hide||{})[k]||[])).forEach(n=>{const b=m.getObjectByName(n);if(b)b.scale.setScalar(.001);});
  P.gcol=P.glw.map(x=>x.material.color.clone());
  P.aura=ePart(E,B,new THREE.TorusGeometry(1.0,.035,8,40),L.aura,0,.06,0,1,1,1,{glow:1});P.aura.rotation.x=Math.PI/2;
  const mx=new THREE.AnimationMixer(m);P.mixer=mx;E.mixer=mx;P.acts={};const C=VNAV.clips[mdl];const A={idle:'Idle_Loop',run:'Jog_Fwd_Loop',cast:'Spell_Simple_Shoot',chop:(k==='dam'||k==='bamboo'||k==='crane')?'Punch_Cross':'Sword_Attack',spin:'Roll',hit:'Hit_Chest',death:'Death01'};
@@ -1213,7 +1219,7 @@ Object.assign(EDEF,{
 Object.assign(TELE,{flood:.95,drop:1.05});Object.assign(PNAME,{flood:'ダムブレイク',drop:'コンテナドロップ'});
 setTimeout(()=>{Object.assign(DLG,{dam:{n:'ダムキーパー',img:'navi_dam_e0',col:'#7fb8ff'},crane:{n:'クレーンガイスト',img:'navi_crane_e0',col:'#ffc040'}});},0);
 E3S.dam=1.25;E3S.crane=1.25;
-function buildNavi3D(E,k){if(VNAV&&window.__VNAV&&__VNAV.parts[k]&&VNAV.tpl[(__VNAV.map||{})[k]||'fumi']){try{buildVnav(E,k);return;}catch(e){console.warn('vnav build',e);E.body.clear&&E.body.clear();E.mats.length=0;E.glows.length=0;}}if(window.__KNAV&&KNAV&&window.__KNAV&&__KNAV.parts[k]){try{buildKnav(E,k);return;}catch(e){console.warn('knav build',e);E.body.clear&&E.body.clear();}}const B=E.body,P=E.parts;const L=NAVI_LOOK[k]||NAVI_LOOK.dam;const ST=L.style;const dam=ST==='dam';const c1=L.c1,c2=L.c2,c3=L.c3;
+function buildNavi3D(E,k){if(VNAV&&window.__VNAV&&(__VNAV.parts[k]||VNAV.tpl['t_'+k])&&VNAV.tpl[VNAV.tpl['t_'+k]?'t_'+k:((__VNAV.map||{})[k]||'fumi')]){try{buildVnav(E,k);return;}catch(e){console.warn('vnav build',e);E.body.clear&&E.body.clear();E.mats.length=0;E.glows.length=0;}}if(window.__KNAV&&KNAV&&window.__KNAV&&__KNAV.parts[k]){try{buildKnav(E,k);return;}catch(e){console.warn('knav build',e);E.body.clear&&E.body.clear();}}const B=E.body,P=E.parts;const L=NAVI_LOOK[k]||NAVI_LOOK.dam;const ST=L.style;const dam=ST==='dam';const c1=L.c1,c2=L.c2,c3=L.c3;
  P.hips=new THREE.Group();P.hips.position.y=1.0;B.add(P.hips);
  P.torso=new THREE.Group();P.torso.position.y=.35;P.hips.add(P.torso);
  ePart(E,P.torso,new THREE.RoundedBoxGeometry(1,1,1,3,.14),c1,0,.42,0,.95,.85,.62);
@@ -2011,7 +2017,52 @@ function buildBamboo(){const key='bamboo';const g=outdoorBase(key,{ox:-1500,oz:4
  cyl(g,-11.5,2.6,-7,.09,5.2,'#3a3a44');box(g,-11.5,5.2,-7,.6,.08,.6,'#3a3a44');const nest=new THREE.Mesh(new THREE.TorusGeometry(.35,.15,6,12),toon('#6a4a2a'));nest.rotation.x=Math.PI/2;nest.position.set(-11.5,5.4,-7);g.add(nest);
  ROOMS.bamboo.pad=mkPad(key,5,-1.1,'#7dff9a');
  INTER.push({room:key,x:5,z:-1.2,r:1.2,label:'制御盤',fn:talkCtrl},{room:key,x:2.5,z:0,r:1.3,label:'照明スタッフ',fn:talkTech},{room:key,x:-4,z:2.8,r:1.3,label:'ポスター',fn:talkPoster},{room:key,x:-2,z:-1,r:1.3,label:'オモニ',fn:talkOmma6},{room:key,x:-11.4,z:-6.2,r:.8,label:'高い街灯の上',fn:talkNest});}
-const _buildHome0=buildHome;buildHome=async function(){await _buildHome0();try{buildBeach();buildTenryu();buildBamboo();}catch(e){console.warn('outdoor',e);}};
+
+// ===== 第1章：干上がった天竜川（遊んで原因に気づくパート） =====
+function buildTenryu0(){const key='tenryu0';const g=outdoorBase(key,{ox:-1200,oz:-700,w:26,d:22,sky:[[0,'#04081c'],[.42,'#142048'],[.5,'#3a4a7a'],[.52,'#141c28'],[1,'#05070c']],stars:1,ground:'#1e2a1c',hemi:.5,hcol:'#a8b8e0'});
+ const moon=new THREE.Mesh(new THREE.CircleGeometry(4,24),new THREE.MeshBasicMaterial({color:'#fff6d8',fog:false}));moon.position.set(-30,38,-70);moon.lookAt(0,10,0);g.add(moon);moon.userData.glow=1;
+ // dry riverbed (walkable) + embankment
+ const bed=new THREE.Mesh(new THREE.PlaneGeometry(120,9),new THREE.MeshToonMaterial({color:'#3e3a34',gradientMap:toonGrad}));bed.rotation.x=-Math.PI/2;bed.position.set(0,.006,-6.8);g.add(bed);
+ const wet=new THREE.Mesh(new THREE.PlaneGeometry(120,.6),new THREE.MeshToonMaterial({color:'#2e2c28',gradientMap:toonGrad}));wet.rotation.x=-Math.PI/2;wet.position.set(0,.008,-2.6);g.add(wet);
+ const trickle=new THREE.Mesh(new THREE.PlaneGeometry(120,.7),new THREE.MeshBasicMaterial({color:'#2a5a7a'}));trickle.rotation.x=-Math.PI/2;trickle.position.set(0,.012,-9.6);g.add(trickle);
+ const slope=new THREE.Mesh(new THREE.BoxGeometry(120,.5,1.6),toon('#5a5a54'));slope.position.set(0,.2,-1.9);slope.rotation.x=.25;g.add(slope);
+ for(let i=0;i<70;i++){const r=rnd(.12,.45);const s=new THREE.Mesh(new THREE.DodecahedronGeometry(r,0),toon(['#4a463e','#56524a','#3a3832'][i%3]));s.position.set(rnd(-13,13),r*.4,rnd(-11,-3.2));s.rotation.set(rnd(0,3),rnd(0,3),0);g.add(s);}
+ // stranded puddles with fish
+ [[-6,-6.5],[3,-7.6],[8.5,-5.6]].forEach(([x,z],i)=>{const p=new THREE.Mesh(new THREE.CircleGeometry(.9+i*.15,18),new THREE.MeshBasicMaterial({color:'#2e5e80'}));p.rotation.x=-Math.PI/2;p.position.set(x,.014,z);g.add(p);
+  const f=new THREE.Mesh(new THREE.ConeGeometry(.08,.34,6),toon('#c8d0d8'));f.rotation.z=Math.PI/2;f.position.set(x+.2,.06,z);g.add(f);const ph=rnd(0,6);WANIM.push((dt,t)=>{f.rotation.y=Math.sin(t*6+ph)*.6;f.position.y=.06+Math.max(0,Math.sin(t*3+ph))*.05;});});
+ // old water line on far bank + far bank wall
+ box(g,0,.9,-11.6,120,1.8,.4,'#6a6a62');box(g,0,1.25,-11.38,120,.12,.02,'#3a4a5a',0);
+ // upstream dam silhouette + mountains
+ const dam=new THREE.Group();dam.position.set(-34,0,-40);g.add(dam);box(dam,0,7,0,30,14,4,'#5a6070');for(let i=0;i<5;i++)box(dam,-10+i*5,5,2.05,3,6,.2,'#3a3e48');box(dam,0,14.3,0,30.5,.5,4.4,'#7a808e');
+ [-10,-5,0,5,10].forEach(x=>{const l=new THREE.Mesh(new THREE.SphereGeometry(.35,8,6),new THREE.MeshBasicMaterial({color:'#ff4f5f'}));l.position.set(x,9,2.2);l.userData.glow=1;dam.add(l);});
+ for(let i=0;i<12;i++){const m=new THREE.Mesh(new THREE.ConeGeometry(rnd(8,14),rnd(12,22),6),new THREE.MeshBasicMaterial({color:'#0c1a14'}));m.position.set(rnd(-80,80),5,rnd(-55,-42));g.add(m);}
+ // street lamps on the levee
+ [-9,0,9].forEach(x=>{box(g,x,1.6,1.2,.12,3.2,.12,'#4a4a52');const l=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),new THREE.MeshBasicMaterial({color:'#ffe8b0'}));l.position.set(x,3.25,1.2);l.userData.glow=1;g.add(l);block(key,x,1.2,.3,.3);});
+ // water level station
+ box(g,6,1.1,1.6,1.8,2.2,1.6,'#d8d8d0');box(g,6,2.3,1.6,2,.15,1.8,'#3a5a7a');box(g,6,2.9,1.1,.06,1.2,.06,'#888');block(key,6,1.6,1.9,1.7);
+ const scr=box(g,6,1.3,.79,.9,.5,.02,'#ff3b5c',1);scr.userData.glow=1;ROOMS.tenryu0.scr=scr;
+ outSign(g,[['天竜川 水位観測所','#fff',22],['現在の水位 0.0 m','#ff8a9a',24]],6,1.95,.78,Math.PI,1.7,.45,'#1a2a3a','#fff');
+ // gauge pole in the riverbed
+ box(g,2,1.6,-3.6,.18,3.2,.18,'#e8e8e8');for(let i=0;i<6;i++)box(g,2,.4+i*.5,-3.5,.32,.06,.02,i%2?'#d83a3a':'#222');block(key,2,-3.6,.3,.3);
+ // notice board
+ box(g,-4,.9,1.4,1.6,1.1,.08,'#2a3a2a');block(key,-4,1.4,1.6,.3);outSign(g,[['お知らせ','#ffd27a',24],['天竜ダムの制御システム異常のため','#fff',16],['放流が止まっています（調査中）','#fff',16]],-4,.95,1.35,Math.PI,1.5,1,'#2a3a2a','#fff');
+ // angler
+ if(NPC2){placeHuman(NPC2,key,-7.5,-3.2,Math.PI*.15);ROOM_OF.npc2=key;}box(g,-7.2,1.2,-4.2,.03,2.4,.03,'#3a2a1a');
+ {const seen=new Set(BLOOM_3D);g.traverse(o=>{if(o.isMesh&&!o.userData.glow&&!seen.has(o))occl(o);});}
+ INTER.push({room:key,x:0,z:-6,r:3.2,label:'干上がった川',fn:talkDryRiver},{room:key,x:-6,z:-6.5,r:1.3,label:'取り残された魚',fn:async()=>{await say('leo','魚が水たまりに取り残されてる……。');await say('leo','早くなんとかしてやらないとな。');}},
+  {room:key,x:-7.5,z:-2.6,r:1.3,label:'釣り人',fn:talkAngler},{room:key,x:6,z:.35,r:1.2,label:'水位観測所',fn:talkGauge},{room:key,x:-4,z:.9,r:1.1,label:'お知らせ',fn:async()=>{await say('sys','「天竜ダムの制御システム異常のため、放流が止まっています（調査中）」');}},
+  {room:key,x:0,z:9.5,r:1.6,label:'家に帰る',fn:async()=>{if(!FL.river){await say('leo','……まだ何もわかってない。観測所のほうを調べてみよう。');return;}await goRoom(doorC(LEO),'leo',1.5,1.6,Math.PI);objective2('部屋のPCから、モリーと同時にダイブしよう');}});}
+async function talkDryRiver(){await say('leo','うそだろ……天竜川が、ほとんど干上がってる。');await say('leo','いつもなら、このへんまでザーザー流れてるのに。');if(!FL.riverSaw){FL.riverSaw=1;await say('volt','（スマホ）レオ、あの観測所の端末にオレをつないでくれ。川のデータ、のぞいてみる！');objective2('水位観測所の端末を調べよう');}}
+async function talkAngler(){await say('angler','鮎釣りに来たのに、これだよ。夕方、急に水が止まっちまってな。');await say('angler','上の天竜ダムの水門が、閉じたまんま開かないんだと。機械の故障かねえ。');FL.riverSaw=1;}
+async function talkGauge(){if(FL.river){await say('volt','（スマホ）原因はわかった。あとはネットに入って、ノイズをぶっとばすだけだ！');return;}
+ await say('leo','ボルト、いくぞ。……プラグイン！');SFX('phase');flashScreen(.2);
+ await say('volt','……うわっ、水位データがノイズで真っ黒だ！　このノイズ、天竜ダムの制御ネットから流れてきてる。');
+ await say('volt','ダムの管理ナビが、ノイズに飲まれて水門を閉めっぱなしにしてるんだ！');
+ await say('volt','それだけじゃねえ。ダムのネットの奥が、日本と韓国をつなぐ海底ケーブルの管理ネットにくっついてる。通信が切れたのも、きっと同じノイズのせいだ。');
+ await say('leo','川が干上がったのも、モリーとつながらないのも……ぜんぶ同じ原因か。');
+ await say('leo','家に帰って、PCからダイブしよう。ダムの水門も、ケーブルも、まとめて取り戻す！');
+ FL.river=1;SFX('chip');if(ROOMS.tenryu0.scr)ROOMS.tenryu0.scr.material.color.set('#ffb13c');objective2('家に帰ろう（河原の上の道へ）→ PCからダイブ');}
+const _buildHome0=buildHome;buildHome=async function(){await _buildHome0();try{buildBeach();buildTenryu();buildBamboo();buildTenryu0();}catch(e){console.warn('outdoor',e);}};
 function locOf(k){return ({arr:'金海空港',hnd:'静岡空港',icn:'金海空港',beach:'プサン',tenryu:'静岡・天竜',bamboo:'釜山',molly:'ウルサン',mollyL:'ウルサン',leo:'静岡',leoL:'静岡'})[k]||'';}
 function dressP3(){FL.dress='dressP3';recolorChar(NPC1,{Tops:'#d83a3a',Bottoms:'#1a2a4a',Shoes:'#e8e4dc'},'#2a2020');recolorChar(NPC2,{Tops:'#e8e4dc',Bottoms:'#3a4a3a',Shoes:'#3a3030'},'#3a2a20');}
 function dressP3b(){FL.dress='dressP3b';recolorChar(NPC1,{Tops:'#2a3a8a',Bottoms:'#2a2a30',Shoes:'#15161a'},'#9a9a9a');recolorChar(NPC2,{Tops:'#2a5a3a',Bottoms:'#2a2a30',Shoes:'#15161a'},'#2a2020');}
@@ -2594,7 +2645,7 @@ function chgAura(L,col,full){let a=L.__ca;if(!a){a=new THREE.Group();const s=new
  a.r.position.set(0,-1.1,0);a.r.position.x=-Math.sin(L.aimFace||0)*.45;a.r.position.z=-Math.cos(L.aimFace||0)*.45;a.r.scale.setScalar(1.2-k*.5);a.r.material.opacity=done?.9:.4+k*.4;a.r.material.color.set(col);}
 function drawCharge(){const c=chgCv;c.clearRect(0,0,80,80);if(!V||!V.holding||V.chg<.15){$('chg').classList.add('hide');return;}$('chg').classList.remove('hide');const k=Math.min(1,V.chg/1.1);c.lineWidth=5;c.strokeStyle=k>=1?(Math.sin(T*6)>0?'#fff':'#ffe14d'):'#ffcf3a';c.beginPath();c.arc(40,40,32,-Math.PI/2,-Math.PI/2+k*Math.PI*2);c.stroke();}
 // ===================== STORY =====================
-const DLG={leo:{n:'レオ',img:'leo_e0',col:'#ffb347'},molly:{n:'モリー',img:'molly_e0',col:'#ff8fc8'},volt:{n:'ボルト',img:'volt_e0',col:'#ff5a5f'},mist:{n:'ミスト',img:'mist_e0',col:'#3fd0ff'},sys:{n:'',img:null},news:{n:'ニュース速報',img:null,col:'#ffd24a'},announce:{n:'空港アナウンス',img:null,col:'#9fe8ff'},mom1:{n:'レオのママ',img:null,col:'#ffb07a'},mom2:{n:'モリーのオンマ',img:null,col:'#8fe0b0'},dog:{n:'ボーダーコリーたち',img:'dogA_front',col:'#ffd24a'},jstaff:{n:'静岡空港スタッフ',img:'jstaff_e0',col:'#9fd0ff'},kstaff:{n:'金海空港スタッフ',img:'kstaff_e0',col:'#9fd0ff'},zero:{n:'ノイズ・ゼロ',img:'en_boss',col:'#ff4f7a'},jammer:{n:'ジャマー',img:'en_boss',col:'#ff4f7a'},voice:{n:'？？？の声',img:null,col:'#ff4f7a'},shade0:{n:'？？？',img:null,col:'#b98cff'}};
+const DLG={leo:{n:'レオ',img:'leo_e0',col:'#ffb347'},molly:{n:'モリー',img:'molly_e0',col:'#ff8fc8'},volt:{n:'ボルト',img:'volt_e0',col:'#ff5a5f'},mist:{n:'ミスト',img:'mist_e0',col:'#3fd0ff'},sys:{n:'',img:null},news:{n:'ニュース速報',img:null,col:'#ffd24a'},announce:{n:'空港アナウンス',img:null,col:'#9fe8ff'},mom1:{n:'レオのママ',img:null,col:'#ffb07a'},mom2:{n:'モリーのオンマ',img:null,col:'#8fe0b0'},angler:{n:'釣り人のおじさん',img:null,col:'#9ad8a8'},dog:{n:'ボーダーコリーたち',img:'dogA_front',col:'#ffd24a'},jstaff:{n:'静岡空港スタッフ',img:'jstaff_e0',col:'#9fd0ff'},kstaff:{n:'金海空港スタッフ',img:'kstaff_e0',col:'#9fd0ff'},zero:{n:'ノイズ・ゼロ',img:'en_boss',col:'#ff4f7a'},jammer:{n:'ジャマー',img:'en_boss',col:'#ff4f7a'},voice:{n:'？？？の声',img:null,col:'#ff4f7a'},shade0:{n:'？？？',img:null,col:'#b98cff'}};
 let DLGS=null;
 function say(who,text){if(NET.on&&NET.host&&NET.actor==='molly'){NET.send({t:'say',w:who,x:text,p:1});return new Promise(res=>{NET.gSayRes=res;});}
  const shared=NET.on&&NET.host&&NET.actor!=='leo';if(shared)NET.send({t:'say',w:who,x:text});return new Promise(res=>{const d=DLG[who]||DLG.sys;dlogPush(d,text);$('dlg').classList.remove('hide');const im=$('dlgimg');im.style.visibility=d.img?'visible':'hidden';if(d.img)im.src='sprites/'+d.img+'.webp';$('dlgn').textContent=d.n;$('dlgn').style.color=d.col||'#9ab';$('dlgt').textContent='';$('dlgm').style.visibility='hidden';DLGS={full:text,i:0,res,shared:NET.on&&NET.host&&NET.actor!=='leo'};SFX('jump');});}
@@ -3010,7 +3061,7 @@ function buildLiving2(key){const who=key==='leoL'?'leo':'molly',isL=who==='leo';
  // mom
  const mom=who==='leo'?MOM1:MOM2;if(mom){placeHuman(mom,key,-2.35,.55,Math.PI/2);ROOM_OF[mom===MOM1?'mom1':'mom2']=key;}
  INTER.push({room:key,x:-2.35,z:.55,r:1.2,label:who==='leo'?'ママ':'オンマ（엄마）',fn:who==='leo'?talkMom:talkOmma},
-  {room:key,x:hw-1.0,z:.1,r:1.0,label:'テレビ',fn:()=>talkTV(who)},{room:key,x:kx+.75,z:hd-.55,r:.8,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-.9,z:-hd+.6,r:.8,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、ウルサン大公園の写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
+  {room:key,x:hw-1.0,z:.1,r:1.0,label:'テレビ',fn:()=>talkTV(who)},...(who==='leo'?[{room:key,x:-hw+.7,z:hd-.7,r:.9,label:'玄関（外へ）',fn:async()=>{if((PH==='rooms0'||PH==='rooms0pad')&&FL.riverGo){await goRoom(doorC(LEO),'tenryu0',0,8.5,Math.PI);await say('leo','（家のすぐ裏の、天竜川の河原へ――）');return;}await say('leo',PH==='rooms0'?'外は暗いな。……今はPCで通信のことを調べよう。':'今は出かける用事はないな。');}}]:[]),{room:key,x:kx+.75,z:hd-.55,r:.8,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-.9,z:-hd+.6,r:.8,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、ウルサン大公園の写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
 function R_BED_DOOR_Z(){return ROOMS.leo.d/2-.75;}
 
 // ---------- 3D pets (toon, matching the characters) ----------
@@ -3240,7 +3291,7 @@ function setPads(list,cb){PADS.forEach(p=>p.m.visible=false);PADS=list;PADS.forE
 function onPad(c,p){const R=ROOMS[p.room];return ROOM_OF[c===LEO?'leo':'molly']===p.room&&Math.hypot(c.x-(R.ox+p.x),c.z-(R.oz+p.z))<.6;}
 let objBase='';function objective2(t){objBase=t;objective(t);}
 function roomLight(key){const R=ROOMS[key];if(R&&R.outdoor){[LEO,MOLLY,MOM1,MOM2,NPC1,NPC2].forEach(c=>{if(c&&c.shadow)c.shadow.visible=true;});rigTo(null);HEMI.intensity=R.outdoor.hemi;HEMI.color.set(R.outdoor.col);DIRL.intensity=.5;RL.intensity=.15;if(window.__BP)window.__BP.strength=.25;return;}const rg=!!(R&&R.rig);[LEO,MOLLY,MOM1,MOM2,NPC1,NPC2].forEach(c=>{if(c&&c.shadow)c.shadow.visible=!rg;});if(rg){rigTo(key);HEMI.intensity=R.rig.hemi||.3;HEMI.color.set(R.air?'#eef4ff':'#fff1dc');DIRL.intensity=0;RL.intensity=0;if(window.__BP)window.__BP.strength=R.air?.15:.4;}else{rigTo(null);HEMI.intensity=.42;HEMI.color.set('#fff1dc');DIRL.intensity=.45;RL.intensity=.6;if(window.__BP)window.__BP.strength=R&&R.air?.12:.45;}}
-function roomStep(dt){roomLight(ROOM_OF[ACT]);{const cur=ROOM_OF[ACT];['beach','tenryu','bamboo'].forEach(k=>{const R=ROOMS[k];if(R&&R.dome)R.dome.forEach(o=>o.visible=cur===k);});}if(window.FUJI){const R=ROOMS[ROOM_OF[ACT]];const v=!!R&&R.oz<200;FUJI.forEach(o=>o.visible=v);}$('clickme').classList.toggle('hide',locked()||plFail||!!DLGS||!!CHOICE);
+function roomStep(dt){roomLight(ROOM_OF[ACT]);{const cur=ROOM_OF[ACT];['beach','tenryu','bamboo','tenryu0'].forEach(k=>{const R=ROOMS[k];if(R&&R.dome)R.dome.forEach(o=>o.visible=cur===k);});}if(window.FUJI){const R=ROOMS[ROOM_OF[ACT]];const v=!!R&&R.oz<200;FUJI.forEach(o=>o.visible=v);}$('clickme').classList.toggle('hide',locked()||plFail||!!DLGS||!!CHOICE);
  [LEO,MOLLY].forEach(c=>{if(!(NET.on&&c===MOLLY&&!c.auto))humanStep(c,dt,c===ACTC);charLocomotion(c,dt);updChar(c,dt,T);});[MOM1,MOM2,NPC1,NPC2].forEach(c=>{if(c&&c.g.visible){c.moving=false;charLocomotion(c,dt);updChar(c,dt,T);}});
  mgStep(dt);['leoL','mollyL'].forEach(k=>{const R=ROOMS[k];if(R.tv)R.tv.material.color.set(Math.floor(T*1.3)%3?'#24486a':'#2a5a50');});petsRoomStep(dt);
  const it=!DLGS&&!CHOICE&&!busyStory&&nearInter();$('prompt').classList.toggle('hide',!it);if(it)$('prompt').textContent='F／クリック：'+it.label;
@@ -3296,6 +3347,7 @@ async function talkPC(who){
  if(PH==='rooms1'){if(who==='leo'){await say('sys','【eチケット】静岡 08:05 発 → 金海 10:35 着　NL2708便');if(!FL.ticket){await say('leo','着くのは10時35分か。モリーに伝えなきゃ。');await say('sys','「10時35分着」――モリーの目覚まし時計のヒントだ。');FL.ticket=1;phoneSend('leo','eチケット見た！　静岡空港 08:05発 → 金海 10:35着（NL2708便）');SFX('chip');updRooms1();}}else await say('molly','通話画面のレオが、スーツケースと格闘してる。……ふふっ。');return;}
  if(PH!=='rooms0'){await say('sys','PCは静かにスリープしている。');return;}
  if(FL['pc_'+who]){await say(who==='leo'?'volt':'mist',who==='leo'?'モリーのほうでも、原因を調べてもらわねーとな。（Xでモリーに切り替え）':'レオのほうの準備を待と。（Xでレオに切り替え）');return;}
+ if(who==='leo'&&!FL.river){await say('leo','通話アプリ……「相手のネットワークに接続できません」。');await say('volt','レオ、通信も変だけど……さっきから天竜川の水位計の値がずっと「0」なんだ。こんなのありえねえ。');await say('leo','川が？　……ちょっと見てくる。');FL.riverGo=1;objective2('天竜川の河原を見に行こう（リビング → 玄関）');return;}
  if(who==='leo'){await say('leo','通話アプリ……「相手のネットワークに接続できません」。');await say('volt','レオ、ちょっと中を見てくる！　……うわ、日本と韓国をつなぐケーブルのネットが、ノイズでぐちゃぐちゃだ。');await say('volt','日本側の入口は、天竜ダムの管理ネットを通るみたいだ。そこもノイズで真っ黒……水門が閉まったまま動かないのも、こいつのせいかもな。');await say('volt','しかも日本側の入口だけじゃ、アクセス権が足りねえ。向こう側からも同時に入らねえと……。');}
  else{await say('molly','レオ……？　通話、切れちゃった……。');await say('mist','モリー、原因わかったよ。海底ケーブルのネットに、強いノイズが入りこんでる。');await say('mist','韓国側の入口はウルサン港のネット。港のクレーンが暴れてるのも、たぶん同じノイズのせい。');await say('mist','ケーブルの管理ネットは、日本側と韓国側から同時にアクセスしないと開かないの。');await say('molly','レオと同時に……？　でも通話もできないのに、どうやって合わせるの？');await say('mist','テキストなら、まだ少しだけ届くよ。送ってみるね。');}
  FL['pc_'+who]=1;phoneSend(who,who==='leo'?'ケーブルのネットがノイズだらけ。こっちだけじゃ入れない、そっちからも同時に入らないとダメっぽい':'原因わかった！　ケーブル管理ネットは、日本と韓国から同時に入らないと開かないって');SFX('chip');objective2('それぞれの部屋のPCで、通信が切れた原因を調べよう<br>レオのPC：'+(FL.pc_leo?'✔':'まだ')+'　モリーのPC：'+(FL.pc_molly?'✔':'まだ'));
