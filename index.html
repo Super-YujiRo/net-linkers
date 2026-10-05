@@ -2416,14 +2416,14 @@ const GLOWTEX=(()=>{const c=document.createElement('canvas');c.width=c.height=64
 const GLOWS=[];
 const GP=(()=>{const N=800;const geo=new THREE.BufferGeometry();const pos=new Float32Array(N*3),col=new Float32Array(N*3),sz=new Float32Array(N),al=new Float32Array(N);
  geo.setAttribute('position',new THREE.BufferAttribute(pos,3).setUsage(THREE.DynamicDrawUsage));geo.setAttribute('color',new THREE.BufferAttribute(col,3).setUsage(THREE.DynamicDrawUsage));geo.setAttribute('size',new THREE.BufferAttribute(sz,1).setUsage(THREE.DynamicDrawUsage));geo.setAttribute('alpha',new THREE.BufferAttribute(al,1).setUsage(THREE.DynamicDrawUsage));
- const mat=new THREE.ShaderMaterial({uniforms:{map:{value:GLOWTEX},uScale:{value:500}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
-  vertexShader:'attribute float size;attribute float alpha;attribute vec3 color;varying vec3 vC;varying float vA;uniform float uScale;void main(){vC=color;vA=alpha;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=alpha>0.0?min(512.0,size*uScale/max(0.1,-mv.z)):0.0;}',
+ const mat=new THREE.ShaderMaterial({uniforms:{map:{value:GLOWTEX},uScale:{value:500},uMax:{value:160}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  vertexShader:'attribute float size;attribute float alpha;attribute vec3 color;varying vec3 vC;varying float vA;uniform float uScale;uniform float uMax;void main(){vC=color;vA=alpha;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=alpha>0.0?min(uMax,size*uScale/max(0.1,-mv.z)):0.0;}',
   fragmentShader:'uniform sampler2D map;varying vec3 vC;varying float vA;void main(){if(vA<=0.0)discard;vec4 t=texture2D(map,gl_PointCoord);gl_FragColor=vec4(vC*t.rgb,t.a*vA);}'});
- const pts=new THREE.Points(geo,mat);pts.frustumCulled=false;pts.renderOrder=5;scene.add(pts);
+ const pts=new THREE.Points(geo,mat);pts.frustumCulled=false;pts.renderOrder=5;scene.add(pts);try{BLOOM_HIDE.push(pts);}catch(e){}
  return {N,geo,pos,col,sz,al,pts,mat,free:Array.from({length:N},(_,i)=>N-1-i),c:new THREE.Color()};})();
 function glow(x,y,z,col,size,life,grow,vel){const i=GP.free.pop();if(i===undefined)return null;GP.c.set(col||'#fff');GP.col[i*3]=GP.c.r;GP.col[i*3+1]=GP.c.g;GP.col[i*3+2]=GP.c.b;GP.pos[i*3]=x;GP.pos[i*3+1]=y;GP.pos[i*3+2]=z;GP.sz[i]=size;GP.al[i]=1;
  const g={i,x,y,z,t:0,life:life||.3,size,grow:grow||0,v:vel||null};GLOWS.push(g);GP.dirty=true;return g;}
-function glowStep(dt){const e=camera.projectionMatrix.elements[5];GP.mat.uniforms.uScale.value=e*renderer.domElement.height*.5;
+function glowStep(dt){const e=camera.projectionMatrix.elements[5];GP.mat.uniforms.uScale.value=e*renderer.domElement.height*.5;GP.mat.uniforms.uMax.value=Math.max(48,renderer.domElement.height*.14);
  for(let k=GLOWS.length-1;k>=0;k--){const g=GLOWS[k];g.t+=dt;const f=g.t/g.life;const i=g.i;
   if(g.v){g.x+=g.v.x*dt;g.y+=g.v.y*dt;g.z+=g.v.z*dt;g.v.y-=(g.grav||4)*dt;GP.pos[i*3]=g.x;GP.pos[i*3+1]=g.y;GP.pos[i*3+2]=g.z;}
   GP.al[i]=Math.max(0,1-f);GP.sz[i]=Math.max(.01,g.size*(1+g.grow*f));
