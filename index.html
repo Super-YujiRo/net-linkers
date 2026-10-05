@@ -287,7 +287,8 @@ const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-per
 document.body.prepend(renderer.domElement);
 const scene=new THREE.Scene();scene.background=new THREE.Color('#060b22');scene.fog=new THREE.Fog('#060b22',30,90);
 const camera=new THREE.PerspectiveCamera(55,1,.1,400);
-function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
+function capPR(p){return Math.min(p,2200/Math.max(1,innerWidth),1300/Math.max(1,innerHeight));}
+function resize(){renderer.setPixelRatio(capPR(QL[QLV]));renderer.setSize(innerWidth,innerHeight);if(window.__RS)window.__RS();camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
 addEventListener('resize',resize);resize();
 scene.fog=new THREE.Fog('#0a1236',40,170);scene.background=new THREE.Color('#050818');
 const HEMI=new THREE.HemisphereLight('#bcd8ff','#302050',.75);scene.add(HEMI);let DIRL;{const dl=new THREE.DirectionalLight('#ffffff',.85);DIRL=dl;dl.position.set(3,8,4);scene.add(dl);const rl=new THREE.DirectionalLight('#5ee8ff',.6);rl.position.set(-4,3,-6);scene.add(rl);window.RL=rl;}
@@ -304,7 +305,7 @@ try{
 }catch(err){console.warn('bloom off',err);bloomComposer=null;}
 let RF_N=0,RF_T=performance.now(),RF_SLOW=0,RF_FAST=0;
 function inScene(o){while(o){if(o===scene)return true;o=o.parent;}return false;}
-function setQual(l){QLV=Math.max(0,Math.min(QL.length-1,l));renderer.setPixelRatio(QL[QLV]);renderer.setSize(innerWidth,innerHeight);if(window.__RS)window.__RS();}
+function setQual(l){QLV=Math.max(0,Math.min(QL.length-1,l));renderer.setPixelRatio(QLV===0?QL[0]:capPR(QL[QLV]));renderer.setSize(innerWidth,innerHeight);if(window.__RS)window.__RS();}
 let BH=[],BO=[],B3=[],RF_DIRTY=true;[BLOOM_HIDE,BLOOM_OCC,BLOOM_3D].forEach(A=>{A.push=function(){RF_DIRTY=true;return Array.prototype.push.apply(this,arguments);};});
 {const _sa=scene.add.bind(scene);scene.add=function(){RF_DIRTY=true;return _sa.apply(null,arguments);};}
 const _dcp=new THREE.Vector3();function distCull(){const cp=camera.position;for(const c of scene.children){if(c.userData.hasSkin===undefined){let h=false;c.traverse(o=>{if(o.isSkinnedMesh)h=true;});c.userData.hasSkin=h;}if(!c.userData.hasSkin)continue;c.getWorldPosition(_dcp);const far=_dcp.distanceTo(cp)>95;if(far!==!!c.userData.dcFar){c.userData.dcFar=far;c.traverse(o=>o.layers.set(far?3:0));}}}
