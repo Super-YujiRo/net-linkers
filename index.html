@@ -204,7 +204,7 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <div id="chapsel" class="hide" style="margin-bottom:10px;font-weight:800">どこから遊ぶ？　<select id="chapv" style="font-size:15px;padding:6px 10px;background:#0b1226;color:#fff;border:1px solid #3fd0ff"></select></div><div id="modebtns">
 <div id="netBox" class="netbox hide"><button class="lnk" id="onl">部屋を作る</button><span class="or">または</span><input id="codeIn" maxlength="8" placeholder="部屋コード" autocomplete="off" onkeydown="if(event.key==='Enter')joinByCode()"><button class="lnk" onclick="joinByCode()">参加</button>
 <div id="codeMsg" style="font-size:12px;color:#ffb0b0;min-height:16px;width:100%"></div><div class="note">相手は登録なしで参加できます。部屋を作った人が、どっちのキャラで遊ぶか選べます</div></div>
-<button class="big" id="start">ゲームスタート</button></div>
+<button class="big" id="start">ゲームスタート</button><button class="lnk" id="tstb" style="margin-top:8px">🧪 バトルテスト（すぐ戦闘）</button><div id="tstm" class="hide" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;max-width:520px"></div></div>
 <details class="howto"><summary>あそびかた</summary>
 <div class="box">レオ＆ボルト（静岡・天竜）とモリー＆ミスト（ウルサン）の物語。部屋ではキャラを切りかえて調べもの、ネットではナビを操作してウイルスとバトル。フィールドのウイルスに<b>ぶつかるとバトル開始</b>（スライディングか後ろからぶつかると先制攻撃）。</div>
 <div class="box"><b>基本</b>　画面をクリックするとマウスで視点（Escで解除）<br>
@@ -1458,7 +1458,7 @@ const CHAPS=[{k:'intro',n:'はじめから（プロローグ）'},{k:'net1',n:'�
 const DIFFS=[{n:'やさしい',hp:.75,dmg:.55,z:1},{n:'ふつう',hp:1,dmg:1,z:1},{n:'むずかしい',hp:1.35,dmg:1.4,z:1.3}];
 function DIFF(){const x=SAVE.x||{};const i=NET.on&&NET.guest?1:(x.diff==null?1:x.diff);return DIFFS[i]||DIFFS[1];}
 function setDiff(i){SAVE.x=SAVE.x||{};SAVE.x.diff=i;saveGame();document.querySelectorAll('#dSeg button').forEach((b,k)=>b.setAttribute('aria-pressed',k===i));}
-function saveGame(){try{const o={v:1,fetchBest:SAVE.fetchBest||0,fetchChip:SAVE.fetchChip||0,cricketBest:SAVE.cricketBest||0,cricketChip:SAVE.cricketChip||0,folder:FOLDER,pack:PACK,zenny,lib:[...LIB],md:PROG.md,chap:SAVE.chap,rec:SAVE.rec,hpUp:SAVE.hpUp,clear:SAVE.clear||0,shopHp:SAVE.shopHp||{},exBest:SAVE.exBest||0,exClear:SAVE.exClear||0,bu:SAVE.bu||null,q:SAVE.q||null,blade:SAVE.blade||null,x:SAVE.x||{}};localStorage.setItem(SAVEK,JSON.stringify(o));}catch(e){}}
+function saveGame(){if(window.__TESTB)return;try{const o={v:1,fetchBest:SAVE.fetchBest||0,fetchChip:SAVE.fetchChip||0,cricketBest:SAVE.cricketBest||0,cricketChip:SAVE.cricketChip||0,folder:FOLDER,pack:PACK,zenny,lib:[...LIB],md:PROG.md,chap:SAVE.chap,rec:SAVE.rec,hpUp:SAVE.hpUp,clear:SAVE.clear||0,shopHp:SAVE.shopHp||{},exBest:SAVE.exBest||0,exClear:SAVE.exClear||0,bu:SAVE.bu||null,q:SAVE.q||null,blade:SAVE.blade||null,x:SAVE.x||{}};localStorage.setItem(SAVEK,JSON.stringify(o));}catch(e){}}
 function loadGame(){try{const o=JSON.parse(localStorage.getItem(SAVEK)||'null');if(!o)return false;if(Array.isArray(o.folder)&&o.folder.length>=FOLDER_MIN){FOLDER.length=0;o.folder.forEach(c=>FOLDER.push(c));}PACK=o.pack||[];zenny=o.zenny||0;(o.lib||[]).forEach(id=>LIB.add(id));PROG.md=o.md||{};SAVE.chap=o.chap||0;SAVE.x=o.x||{};SAVE.rec=o.rec||{};SAVE.hpUp=o.hpUp||{V:0,M:0};SAVE.clear=o.clear||0;SAVE.shopHp=o.shopHp||{};SAVE.exBest=o.exBest||0;SAVE.exClear=o.exClear||0;['fetchBest','fetchChip','cricketBest','cricketChip'].forEach(k=>SAVE[k]=o[k]||0);if(o.bu)SAVE.bu=o.bu;if(o.blade)SAVE.blade=o.blade;if(o.q)SAVE.q=o.q;return true;}catch(e){return false;}}
 function chapReached(k){const i=CHAPS.findIndex(c=>c.k===k);if(i>SAVE.chap){SAVE.chap=i;}saveGame();}
 function applyHpUps(){if(!V||!M)return;V.max=P0.volt.max+(SAVE.hpUp.V||0)*20+(ncpOf('V').hp||0);M.max=P0.mist.max+(SAVE.hpUp.M||0)*20+(ncpOf('M').hp||0);V.hp=Math.min(V.hp,V.max);M.hp=Math.min(M.hp,M.max);renderHP();}
@@ -3821,6 +3821,21 @@ let BOOTED=null;function bootGame(quiet){if(BOOTED)return BOOTED;BOOTED=(async()
 
  initWorld();if(USE3D)await buildHome();$('loading').style.visibility='';})();return BOOTED;}
 $('start').onclick=async()=>{audioInit();$('title').classList.add('hide');await bootGame();if(USE3D){startStory();}else{MODE='play';['hp','gauge','chips','cross','help','area','gear'].forEach(id=>$(id).classList.remove('hide'));tryLock();banner('ウイルスにぶつかるとバトル開始！','#ffe14d');}};
+
+// ===== バトルテスト（タイトルからすぐ戦闘） =====
+const TEST_LIST=[['virus','ウイルス戦'],['dam','ダムキーパー'],['crane','クレーン'],['neon','ネオン'],['liner','ライナー'],['wave','ウェーブ'],['shade','シェイド'],['hanabi','ハナビ'],['bamboo','ブリッジ'],['blackout','ブラックアウト'],['shadesp','シェイドSP'],['blackoutsp','ブラックアウトSP']];
+$('tstb').onclick=()=>{const m=$('tstm');m.classList.toggle('hide');if(m.childElementCount)return;TEST_LIST.forEach(([k,n])=>{const b=document.createElement('button');b.className='lnk';b.textContent=n;b.onclick=()=>testStart(k);m.appendChild(b);});};
+async function testStart(k){window.__TESTB=k;window.__autoDlg=true;const cv=$('chapv');if(cv){if(![...cv.options].some(o=>o.value==='post')){const o=document.createElement('option');o.value='post';o.textContent='post';cv.appendChild(o);}cv.value='post';const cs=$('chapsel');if(cs)cs.classList.remove('hide');}
+ $('start').click();for(let i=0;i<300;i++){await wait(200);if(PH==='post'&&MODE==='play'&&!busyStory&&!DLGS)break;}testJump(k);}
+function testJump(k){let zn=null;
+ if(k==='virus')zn=ZONES.find(z=>z.net==='inet'&&!z.navi&&!z.boss&&!z.final&&z.list&&z.list.length&&!z.clear&&IAREAS[z.world])||ZONES.find(z=>z.net==='inet'&&!z.navi&&z.list&&z.list.length&&IAREAS[z.world]);
+ else zn=ZONES.find(z=>z.navi===k);
+ if(!zn){banner('テスト用の戦闘が見つかりません','#ff8a8a');return;}
+ ZONES.forEach(z=>{if(z!==zn&&z.world===zn.world&&z.net===zn.net&&!z.clear){z.clear=true;if(z.sym){scene.remove(z.sym.g);z.sym=null;}}});zn.clear=false;zn.act=false;zn.req=0;if(!zn.sym&&typeof makeSymbol==='function'){try{makeSymbol(zn);}catch(e){}}
+ if(NETCUR!==zn.net)enterNet(zn.net);if(zn.net==='inet'&&IAREAS[zn.world])inetWarp(V,zn.world);
+ const st=zoneStartPt(zn);let dx=zn.x-st[0],dz=zn.z-st[1];const d=Math.hypot(dx,dz)||1;dx/=d;dz/=d;
+ V.x=zn.x-dx*(zn.r+1.5);V.z=zn.z-dz*(zn.r+1.5);V.face=Math.atan2(dx,dz);yaw=Math.atan2(-dx,-dz);if(M){M.x=V.x-dx*1.2+dz;M.z=V.z-dz*1.2-dx;}
+ banner('バトルテスト：前に進むと戦闘開始（セーブはされません。タイトルへは ⚙設定 から）','#9fe8ff');}
 $('onl').onclick=()=>{audioInit();$('modebtns').classList.add('hide');pickRole();};
 function setPlayers(n){$('p1').setAttribute('aria-pressed',n===1);$('p2').setAttribute('aria-pressed',n===2);$('netBox').classList.toggle('hide',n!==2);$('start').classList.toggle('hide',n===2);}
 $('p1').onclick=()=>setPlayers(1);$('p2').onclick=()=>setPlayers(2);
