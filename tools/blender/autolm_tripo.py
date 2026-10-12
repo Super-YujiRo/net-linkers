@@ -89,9 +89,10 @@ def auto_lm(V,N=240):
         tipx=shx+.06*H;tipz=crotch
     hax=shx+(tipx-shx)*.85;haz=shz+(tipz-shz)*.85
     elx=shx+(tipx-shx)*.45;elz=shz+(tipz-shz)*.45
-    hpz=crotch+.02;hpx=max(ax[0]*.9,.05*H)
+    hpz=crotch+.02;kxm=float(np.mean(kx));axm=float(np.mean(ax))
+    hpx=min(max(kxm*.85,.035*H),.05*H);knx=min(max(kxm,.04*H),.07*H);anx=min(max(axm,.04*H),.08*H)
     LM={'hips':(hpz+.02,0.0),'spine':hpz+(neckz-hpz)*.25,'chest':hpz+(neckz-hpz)*.5,'uchest':hpz+(neckz-hpz)*.75,'neck':neckz,'head':neckz+.05,'top':1.0,'head_r':max(halfw(neckz+.12),.08),
-        'sh':(shx,0,shz),'el':(elx,0,elz),'ha':(hax,0,haz),'tip':(tipx,0,tipz),'hp':(hpx,0,hpz),'kn':(kx[0],0,(hpz+.06)/2+.03),'an':(ax[0],0,.08),'toe':(ax[0],-.08,.02)}
+        'sh':(shx,0,shz),'el':(elx,0,elz),'ha':(hax,0,haz),'tip':(tipx,0,tipz),'hp':(hpx,0,hpz),'kn':(knx,0,(hpz+.06)/2+.03),'an':(anx,0,.08),'toe':(anx,-.08,.02)}
     # LM in units of H; scale to model units
     def sc_(v):
         if isinstance(v,tuple):return tuple(float(a)*H if i!=0 or True else a for i,a in enumerate(v))
