@@ -3515,7 +3515,7 @@ function buildLiving(key){const who=key==='leoL'?'leo':'molly';const R=ROOMS[key
  const pl=new THREE.PointLight('#ffd9a0',.7,12,1.6);pl.position.set(0,2.8,.5);g.add(pl);box(g,0,3.05,.5,.9,.1,.9,'#8a7448',true);
  // mom
  const mom=who==='leo'?MOM1:MOM2;if(mom){placeHuman(mom,key,-3.4,.9,Math.PI/2);ROOM_OF[mom===MOM1?'mom1':'mom2']=key;}
- INTER.push({room:key,x:-3.4,z:.9,r:1.4,label:who==='leo'?'ママ':'オンマ（엄마）',fn:who==='leo'?talkMom:talkOmma},
+ INTER.push({room:key,x:-3.4,z:.9,r:1.4,label:who==='leo'?'ママ':'オンマ（엄마）',hide:()=>!!FL.nc1,fn:who==='leo'?talkMom:talkOmma},
   {room:key,x:1.5,z:-hd+1,r:1.3,label:'テレビ',fn:()=>talkTV(who)},{room:key,x:-4.4,z:3.2,r:1,label:who==='leo'?'冷蔵庫':'キムチ冷蔵庫',fn:()=>talkFridge(who)},{room:key,x:-1.5,z:-hd+.5,r:1,label:'家族写真',fn:()=>say(who,who==='leo'?'小学生のとき、家族で行った海の写真。ボーダーコリーたちは、まだ子犬だ。':'家族3人で行った、ウルサン大公園の写真。……アッパ（パパ）は出張が多いけど、写真の中ではいつも笑ってる。')});}
 async function talkMom(){if(FL.nc1){if(PH==='rooms0'||PH==='nc1go'){await say('mom1','お父さん、朝から工場で大騒ぎよ。早く行ってあげて。');return;}await say('mom1','おかえり。今日はお疲れさま。');return;}if(PH==='rooms1'){if(!FL.passport){await say('mom1','レオ、パスポートでしょ？　なくさないように、ママが預かってたのよ。');await say('leo','あ……助かった。スーツケースに入れたつもりだった。');await say('mom1','はい。それと、これ。モリーちゃんのおうちへのおみやげ、うなぎパイ。ちゃんと「はじめまして」って言うのよ。');await say('leo','わかってるって。……ありがと。');await say('sys','パスポートと、モリーの家族へのおみやげを受け取った。');FL.passport=1;phoneSend('leo','パスポート、ママが預かってた……あぶねー。うなぎパイも持ってく！');SFX('chip');updRooms1();return;}
   await say('mom1','明日は早いんでしょ。夜ふかししないで、ちゃんと寝なさいね。');return;}
