@@ -401,7 +401,7 @@ function mkMove(base,mv,name){const T=mv.k.map(k=>k[0]);const tracks=[];const us
  return new THREE.AnimationClip(name,mv.d||T[T.length-1],tracks);}
 window.HY_CLIPS=function(k,C){const M=BMOVES[k];if(!M||!C.Idle_Loop)return;for(const n in M){try{C['B_'+n]=mkMove(C.Idle_Loop,M[n],'B_'+n);}catch(e){console.warn('bmove',k,n,e);}}};
 // 色替え（ミスト=黄色）：青〜水色の画素だけ金色系へ
-function yelPix(d){for(let i=0;i<d.length;i+=4){const r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),dd=mx-mn+1e-6;let h=mx===r?(((g-b)/dd)%6+6)%6:mx===g?(b-r)/dd+2:(r-g)/dd+4;h*=60;const s=dd/(mx+1e-6);if(h>165&&h<255&&s>.18&&mx>.42){const ns=Math.min(.9,s*1.1+.08),nv=Math.min(1,.5+.5*mx),c=nv*ns,x=c*(1-Math.abs((46/60)%2-1)),m=nv-c;d[i]=(c+m)*255;d[i+1]=(x+m)*255;d[i+2]=m*255;}}}
+function yelPix(d){for(let i=0;i<d.length;i+=4){const r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),dd=mx-mn+1e-6;let h=mx===r?(((g-b)/dd)%6+6)%6:mx===g?(b-r)/dd+2:(r-g)/dd+4;h*=60;const s=dd/(mx+1e-6);if(h>165&&h<255&&s>.18&&mx>.42){const ns=Math.min(.82,s*1.05+.06),nv=Math.min(1,.36+.56*mx),c=nv*ns,x=c*(1-Math.abs((46/60)%2-1)),m=nv-c;d[i]=(c+m)*255;d[i+1]=(x+m)*255;d[i+2]=m*255;}}}
 function texRecolor(tex,fn){if(!tex||!tex.image)return tex;const im=tex.image;const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const id=g.getImageData(0,0,c.width,c.height);fn(id.data);g.putImageData(id,0,0);const t=new THREE.CanvasTexture(c);t.flipY=tex.flipY;t.encoding=tex.encoding;t.wrapS=tex.wrapS;t.wrapT=tex.wrapT;t.anisotropy=tex.anisotropy;return t;}
 async function hyAdd(V,k,buf){try{const g=await parseGLB(buf);const key='t_'+k;g.scene.updateMatrixWorld(true);if(k==='mist'){const done=new Map();g.scene.traverse(o=>{if(!o.isMesh)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m&&m.map){if(!done.has(m.map))done.set(m.map,texRecolor(m.map,yelPix));m.map=done.get(m.map);m.needsUpdate=true;}});});}
   const hb=g.scene.getObjectByName('J_Bip_C_Hips'),fb=V.tpl.fumi&&V.tpl.fumi.getObjectByName('J_Bip_C_Hips');const ratio=hb&&fb&&fb.position.y?hb.position.y/fb.position.y:1;
@@ -502,6 +502,15 @@ function leoMask(tb,tgt){const rx=.118,ry=.141,rz=.133,cy=1.645,rx0=.128;const g
  const m=new THREE.Mesh(g,mat);m.frustumCulled=false;tgt.add(m);tgt.updateMatrixWorld(true);if(tb.Head)tb.Head.attach(m);
  const ol=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#06240f',side:THREE.BackSide}));ol.scale.setScalar(1.025);ol.position.set(0,cy*(-.025),0);m.add(ol);BLOOM_HIDE.push(ol);
  m.userData.dark3d=new THREE.MeshBasicMaterial({color:0});BLOOM_3D.push(m);return m;}
+// 後頭部に顔が描かれてしまったモデルの補正：頭の後ろ半分を単色（ヘルメット色）で塗る
+function backHeadFix(meshes,tb,facesZ,col){const head=tb.Head;if(!head)return;meshes.forEach(o=>{if(!o.isSkinnedMesh)return;const gm=o.geometry,si=gm.attributes.skinIndex,sw=gm.attributes.skinWeight,P=gm.attributes.position;if(!si||!sw)return;
+  const hi=o.skeleton.bones.indexOf(head);const ni=tb.Neck?o.skeleton.bones.indexOf(tb.Neck):-1;if(hi<0)return;const idx=[];
+  for(let i=0;i<P.count;i++){let w=0;for(let k=0;k<4;k++){const b=si.getComponent(i,k);if(b===hi)w+=sw.getComponent(i,k);}if(w>.5)idx.push(i);}if(idx.length<20)return;
+  let cx=0,cy=0,cz=0,z0=1e9,z1=-1e9,y0=1e9;idx.forEach(i=>{cx+=P.getX(i);cy+=P.getY(i);cz+=P.getZ(i);z0=Math.min(z0,P.getZ(i));z1=Math.max(z1,P.getZ(i));y0=Math.min(y0,P.getY(i));});cx/=idx.length;cy/=idx.length;cz/=idx.length;const dz=(z1-z0)/2||1;
+  const a=new Float32Array(P.count);const sgn=facesZ?1:-1;idx.forEach(i=>{const t=(P.getZ(i)-cz)*sgn/dz;a[i]=Math.max(0,Math.min(1,(-t-.05)/.35));});gm.setAttribute('aBack',new THREE.BufferAttribute(a,1));
+  (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{const c=new THREE.Color(col);const ob=m.onBeforeCompile;m.onBeforeCompile=(sh,r)=>{if(ob)ob(sh,r);sh.uniforms.uBackCol={value:c};
+   sh.vertexShader='attribute float aBack;\nvarying float vBack;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvBack=aBack;');
+   sh.fragmentShader='varying float vBack;\nuniform vec3 uBackCol;\n'+sh.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,uBackCol,vBack);');};m.needsUpdate=true;});});}
 async function makeChar(key,opt){
  const tg=await parseGLB(opt.buf||ASSETS[key]),sg=await parseGLB(ASSETS.ual.slice(0));
  const tgt=tg.scene,src=sg.scene;const clips={};sg.animations.forEach(c=>clips[c.name]=c);
@@ -537,7 +546,7 @@ async function makeChar(key,opt){
  const parentKey={};order.forEach(k=>{let p=tb[k].parent;parentKey[k]=keys.find(x=>tb[x]===p)||null;});
  const wrap=new THREE.Group();const inner=new THREE.Group();inner.add(tgt);inner.rotation.y=tgtFacesZ?0:Math.PI;const sc=opt.buf&&opt.civ?(opt.height||1.6)/Math.max(.01,new THREE.Box3().setFromObject(tgt).getSize(new THREE.Vector3()).y):(opt.height||1.6)/(tH.y*1.9);inner.scale.setScalar(sc);wrap.add(inner);scene.add(wrap);
  const shadow=new THREE.Mesh(new THREE.CircleGeometry(.4,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.45,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.02;scene.add(shadow);BLOOM_HIDE.push(shadow);
- wrap.updateMatrixWorld(true);if(opt.navi&&!opt.buf)decorateNavi(tb,opt.navi);if(opt.civ==='leo')leoMask(tb,tgt);if(opt.civ==='leo')leoCargo(tb);
+ wrap.updateMatrixWorld(true);if(opt.backHead)try{backHeadFix(meshes,tb,tgtFacesZ,opt.backHead);}catch(e){console.warn('backHead',e);}if(opt.navi==='mist'&&opt.buf)meshes.forEach(o=>{(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map){m.map=texRecolor(m.map,yelPix);m.needsUpdate=true;}});});if(opt.navi&&!opt.buf)decorateNavi(tb,opt.navi);if(opt.civ==='leo')leoMask(tb,tgt);if(opt.civ==='leo')leoCargo(tb);
  const acts={};Object.keys(clips).forEach(n=>acts[n]=mixer.clipAction(clips[n]));
  const c={is3d:true,g:wrap,shadow,mixer,acts,cur:null,lockT:0,src,tb,sb,srcRest,tgtRest,tgtParentRest,order,parentKey,R,Ri,hs,srcHipRest,tgtHipLocal,cw:{},rotY:0,
   face:0,x:0,y:0,z:0,vy:0,moving:false,flash:0,meshes};
@@ -856,10 +865,10 @@ syncSet();$('sens').oninput=()=>{SET.sens=+$('sens').value;syncSet();saveSet();}
 $('gear').onclick=()=>{if(document.pointerLockElement)document.exitPointerLock();$('settings').classList.toggle('hide');};
 try{$('qual').value=QMODE==='auto'?'auto':String(QLV);}catch(e){}$('qual').onchange=()=>{const v=$('qual').value;try{localStorage.setItem('nl_qual',v);}catch(e){}if(v==='auto'){QMODE='auto';setQual(1);}else{QMODE='fix';setQual(+v);}};
 $('svExp').onclick=async()=>{try{if(MODE!=='title'&&BOOTED)saveGame();let raw=localStorage.getItem(SAVEK)||'';try{const o=JSON.parse(raw||'{"v":1}');o._wal={V:localStorage.getItem('nl_wal_V'),M:localStorage.getItem('nl_wal_M')};raw=JSON.stringify(o);}catch(e){}const code='NLS1:'+btoa(unescape(encodeURIComponent(raw)));$('svTxt').value=code;try{await navigator.clipboard.writeText(code);$('svMsg').textContent='コピーしました。移したい先で貼り付けてください';}catch(e){$('svTxt').select();$('svMsg').textContent='下の文字を全部選んでコピー（Ctrl+C）してください';}}catch(e){$('svMsg').textContent='書き出しに失敗しました';}};
-$('svImp').onclick=()=>{try{let t=$('svTxt').value.trim();if(!t.startsWith('NLS1:'))throw 0;const raw=decodeURIComponent(escape(atob(t.slice(5))));const o=JSON.parse(raw);if(!o||o.v!==1)throw 0;if(o._wal){['V','M'].forEach(w=>{if(o._wal[w])localStorage.setItem('nl_wal_'+w,o._wal[w]);else localStorage.removeItem('nl_wal_'+w);});delete o._wal;}else{localStorage.removeItem('nl_wal_V');localStorage.removeItem('nl_wal_M');}localStorage.setItem(SAVEK,JSON.stringify(o));$('svMsg').textContent='読み込みました。タイトルに戻ります…';setTimeout(()=>{location.href=location.pathname;},800);}catch(e){$('svMsg').textContent='セーブの文字が正しくありません';}};
+$('svImp').onclick=()=>{try{let t=$('svTxt').value.trim();if(!t.startsWith('NLS1:'))throw 0;const raw=decodeURIComponent(escape(atob(t.slice(5))));const o=JSON.parse(raw);if(!o||o.v!==1)throw 0;if(o._wal){['V','M'].forEach(w=>{if(o._wal[w])localStorage.setItem('nl_wal_'+w,o._wal[w]);else localStorage.removeItem('nl_wal_'+w);});delete o._wal;}else{localStorage.removeItem('nl_wal_V');localStorage.removeItem('nl_wal_M');}localStorage.setItem(SAVEK,JSON.stringify(o));$('svMsg').textContent='読み込みました。タイトルに戻ります…';setTimeout(()=>{window.__noLeaveGuard=1,location.href=location.pathname;},800);}catch(e){$('svMsg').textContent='セーブの文字が正しくありません';}};
 let quitArm=0;$('quitb').onclick=()=>{if(!quitArm){quitArm=1;$('quitb').textContent='もう一度押すと終了します';setTimeout(()=>{quitArm=0;$('quitb').textContent='セーブしてタイトルへ';},4000);return;}
  try{saveGame();}catch(e){}try{saveSet();}catch(e){}try{if(NET&&NET.on&&typeof netSend==='function')netSend({t:'bye'});}catch(e){}
- setTimeout(()=>{location.href=location.pathname;},150);};
+ setTimeout(()=>{window.__noLeaveGuard=1,location.href=location.pathname;},150);};
 let plFail=false,plErr=0,plTry=0;const locked=()=>document.pointerLockElement===cvEl;const MPOS={x:-1,y:-1,in:false};
 let uaOK=true,uaT=-1e9,uaFail=0;
 function tryLock(){if(locked())return;if(plFail){if(performance.now()-plTry<2000)return;}plTry=performance.now();if(typeof cvEl.requestPointerLock!=='function'){plFail=true;return;}
@@ -1260,7 +1269,7 @@ async function exStart(){FL.ex=1;FL.bossTalk=1;FL.terOff=1;EX_T0=performance.now
 let EX_T0=0;
 async function exClear(z){busyStory=true;await wait(1500);const t=(performance.now()-EX_T0)/1000;SAVE.exBest=SAVE.exBest?Math.min(SAVE.exBest,t):t;SAVE.exClear=(SAVE.exClear||0)+1;saveGame();
  await say('jammer','……ナゼ……ナンドデモ……ツナガル……。');await say('volt','何度でもつなぐさ。それがオレたちだ！');await say('mist','おつかれさま、ボルト。……ちょっとだけ、かっこよかったよ。');
- const mm=Math.floor(t/60),ss=Math.floor(t%60);showResult('EXTRA クリア！','ジャマー SP をデリートした！<br>クリアタイム '+mm+'分'+String(ss).padStart(2,'0')+'秒（ベスト '+Math.floor(SAVE.exBest/60)+'分'+String(Math.floor(SAVE.exBest%60)).padStart(2,'0')+'秒）<br>ライブラリ '+[...LIB].filter(k=>CH[k]&&!CH[k].pa).length+' / '+Object.keys(CH).filter(k=>!CH[k].pa).length,()=>location.reload());busyStory=false;}
+ const mm=Math.floor(t/60),ss=Math.floor(t%60);showResult('EXTRA クリア！','ジャマー SP をデリートした！<br>クリアタイム '+mm+'分'+String(ss).padStart(2,'0')+'秒（ベスト '+Math.floor(SAVE.exBest/60)+'分'+String(Math.floor(SAVE.exBest%60)).padStart(2,'0')+'秒）<br>ライブラリ '+[...LIB].filter(k=>CH[k]&&!CH[k].pa).length+' / '+Object.keys(CH).filter(k=>!CH[k].pa).length,()=>(window.__noLeaveGuard=1,location.reload()));busyStory=false;}
 async function linkMeet(){busyStory=true;SFX('phase');flashScreen(1);banner('リンク接続！','#ffd24a');await wait(700);fade(true);await wait(600);
  HAZ.forEach(h=>h.cancel=true);PROJ.forEach(p=>p.dead=true);V.x=794;V.z=0;V.face=Math.PI/2;tpM(806,0,-Math.PI/2);trail=[];yaw=-Math.PI/2;pitch=.18;dist=5.5;camTarget.set(794,1.4,0);if(NET.on)netCall('camSet',[Math.PI/2,.18,5.5]);
  fade(false);await chapter('NET AREA','日韓 海底ケーブル 中継ホール');
@@ -1302,7 +1311,7 @@ function unitZoneFrozen(u){return ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,u)&&z
 function sharedFreeze(){return !!(DLGS&&DLGS.shared);}
 function vFrozen(){return cusOpenH()||unitZoneFrozen(V);}
 function mFrozen(){return !!NET.cusG||unitZoneFrozen(M);}
-function cusStartZone(z){if(!z||!z.act||z.clear||cusOpenH()||NET.cusG)return;const hv=zoneHas(z,V),hm=zoneHas(z,M);if(!hv&&!hm)return;NET.cusN=(NET.cusN||0)+1;if(hm){NET.cusG=true;NET.send({t:'cus',n:NET.cusN});}if(hv){gaugeV=1;openCustom(true);}}
+function cusStartZone(z){if(!z||!z.act||z.clear||cusOpenH()||NET.cusG)return;const hv=zoneHas(z,V),hm=zoneHas(z,M);if(!hv&&!hm)return;NET.cusN=(NET.cusN||0)+1;if(hm&&ARM.M!=='blade'){NET.cusG=true;NET.send({t:'cus',n:NET.cusN});}if(hv&&ARM.V!=='blade'){gaugeV=1;openCustom(true);}}
 function cusStart(who){who=who||V;cusStartZone(ZONES.find(z=>z.act&&!z.clear&&zoneHas(z,who)));}
 function openCustom(force){if(isBlade()){if(!force){const C=NET.on&&NET.guest?M:V;if(C)popup(C.x,2.6,C.z,'ブレード中はチップを使わない（右クリック／Fで技）','#ffe14d',14);}return;}if(!force&&(gaugeV<1||paused))return;if(!force&&!ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,NET.on&&NET.guest?M:V)))return;if(!force&&NET.on){if(NET.host)cusStart(V);else if(!NET.fz)NET.send({t:'cusReq'});return;}if(cusOpenH())return;if(force&&paused&&!$('bust').classList.contains('hide')){$('bust').classList.add('hide');}SFX('custom');paused=true;MS.fire=false;if(document.pointerLockElement)document.exitPointerLock();
  while(hand.length<6){if(!deck.length)shuffleDeck();hand.push(deck.pop());}pick=[];renderCustom();$('custom').classList.remove('hide');}
@@ -2404,7 +2413,7 @@ function buildBamboo(){const key='bamboo';const g=outdoorBase(key,{ox:-1500,oz:4
 // ===== 第1章：干上がった天竜川（遊んで原因に気づくパート） =====
 function buildTenryu0(){const key='tenryu0';const g=outdoorBase(key,{ox:-1200,oz:-700,w:26,d:22,sky:[[0,'#2a58a0'],[.42,'#6f9ccc'],[.5,'#b8cfe0'],[.52,'#46583e'],[1,'#1e2a18'],],stars:0,ground:'#3e4e30',hemi:.62,hcol:'#fff0dc'});
  {// Leo's house back door: wall + lit door + sign + ground ring so the way home is obvious
-  box(g,0,1.6,10.75,7,3.2,.3,'#5a5048');box(g,0,3.35,10.6,7.6,.3,.8,'#3a3430');const dr=box(g,0,1.05,10.55,1.2,2.1,.08,'#e8b060',1);dr.userData.glow=1;box(g,.4,1.0,10.5,.08,.08,.06,'#3a2a1a');
+  box(g,0,1.4,10.8,2.2,2.8,.2,'#cfc8b8');box(g,0,2.95,10.45,3.2,.12,1.1,'#3e4450');const dr=box(g,0,1.05,10.55,1.2,2.1,.08,'#e8b060',1);dr.userData.glow=1;box(g,.4,1.0,10.5,.08,.08,.06,'#3a2a1a');
   const lamp=box(g,0,2.45,10.5,.35,.2,.2,'#ffe2a0',1);lamp.userData.glow=1;
   try{hangSign(g,0,2.95,10.45,2.4,[['🏠 レオの家','#ffe8c0']],'#3a2a20');}catch(e){}
   const ring=new THREE.Mesh(new THREE.RingGeometry(.8,1.0,32),new THREE.MeshBasicMaterial({color:'#ffd27a',transparent:true,opacity:.55,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.set(0,.03,9.7);g.add(ring);window.HOME_RING=ring;}
@@ -2438,9 +2447,9 @@ function buildTenryu0(){const key='tenryu0';const g=outdoorBase(key,{ox:-1200,oz
  // angler
  if(NPC2){placeHuman(NPC2,key,-7.5,-3.2,Math.PI*.15);ROOM_OF.npc2=key;}box(g,-7.2,1.2,-4.2,.03,2.4,.03,'#3a2a1a');
  {const seen=new Set(BLOOM_3D);g.traverse(o=>{if(o.isMesh&&!o.userData.glow&&!seen.has(o))occl(o);});}
- ROOMS.tenryu0.p1=mkPad(key,4.6,-.7,'#7dff9a');ROOMS.tenryu0.p2=mkPad(key,7.4,-.7,'#7dff9a');
+ {const tryD=()=>{if(KK.ready)dressTenryu0();else setTimeout(tryD,500);};tryD();}ROOMS.tenryu0.p1=mkPad(key,4.6,-.7,'#7dff9a');ROOMS.tenryu0.p2=mkPad(key,7.4,-.7,'#7dff9a');
  INTER.push({room:key,x:0,z:-6,r:3.2,label:'干上がった川',fn:talkDryRiver},{room:key,x:-6,z:-6.5,r:1.3,label:'取り残された魚',fn:async()=>{await say('leo','魚が水たまりに取り残されてる……。');await say('leo','早くなんとかしてやらないとな。');}},
-  {room:key,x:-7.5,z:-2.6,r:1.3,label:'釣り人',fn:talkAngler},{room:key,x:6,z:.35,r:1.2,label:'水位観測所',fn:talkGauge},{room:key,x:-4,z:.9,r:1.1,label:'お知らせ',fn:async()=>{await say('sys','「天竜ダムの制御システム異常のため、放流が止まっています（調査中）」');}},
+  {room:key,x:-7.5,z:-2.6,r:1.3,label:'釣り人',fn:talkAngler},{room:key,x:6,z:.35,r:1.2,label:'水位観測所',story:()=>FL.nc1&&FL.f_cause&&!FL.river,fn:talkGauge},{room:key,x:-4,z:.9,r:1.1,label:'お知らせ',fn:async()=>{await say('sys','「天竜ダムの制御システム異常のため、放流が止まっています（調査中）」');}},
   {room:key,x:0,z:9.9,r:2.0,label:'家に帰る',fn:async()=>{if(!FL.river){await say('leo','……まだ何もわかってない。観測所のほうを調べてみよう。');return;}await goRoom(doorC(LEO),'leo',1.5,1.6,Math.PI);objective2('部屋のPCから、モリーと同時にダイブしよう');}});}
 async function talkDryRiver(){if(FL.nc1done){await say(ACTR(),'水が戻ってきた。いつもの天竜川だ。');return;}await say('leo','うそだろ……天竜川が、ほとんど干上がってる。');await say('leo','いつもなら、このへんまでザーザー流れてるのに。');if(!FL.riverSaw){FL.riverSaw=1;await say('volt','（スマホ）レオ、あの観測所の端末にオレをつないでくれ。川のデータ、のぞいてみる！');objective2('水位観測所の端末を調べよう');}}
 async function talkAngler(){await say('angler','鮎釣りに来たのに、これだよ。夜のうちに、急に水が止まっちまってな。');await say('angler','上の天竜ダムの水門が、閉じたまんま開かないんだと。機械の故障かねえ。');FL.riverSaw=1;}
@@ -2499,21 +2508,21 @@ function buildFactory(){const key='factory';ROOMS[key]={ox:-1400,oz:-700,w:16,d:
  [-3,0,3].forEach(z=>{box(g,7.4,1.2,z,.8,2.4,2.2,'#6a5a4a');for(let k=0;k<3;k++)box(g,7.3,.5+k*.75,z,.6,.3,1.8,['#7a8aa0','#a08060','#6a8a6a'][k]);block(key,7.4,z,.9,2.3);});
  box(g,4.8,.45,4.3,2.4,.9,1.1,'#7a6040');box(g,4.8,.95,4.3,2.5,.1,1.2,'#9a8060');block(key,4.8,4.3,2.5,1.2);
  box(g,-6.2,.4,1.0,1.8,.8,1,'#b8b0a0');box(g,-6.2,1.05,.8,.8,.5,.05,'#2a3a4a');block(key,-6.2,1.0,1.8,1);
- box(g,-6.6,.08,-1.6,1.2,.15,1.2,'#a08050');box(g,-6.6,.5,-1.6,1,.7,1,'#c8b890');block(key,-6.6,-1.6,1.3,1.3);
+ box(g,-6.6,.08,-.9,1.2,.15,1.2,'#a08050');box(g,-6.6,.5,-.9,1,.7,1,'#c8b890');block(key,-6.6,-.9,1.3,1.3);
  try{hangSign(g,0,3.75,-5.55,3.2,[['鈴木製作所','#ffffff']],'#1a3a6a');}catch(e){}
- if(KK.ready){kk('shelf_B_large_decorated',g,-7.3,0,-4.6,{h:2.6,ry:Math.PI/2});block(key,-7.3,-4.6,1,2.2);kk('cargo_A_stacked',g,6.7,0,-5.0,{h:2.2,ry:Math.PI});block(key,6.7,-5,1.8,1.6);kk('cargo_A',g,2.9,0,3.6,{h:.9});block(key,2.9,3.6,1,1);kk('containers_B',g,-3.2,0,-5.0,{h:1.3});block(key,-3.2,-5,1.6,1.2);kk('chair_A',g,-6.2,0,1.9,{h:1,ry:Math.PI});kk('lamp_standing',g,-7.4,0,3.4,{h:1.8});}
+ if(KK.ready){kk('shelf_B_large_decorated',g,-6.3,0,-5.35,{h:2.6,ry:0});block(key,-6.3,-5.35,2.2,1);kk('cargo_A_stacked',g,6.7,0,-5.0,{h:2.2,ry:Math.PI});block(key,6.7,-5,1.8,1.6);kk('cargo_A',g,7.2,0,5.2,{h:.9});block(key,7.2,5.2,1,1);kk('containers_B',g,-3.2,0,-5.0,{h:1.3});block(key,-3.2,-5,1.6,1.2);kk('chair_A',g,-6.2,0,1.9,{h:1,ry:Math.PI});kk('lamp_standing',g,-7.4,0,3.4,{h:1.8});}
  const d1=box(g,-5,1.1,hd-.04,1.4,2.2,.06,'#e8b060',1);d1.userData.glow=1;
  const d2=box(g,-hw+.04,1.1,-3.5,.06,2.2,1.4,'#7fd8ff',1);d2.userData.glow=1;
  outSign(g,[['裏口 → 天竜川','#fff',22]],-hw+.08,2.5,-3.5,Math.PI/2,1.6,.35,'#1a2a3a','#fff');
  if(DAD)placeHuman(DAD,key,1,-.6,Math.PI);if(BRO1)placeHuman(BRO1,key,4.8,3.2,Math.PI);
  {const seen=new Set(BLOOM_3D);g.traverse(o=>{if(o.isMesh&&!o.userData.glow&&!seen.has(o))occl(o);if(o.isMesh){o.receiveShadow=true;o.castShadow=!o.userData.occ&&!(o.material&&o.material.isMeshBasicMaterial);}});}
- INTER.push({room:key,x:1,z:.2,r:1.4,label:'お父さん',fn:talkDad},{room:key,x:4.8,z:2.6,r:1.3,label:'弟1',fn:talkBro1},{room:key,x:5.2,z:.9,r:1.0,label:'制御盤',fn:talkFactoryCtrl},{room:key,x:0,z:-4.9,r:1.6,label:'冷却水の配管',fn:talkPipe},{room:key,x:-5,z:hd-.6,r:1.0,label:'出入口（家へ）',fn:factoryHomeDoor},{room:key,x:-hw+.7,z:-3.5,r:1.1,label:'裏口（天竜川へ）',fn:factoryRiverDoor});}
-async function nc1FactoryIntro(){if(FL.f_intro)return;FL.f_intro=1;busyStory=true;try{
+ INTER.push({room:key,x:1,z:.2,r:1.4,label:'お父さん',story:()=>!FL.f_dad||FL.nc1done,fn:talkDad},{room:key,x:4.8,z:2.6,r:1.3,label:'弟1',story:()=>!FL.f_bro,fn:talkBro1},{room:key,x:5.2,z:.9,r:1.0,label:'制御盤',story:()=>FL.f_dad&&!FL.f_cause,fn:talkFactoryCtrl},{room:key,x:0,z:-4.9,r:1.6,label:'冷却水の配管',fn:talkPipe},{room:key,x:-5,z:hd-.6,r:1.0,label:'出入口（家へ）',fn:factoryHomeDoor},{room:key,x:-hw+.7,z:-3.5,r:1.1,label:'裏口（天竜川へ）',fn:factoryRiverDoor});}
+async function nc1FactoryIntro(){if(FL.f_intro)return;FL.f_intro=1;const pa=NET.actor;NET.actor=null;busyStory=true;try{
  placeHuman(LEO,'factory',-5.4,4.4,Math.PI);placeHuman(MOLLY,'factory',-4.3,4.4,Math.PI);if(DAD)placeHuman(DAD,'factory',1,-.6,Math.PI);
  const R_=ROOMS.factory;camShot(R_.ox-3,R_.oz+2.5,.6,.16,5.5);
  await say('sys','お父さんの工場「鈴木製作所」。いつもなら機械の音でうるさいのに、今日はしんと静まりかえっている。');
  await Promise.all([walkBoth('factory',[-3.6,2.9,Math.PI*.8],[-2.6,3.3,Math.PI*.85]),walkTo(DAD,'factory',-1.6,1.7,-Math.PI*.2)]);
- await talkDad();}finally{busyStory=false;}}
+ await talkDad();}finally{busyStory=false;NET.actor=pa&&busyStory?pa:null;}}
 async function talkDad(){
  if(FL.nc1done){await say('dad','水が戻って、機械も全部動いとる。……レオ、モリーちゃん、ありがとな。');return;}
  if(!FL.f_dad){FL.f_dad=1;await say('dad','おう、レオ。モリーちゃんも来てくれたか。休みの日に悪いな。');await say('molly','おじさん、おはようございます。機械、止まっちゃったって……。');
@@ -2535,7 +2544,7 @@ async function talkFactoryCtrl(){
  await say('volt','……ポンプはちゃんと動く。故障じゃねえ。水そのものが、入口まで来てねえんだ！');
  await say('volt','工場の冷却水は、天竜川から引いてる工業用水だよな？　取水口の水位データが……ゼロだ。');
  await say('molly','川の水が、来てないってこと……？');await say('mist','天竜川の水位観測所のデータも、ゼロになってる。川そのものがおかしいみたい。');
- await say('leo','裏口から河原に出られる。見に行こう！');FL.f_cause=1;SFX('chip');objective2(nc1Obj());if(!NET.on){busyStory=true;try{await walkBoth('factory',[-6.9,-3.1,-Math.PI/2],[-6.9,-4.1,-Math.PI/2]);fade(true);await wait(350);placeHuman(LEO,'tenryu0',8,3.6,Math.PI*.8);placeHuman(MOLLY,'tenryu0',9,3.6,Math.PI*.8);ACTC=ACT==='leo'?LEO:MOLLY;setWho();fade(false);FL.f_river=1;const R_=ROOMS.tenryu0;camShot(R_.ox+6,R_.oz+1,.5,.2,7);await say('sys','工場の裏の、天竜川の河原。');await say('molly','……うそ。川が……。');await walkBoth('tenryu0',[5.4,.5,Math.PI],[6.8,.6,Math.PI]);await say('leo','天竜川が、ほとんど干上がってる……！');}finally{busyStory=false;}}}
+ await say('leo','裏口から河原に出られる。見に行こう！');FL.f_cause=1;SFX('chip');objective2(nc1Obj());if(true){busyStory=true;try{await walkBoth('factory',[-6.9,-3.1,-Math.PI/2],[-6.9,-4.1,-Math.PI/2]);fade(true);await wait(350);placeHuman(LEO,'tenryu0',8,3.6,Math.PI*.8);placeHuman(MOLLY,'tenryu0',9,3.6,Math.PI*.8);ACTC=ACT==='leo'?LEO:MOLLY;setWho();fade(false);FL.f_river=1;const R_=ROOMS.tenryu0;camShot(R_.ox+6,R_.oz+1,.5,.2,7);await say('sys','工場の裏の、天竜川の河原。');await say('molly','……うそ。川が……。');await walkBoth('tenryu0',[5.4,.5,Math.PI],[6.8,.6,Math.PI]);await say('leo','天竜川が、ほとんど干上がってる……！');}finally{busyStory=false;}}}
 async function talkPipe(){await say('sys','冷却水の配管。「流量 0 L/min」の表示が赤く光っている。');if(!FL.f_cause&&!FL.nc1done)await say(ACTR()==='molly'?'molly':'leo','水が、まったく来てない……？');}
 async function factoryHomeDoor(){const c=doorC(ACTC);const me=c===MOLLY?'molly':'leo';if(PH==='nc1free'){await goRoom(c,me==='molly'?'mollyL':'leoL',-1.6,ROOMS.leoL.d/2-1.3,0);return;}await say(me,'今は、工場の機械をなんとかしないと。');}
 async function factoryRiverDoor(){const c=doorC(ACTC);const me=c===MOLLY?'molly':'leo';if(!FL.f_cause){await say(me,'まずは、機械が止まった原因を調べよう。');return;}await goRoom(c,'tenryu0',me==='molly'?9:8,3.6,Math.PI*.8);if(!FL.f_river){FL.f_river=1;objective2(nc1Obj());await say('sys','工場の裏の、天竜川の河原。');}}
@@ -3360,6 +3369,15 @@ function drawCharge(){const c=chgCv;c.clearRect(0,0,80,80);if(!V||!V.holding||V.
 // ===================== STORY =====================
 const DLG={leo:{n:'レオ',img:'leo_e0',col:'#ffb347'},molly:{n:'モリー',img:'molly_e0',col:'#ff8fc8'},volt:{n:'ボルト',img:'volt_e0',col:'#5ee07a'},mist:{n:'ミスト',img:'mist_e0',col:'#ffc23f'},sys:{n:'',img:null},news:{n:'ニュース速報',img:null,col:'#ffd24a'},announce:{n:'空港アナウンス',img:null,col:'#9fe8ff'},mom1:{n:'レオのママ',img:null,col:'#ffb07a'},mom2:{n:'モリーのオンマ',img:null,col:'#8fe0b0'},angler:{n:'釣り人のおじさん',img:null,col:'#9ad8a8'},dog:{n:'ボーダーコリーたち',img:'dogA_front',col:'#ffd24a'},jstaff:{n:'静岡空港スタッフ',img:'jstaff_e0',col:'#9fd0ff'},kstaff:{n:'金海空港スタッフ',img:'kstaff_e0',col:'#9fd0ff'},zero:{n:'ノイズ・ゼロ',img:'en_boss',col:'#ff4f7a'},jammer:{n:'ジャマー',img:'navi_jammer_e0',col:'#ff4f7a'},voice:{n:'？？？の声',img:null,col:'#ff4f7a'},shade0:{n:'？？？',img:null,col:'#b98cff'}};
 let DLGS=null;
+// ===== ストーリー会話は2人共有：相方を呼び寄せて両方の画面に出す =====
+function storyGather(A){if(!NET.on||!LEO||!MOLLY)return;const B=A===LEO?MOLLY:LEO;const rk=ROOM_OF[A===LEO?'leo':'molly'];const R=ROOMS[rk];if(!R)return;
+ if(ROOM_OF[B===LEO?'leo':'molly']===rk&&Math.hypot(B.x-A.x,B.z-A.z)<3.2)return;
+ const f=A.face||0,px=Math.cos(f),pz=-Math.sin(f),fx=Math.sin(f),fz=Math.cos(f);
+ const cand=[[px*.85,pz*.85],[-px*.85,-pz*.85],[-fx*.9,-fz*.9],[px*1.3-fx*.5,pz*1.3-fz*.5],[-px*1.3-fx*.5,-pz*1.3-fz*.5]];
+ let pos=null;for(const [dx,dz] of cand){const x=A.x+dx,z=A.z+dz;if(petFree(rk,x,z,.3)){pos=[x-R.ox,z-R.oz];break;}}if(!pos)pos=[A.x-R.ox,A.z-R.oz];
+ placeHuman(B,rk,pos[0],pos[1],f);}
+async function storyRun(A,fn){const pa=NET.actor,pi=INTER_ACTOR,pb=busyStory;busyStory=true;NET.actor=null;INTER_ACTOR=A;try{storyGather(A);await fn();}finally{NET.actor=pa;INTER_ACTOR=pi;busyStory=pb;}}
+function sayAs(a,who,text){const p=NET.actor;NET.actor=a;try{return say(who,text);}finally{NET.actor=p;}}
 function say(who,text){if(NET.on&&NET.host&&NET.actor==='molly'){NET.send({t:'say',w:who,x:text,p:1});return new Promise(res=>{NET.gSayRes=res;});}
  const shared=NET.on&&NET.host&&NET.actor!=='leo';if(shared)NET.send({t:'say',w:who,x:text});return new Promise(res=>{const d=DLG[who]||DLG.sys;dlogPush(d,text);$('dlg').classList.remove('hide');const im=$('dlgimg');im.style.visibility=d.img?'visible':'hidden';im.style.display=d.img?'':'none';if(d.img)im.src='sprites/'+d.img+'.webp';$('dlgn').textContent=d.n;$('dlgn').style.color=d.col||'#9ab';$('dlgt').textContent='';$('dlgm').style.visibility='hidden';DLGS={full:text,i:0,res,shared:NET.on&&NET.host&&NET.actor!=='leo'};SFX('jump');});}
 const DLOG=[];let DLG_AUTO=false,DLG_SKIP=false;
@@ -3970,10 +3988,10 @@ let MG=null;
 function mgHud(html){const el=$('mg');if(!el)return;if(!html){el.classList.add('hide');return;}el.innerHTML=html;el.classList.remove('hide');}
 function mgShow(html){if(NET.on&&NET.actor==='molly')netCall('mgHud',[html]);else mgHud(html);}
 function freeToward(room,x0,z0,x1,z1){let x=x1,z=z1;for(let k=0;k<20;k++){if(petFree(room,x,z,.3))return [x,z];x=x0+(x-x0)*.85;z=z0+(z-z0)*.85;}return [x0,z0];}
-async function fetchGame(){const room=ROOM_OF.leo;const dogs=RPETS.filter(u=>u.kind==='dog'&&u.room==='leo');if(!dogs.length)return;
+async function fetchGame(){if(MG){banner('いまはミニゲーム中！','#ffd24a');return;}const room=ROOM_OF.leo;const dogs=RPETS.filter(u=>u.kind==='dog'&&u.room==='leo');if(!dogs.length)return;
  const ball=new THREE.Mesh(new THREE.SphereGeometry(.07,12,10),new THREE.MeshStandardMaterial({color:'#e8ff40',roughness:.5}));ball.castShadow=true;scene.add(ball);ball.visible=false;
  MG={k:'fetch',pow:0,t:0,thrown:false,score:0};let total=0;
- await say('leo','よーし、ボール投げるぞー！　とってこーい！');
+ await sayAs('leo','leo','よーし、ボール投げるぞー！　とってこーい！');
  for(let i=0;i<5;i++){MG.phase='aim';MG.thrown=false;
   while(!MG.thrown){await wait(30);const p=MG.pow;mgShow('<b>🎾 ボール投げ '+(i+1)+'/5</b><div class="mgbar"><i style="width:'+(p*100)+'%"></i><span class="mgok"></span></div><small>ゲージが右はしに近いときに F／クリック！（向いている方向に投げる）　スコア '+total+'</small>');}
   const p=MG.pow;const dist=.8+p*4.2;const fx=Math.sin(LEO.face),fz=Math.cos(LEO.face);let [tx,tz]=freeToward(room,LEO.x,LEO.z,LEO.x+fx*dist,LEO.z+fz*dist);
@@ -3983,18 +4001,18 @@ async function fetchGame(){const room=ROOM_OF.leo;const dogs=RPETS.filter(u=>u.k
   if(!win)win=dogs[0];SFX('chip');const perfect=p>.9;const pts=Math.round(d*20)+(perfect?50:0);total+=pts;popup(win.x,1.2,win.z,(perfect?'ナイス！ ':'')+'+'+pts,'#ffe14d',20);
   dogs.forEach(u=>{if(u!==win){u.tx=null;u.wt=rnd(1,2);u.fast=null;}});
   for(let k=0;k<300;k++){ball.position.set(win.x+Math.sin(win.face)*.3,.42,win.z+Math.cos(win.face)*.3);const [lx,lz]=freeToward(room,win.x,win.z,LEO.x,LEO.z);win.tx=lx;win.tz=lz;await wait(30);if(Math.hypot(win.x-LEO.x,win.z-LEO.z)<.95)break;}
-  win.tx=null;win.fast=null;win.wt=rnd(1,3);ball.visible=false;await say('dog',['ワフッ！','ワンワン！','ハッハッハッ……！','ワオーン！','クゥン♪'][i]);}
+  win.tx=null;win.fast=null;win.wt=rnd(1,3);ball.visible=false;await sayAs('leo','dog',['ワフッ！','ワンワン！','ハッハッハッ……！','ワオーン！','クゥン♪'][i]);}
  scene.remove(ball);MG=null;mgShow('');SAVE.fetchBest=Math.max(SAVE.fetchBest||0,total);zenny+=total;
- await say('sys','ボール投げ スコア '+total+'（ベスト '+SAVE.fetchBest+'）　'+total+' ゼニーをもらった！');
- if(total>=600&&!SAVE.fetchChip){SAVE.fetchChip=1;folderAdd(['dogs','*']);await say('leo','おまえら最高だな！　……ボルトのフォルダにも入れとくか。');await say('sys','チップ「コリーダッシュ *」を手に入れた！');}
+ await sayAs('leo','sys','ボール投げ スコア '+total+'（ベスト '+SAVE.fetchBest+'）　'+total+' ゼニーをもらった！');
+ if(total>=600&&!SAVE.fetchChip){SAVE.fetchChip=1;folderAdd(['dogs','*']);await sayAs('leo','leo','おまえら最高だな！　……ボルトのフォルダにも入れとくか。');await sayAs('leo','sys','チップ「コリーダッシュ *」を手に入れた！');}
  saveGame();}
 function mkCricket(){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.SphereGeometry(.1,12,10),new THREE.MeshStandardMaterial({color:'#8a5a2a',emissive:'#2a1600'}));b.scale.set(1,.7,1.6);g.add(b);[-1,1].forEach(s=>{const l=new THREE.Mesh(new THREE.BoxGeometry(.016,.016,.2),new THREE.MeshBasicMaterial({color:'#3a2a10'}));l.position.set(s*.08,.03,-.08);l.rotation.x=.5;g.add(l);const an=new THREE.Mesh(new THREE.BoxGeometry(.008,.008,.22),new THREE.MeshBasicMaterial({color:'#3a2a10'}));an.position.set(s*.03,.06,.2);an.rotation.x=-.5;g.add(an);});
  const ring=new THREE.Mesh(new THREE.RingGeometry(.2,.27,24),new THREE.MeshBasicMaterial({color:'#ffd24a',transparent:true,opacity:.85,side:THREE.DoubleSide,depthTest:false}));ring.rotation.x=-Math.PI/2;ring.position.y=-.04;ring.renderOrder=5;g.add(ring);
  const mk=new THREE.Mesh(new THREE.ConeGeometry(.07,.16,4),new THREE.MeshBasicMaterial({color:'#ffd24a',depthTest:false}));mk.rotation.x=Math.PI;mk.position.y=.42;mk.renderOrder=5;g.add(mk);g.userData.mk=mk;return g;}
 // guest-side mirror of the host's crickets
 function mgCr(arr){window.__CR=window.__CR||[];while(__CR.length<arr.length){const g=mkCricket();scene.add(g);__CR.push(g);}__CR.forEach((g,i)=>{const a=arr[i];g.visible=!!a;if(a){g.position.set(a[0],.05+a[1],a[2]);g.rotation.y=a[3];g.userData.mk.position.y=.42+.05*Math.sin(performance.now()/150);}});if(!arr.length){__CR.forEach(g=>scene.remove(g));window.__CR=[];}}
-async function cricketGame(){const room=ROOM_OF.molly;const R=ROOMS[room];const cr=[];const actor=NET.on?NET.actor:null,remote=NET.on&&actor==='molly';
- await say('molly','ごはんの時間だよー。……あっ、コオロギが逃げた！　つかまえなきゃ！');
+async function cricketGame(){if(MG){banner('いまはミニゲーム中！','#ffd24a');return;}const room=ROOM_OF.molly;const R=ROOMS[room];const cr=[];const actor=NET.on?NET.actor:null,remote=NET.on&&actor==='molly';
+ await sayAs(actor||'molly','molly','ごはんの時間だよー。……あっ、コオロギが逃げた！　つかまえなきゃ！');
  if(NET.on){busyStory=false;NET.actor=null;INTER_ACTOR=null;} // the partner can keep playing during the minigame
  for(let i=0;i<8;i++){let x,z;for(let k=0;k<20;k++){x=R.ox+rnd(-R.w/2+.7,R.w/2-.7);z=R.oz+rnd(-R.d/2+.7,R.d/2-.7);if(petFree(room,x,z,.3))break;}
   const g=mkCricket();
@@ -4012,8 +4030,8 @@ async function cricketGame(){const room=ROOM_OF.molly;const R=ROOMS[room];const 
  if(NET.on){while(busyStory||DLGS)await wait(120);busyStory=true;NET.actor=actor;INTER_ACTOR=MOLLY;}
  const z=caught*60;SAVE.cricketBest=Math.max(SAVE.cricketBest||0,caught);
  if(NET.on&&NET.actor==='molly')netCall('zennyGive',[z]);else zenny+=z;
- await say('molly',caught>=6?'やったー！　みんな、おなかいっぱいだね。':'うーん、何匹か逃げちゃった……。');await say('sys','つかまえた数 '+caught+'（ベスト '+SAVE.cricketBest+'）　'+z+' ゼニーをもらった！');
- if(caught>=7&&!SAVE.cricketChip){SAVE.cricketChip=1;folderAdd(['liz','*']);await say('mist','（通信）トカゲさんたちのデータ、チップにしといたよ！');await say('sys','チップ「トカゲガード *」を手に入れた！');}
+ await sayAs(actor||'molly','molly',caught>=6?'やったー！　みんな、おなかいっぱいだね。':'うーん、何匹か逃げちゃった……。');await sayAs(actor||'molly','sys','つかまえた数 '+caught+'（ベスト '+SAVE.cricketBest+'）　'+z+' ゼニーをもらった！');
+ if(caught>=7&&!SAVE.cricketChip){SAVE.cricketChip=1;folderAdd(['liz','*']);await sayAs(actor||'molly','mist','（通信）トカゲさんたちのデータ、チップにしといたよ！');await sayAs(actor||'molly','sys','チップ「トカゲガード *」を手に入れた！');}
  saveGame();}
 function mgStep(dt){if(MG&&MG.k==='fetch'&&MG.phase==='aim'){MG.t+=dt;MG.pow=(Math.sin(MG.t*3.2-Math.PI/2)+1)/2;}}
 
@@ -4026,7 +4044,7 @@ function humanStep(c,dt,control){c.slide=0;c.faceHold=0;c.inv=0;if(c.auto){const
  if(ml){mx/=ml;mz/=ml;const sp=c.sprint?4.4:2.5;const nx=c.x+mx*sp*dt,nz=c.z+mz*sp*dt;if(walk(nx,nz,.25)||!walk(c.x,c.z,.25)){c.x=nx;c.z=nz;}else if(walk(nx,c.z,.25))c.x=nx;else if(walk(c.x,nz,.25))c.z=nz;c.face=Math.atan2(mx,mz);}}
 function nearInter(){const c=ACTC,key=ROOM_OF[ACT];let best=null,bd=9;INTER.forEach(it=>{if(it.room!==key)return;if(it.hide&&it.hide())return;const R=ROOMS[it.room];const d=Math.hypot(c.x-(R.ox+it.x),c.z-(R.oz+it.z));if(d<it.r&&d<bd){bd=d;best=it;}});return best;}
 let busyStory=false,PADS=[],padCB=null;
-async function roomInteract(){if(DLGS||CHOICE)return;if(MG&&MG.k==='cricket'&&!NET.on)return;if(busyStory){if(NET.on&&NET.actor==='molly')(NET.raw.banner||banner)('モリーが調べものをしています…','#ff8fc8');return;}const it=nearInter();if(!it)return;busyStory=true;if(NET.on)NET.actor='leo';INTER_ACTOR=NET.on?LEO:ACTC;try{await it.fn();}finally{busyStory=false;NET.actor=null;INTER_ACTOR=null;}}
+async function roomInteract(){if(DLGS||CHOICE)return;if(MG&&MG.k==='cricket'&&!NET.on)return;if(NET.on&&busyStory&&MG&&NET.actor==='molly'&&!NET.busyL&&!DLGS){const it=nearInter();if(!it)return;NET.busyL=1;const pa=NET.actor;NET.actor='leo';const pi=INTER_ACTOR;INTER_ACTOR=LEO;try{await it.fn();}finally{NET.busyL=0;NET.actor=MG?pa:null;INTER_ACTOR=pi;}return;}if(busyStory){if(NET.on&&NET.actor==='molly')(NET.raw.banner||banner)('モリーが調べものをしています…','#ff8fc8');return;}const it=nearInter();if(!it)return;if(NET.on&&it.story&&it.story()){await storyRun(ACTC,it.fn);return;}busyStory=true;if(NET.on)NET.actor='leo';INTER_ACTOR=NET.on?LEO:ACTC;try{await it.fn();}finally{busyStory=false;NET.actor=null;INTER_ACTOR=null;}}
 let INTER_ACTOR=null;function doorC(def){return INTER_ACTOR||def;}
 function setWho(){$('who').textContent=ACT==='leo'?'操作中：レオ（'+(locOf(ROOM_OF.leo)||'静岡')+'）':'操作中：モリー（'+(locOf(ROOM_OF.molly)||'ウルサン')+'）';$('who').style.borderColor=ACT==='leo'?'#ffb347':'#ff8fc8';}
 function switchHuman(silent){if(DLGS||busyStory||CHOICE||NET.on)return;ACT=ACT==='leo'?'molly':'leo';ACTC=ACT==='leo'?LEO:MOLLY;if(!silent){flashScreen(.15);SFX('custom');}camTarget.set(ACTC.x,1.4,ACTC.z);setWho();}
@@ -4239,10 +4257,10 @@ async function reunionScene(){SFX('bust');PADS=[];
 const DV={tex:{},sets:[],on:null,wet:null,built:0};
 function dvR(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return ()=>{s=s*16807%2147483647;return (s-1)/2147483646;};}
 function dvC(a,b,t){return '#'+new THREE.Color(a).lerp(new THREE.Color(b),Math.max(0,Math.min(1,t))).getHexString();}
-function dvCan(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');fn(g,w,h);const t=new THREE.CanvasTexture(c);t.wrapS=THREE.MirroredRepeatWrapping;t.anisotropy=4;t.minFilter=THREE.LinearMipmapLinearFilter;t.userData={cv:c};return t;}
+function dvCan(w,h,fn){const c=document.createElement('canvas');const sc=.5;c.width=w*sc;c.height=h*sc;const g=c.getContext('2d');g.scale(sc,sc);fn(g,w,h);const t=new THREE.CanvasTexture(c);t.wrapS=THREE.MirroredRepeatWrapping;t.anisotropy=4;t.minFilter=THREE.LinearMipmapLinearFilter;t.userData={cv:c};return t;}
 // 1D fractal ridge
 function dvRidge(rn,n,oct,amp){const pts=new Float32Array(n);const base=[];for(let o=0;o<oct;o++){const k=4*Math.pow(2,o),a=amp/Math.pow(1.9,o);const v=[];for(let i=0;i<=k;i++)v.push(rn());for(let i=0;i<n;i++){const x=i/(n-1)*k,i0=Math.floor(x),f=x-i0,s=f*f*(3-2*f);pts[i]+=(v[i0]*(1-s)+v[Math.min(k,i0+1)]*s)*a;}}return pts;}
-function dvCloud(G,x,y,w,h,rn,lit,shade){const oc=document.createElement('canvas');oc.width=G.canvas.width;oc.height=G.canvas.height;const g=oc.getContext('2d');const n=Math.max(6,Math.round(w/h*5));const blobs=[];for(let i=0;i<n;i++){const t=i/(n-1);const bw=h*(.55+rn()*.6)*(1-Math.abs(t-.5)*.7);blobs.push([x+(t-.5)*w*.9+(rn()-.5)*h*.4,y-bw*.35-rn()*h*.25,bw]);}
+function dvCloud(G,x,y,w,h,rn,lit,shade){const oc=document.createElement('canvas');oc.width=G.canvas.width;oc.height=G.canvas.height;const g=oc.getContext('2d');g.setTransform(G.getTransform());const n=Math.max(6,Math.round(w/h*5));const blobs=[];for(let i=0;i<n;i++){const t=i/(n-1);const bw=h*(.55+rn()*.6)*(1-Math.abs(t-.5)*.7);blobs.push([x+(t-.5)*w*.9+(rn()-.5)*h*.4,y-bw*.35-rn()*h*.25,bw]);}
  // shade underside
  blobs.forEach(([bx,by,r])=>{const gr=g.createRadialGradient(bx,by+r*.25,r*.1,bx,by+r*.25,r);gr.addColorStop(0,shade);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.arc(bx,by+r*.25,r,0,7);g.fill();});
  blobs.forEach(([bx,by,r])=>{const gr=g.createRadialGradient(bx-r*.25,by-r*.35,r*.05,bx,by,r);gr.addColorStop(0,lit);gr.addColorStop(.55,lit.replace(/[\d.]+\)$/,'.55)'));gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(bx,by,r,0,7);g.fill();});
@@ -4357,7 +4375,7 @@ function buildDayView(key,kind){const R=ROOMS[key];if(!R||!R.win)return;dvTex();
 function buildDayViews(){if(DV.built)return;DV.built=1;buildDayView('leo','river');buildDayView('leoL','river');buildDayView('molly','city');buildDayView('mollyL','city');
  // 昼の照明（窓から朝日）
  ['leo','molly','leoL','mollyL'].forEach(k=>{const R=ROOMS[k];if(R&&R.rig)R.rigDay=Object.assign({},R.rig,{moon:.95,moonCol:'#ffe4bf',spot:(R.rig.spot||0)*.45,fill:.45,fillCol:'#cfe0ff',lamp:(R.rig.lamp||0)*.25,hemi:.5});});}
-function dayViewSync(){if(!DV.built)return;const on=!!FL.nc1;const wet=!!FL.nc1River;const me=(typeof NET!=='undefined'&&NET.on&&NET.guest)?'molly':ACT;const rk=ROOM_OF[me];DV.sets.forEach(s=>{const v=on&&s.key===rk;if(s.g.visible!==v)s.g.visible=v;});if(on!==DV.on){DV.on=on;(window.NIGHTV||[]).forEach(o=>o.visible=!on);RIG.key=null;}
+function dayViewSync(){if(!DV.built){if(!FL.nc1||SCN!=='room')return;try{buildDayViews();}catch(e){console.warn('dayview',e);DV.built=1;return;}}const on=!!FL.nc1;const wet=!!FL.nc1River;const me=(typeof NET!=='undefined'&&NET.on&&NET.guest)?'molly':ACT;const rk=ROOM_OF[me];DV.sets.forEach(s=>{const v=on&&s.key===rk;if(s.g.visible!==v)s.g.visible=v;});if(on!==DV.on){DV.on=on;(window.NIGHTV||[]).forEach(o=>o.visible=!on);RIG.key=null;}
  if(wet!==DV.wet){DV.wet=wet;DV.sets.forEach(s=>{if(s.river){s.river.material.map=wet?DV.tex.riverWet:DV.tex.riverDry;s.river.userData.dark3d.map=s.river.material.map;s.river.material.needsUpdate=true;}});}}
 
 // ===================== 釣り好き一家の小物（レオの部屋・リビング） =====================
@@ -4413,12 +4431,91 @@ async function talkRodsDad(){await say('leo','お父さんのさお立て。オ�
 async function talkCooler(){await say('leo','クーラーボックスとタックルボックス。エギがぎっしり入ってる。');await say('volt','この前のアオリイカ、うまかったな！　……オレは食えないけど。');}
 async function talkGyotaku(k){if(k==='tachi'){await say('leo','お父さんが釣ったタチウオの魚拓。指四本半……家族の最高記録だ。');}else{await say('leo','浜名湖で釣ったチヌの魚拓。46cm。オレの自己ベスト。');await say('volt','この話、もう30回は聞いたぞ。');}}
 
+// 和風2階建ての家の外観（天竜川側から見えるレオの家＋工場）
+function sidingTex(base){const k='sd'+base;if(NATC[k])return NATC[k];const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle=base;g.fillRect(0,0,256,256);
+ for(let y=0;y<256;y+=16){g.fillStyle='rgba(0,0,0,.14)';g.fillRect(0,y+14,256,2);g.fillStyle='rgba(255,255,255,.08)';g.fillRect(0,y,256,2);}for(let i=0;i<900;i++){g.fillStyle=`rgba(0,0,0,${Math.random()*.05})`;g.fillRect(Math.random()*256,Math.random()*256,3,1);}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return NATC[k]=t;}
+function roofTex(){if(NATC.rf)return NATC.rf;const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle='#3e4450';g.fillRect(0,0,256,256);
+ for(let y=0;y<256;y+=21)for(let x=(y/21%2)*16;x<256;x+=32){const gr=g.createLinearGradient(0,y,0,y+21);gr.addColorStop(0,'#5a6170');gr.addColorStop(1,'#323844');g.fillStyle=gr;g.beginPath();g.ellipse(x+16,y+10,15,11,0,0,Math.PI);g.fill();}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return NATC.rf=t;}
+function jpHouse(g,x,z,ry,o){o=o||{};const W=o.w||9,D=o.d||7,H1=2.9;const G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry||0;g.add(G);
+ const st=sidingTex(o.wall||'#d8d2c4').clone();st.needsUpdate=true;st.repeat.set(W/2,1.8);const WM=new THREE.MeshStandardMaterial({map:st,roughness:.85});
+ const body=new THREE.Mesh(new THREE.BoxGeometry(W,H1*2,D),WM);body.position.y=H1;G.add(body);
+ const band=new THREE.Mesh(new THREE.BoxGeometry(W+.1,.18,D+.1),new THREE.MeshStandardMaterial({color:'#6a645a',roughness:.7}));band.position.y=H1;G.add(band);
+ const base=new THREE.Mesh(new THREE.BoxGeometry(W+.06,.35,D+.06),new THREE.MeshStandardMaterial({color:'#8a8780',roughness:.95}));base.position.y=.17;G.add(base);
+ // 切妻屋根
+ const rt=roofTex().clone();rt.needsUpdate=true;rt.repeat.set(W/1.6,2.4);const RM=new THREE.MeshStandardMaterial({map:rt,roughness:.6,metalness:.15});
+ const rh=1.7,rl=Math.hypot(D/2+.6,rh);[-1,1].forEach(sd=>{const r=new THREE.Mesh(new THREE.BoxGeometry(W+1.0,.12,rl),RM);r.position.set(0,H1*2+rh/2,sd*(D/4+.15));r.rotation.x=sd*Math.atan2(rh,D/2+.6);G.add(r);});
+ const gab=new THREE.Shape();gab.moveTo(-D/2,0);gab.lineTo(D/2,0);gab.lineTo(0,rh);gab.closePath();[-1,1].forEach(sd=>{const m=new THREE.Mesh(new THREE.ShapeGeometry(gab),WM);m.rotation.y=Math.PI/2*sd;m.position.set(sd*W/2,H1*2,0);G.add(m);});
+ const ridge=new THREE.Mesh(new THREE.BoxGeometry(W+1.1,.18,.3),RM);ridge.position.y=H1*2+rh+.02;G.add(ridge);
+ // 窓（前面＝-z側）
+ const glassM=new THREE.MeshStandardMaterial({color:'#9fb8cc',roughness:.08,metalness:.4,emissive:'#2a3440'}),frM=new THREE.MeshStandardMaterial({color:'#e8e6e0',roughness:.5});
+ const win=(wx,wy,ww,wh)=>{const f=new THREE.Mesh(new THREE.BoxGeometry(ww+.14,wh+.14,.08),frM);f.position.set(wx,wy,-D/2-.03);G.add(f);const gl=new THREE.Mesh(new THREE.PlaneGeometry(ww,wh),glassM);gl.position.set(wx,wy,-D/2-.08);gl.rotation.y=Math.PI;G.add(gl);
+  const mu=new THREE.Mesh(new THREE.BoxGeometry(.04,wh,.04),frM);mu.position.set(wx,wy,-D/2-.09);G.add(mu);const sill=new THREE.Mesh(new THREE.BoxGeometry(ww+.3,.06,.18),frM);sill.position.set(wx,wy-wh/2-.08,-D/2-.1);G.add(sill);};
+ (o.wins||[[-2.6,1.5,1.6,1.1],[2.6,1.5,1.6,1.1],[-2.6,4.4,1.4,1.0],[0,4.4,1.0,.8],[2.6,4.4,1.4,1.0]]).forEach(w=>win(...w));
+ // 庇・雨どい・室外機
+ const eave=new THREE.Mesh(new THREE.BoxGeometry(W*.5,.08,.7),RM);eave.position.set(o.doorX||0,2.5,-D/2-.35);G.add(eave);
+ [-W/2+.1,W/2-.1].forEach(gx=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,H1*2,8),new THREE.MeshStandardMaterial({color:'#7a7a74'}));p.position.set(gx,H1,-D/2-.12);G.add(p);});
+ const ac=new THREE.Mesh(new THREE.BoxGeometry(.8,.55,.3),new THREE.MeshStandardMaterial({color:'#e2e0d8',roughness:.5}));ac.position.set(W/2-1.2,.5,-D/2-.2);G.add(ac);const fan=new THREE.Mesh(new THREE.CircleGeometry(.2,20),new THREE.MeshStandardMaterial({color:'#4a4a4a'}));fan.position.set(W/2-1.35,.5,-D/2-.36);fan.rotation.y=Math.PI;G.add(fan);
+ G.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});return G;}
+
+// ===================== 屋外の植生・地面ディテール（天竜川など） =====================
+const NATC={};
+function bladeTex(kind){if(NATC['bt'+kind])return NATC['bt'+kind];const c=document.createElement('canvas');c.width=128;c.height=128;const g=c.getContext('2d');
+ const cols=kind==='reed'?['#8a9a4a','#a0a858','#6e8040','#b8b070','#7a8a44']:['#4f7a34','#628c3c','#3e6a2c','#76a048','#5a8238'];
+ for(let i=0;i<(kind==='reed'?26:40);i++){const x=8+Math.random()*112,h=(kind==='reed'?.7:.5)+Math.random()*.5,bend=(Math.random()-.5)*26;g.strokeStyle=cols[i%cols.length];g.lineWidth=kind==='reed'?2.2:2.6;g.lineCap='round';
+  g.beginPath();g.moveTo(x,128);g.quadraticCurveTo(x+bend*.3,128-h*64,x+bend,128-h*124);g.stroke();
+  if(kind==='reed'&&Math.random()<.35){g.fillStyle='#b89a60';g.beginPath();g.ellipse(x+bend,128-h*124+6,2.2,8,0,0,7);g.fill();}}
+ const t=new THREE.CanvasTexture(c);t.anisotropy=4;return NATC['bt'+kind]=t;}
+function tuftField(g,n,area,o){o=o||{};const kind=o.kind||'grass';const w=o.w||.42,h=o.h||.34;const geo=new THREE.BufferGeometry();const P=[],U=[],I=[];
+ for(let k=0;k<3;k++){const a=k*Math.PI/3,cx=Math.cos(a)*w/2,cz=Math.sin(a)*w/2,b=P.length/3;P.push(-cx,0,-cz, cx,0,cz, cx,h,cz, -cx,h,-cz);U.push(0,0,1,0,1,1,0,1);I.push(b,b+1,b+2,b,b+2,b+3);}
+ geo.setAttribute('position',new THREE.Float32BufferAttribute(P,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));geo.setIndex(I);geo.computeVertexNormals();
+ const nrm=geo.attributes.normal;for(let i=0;i<nrm.count;i++)nrm.setXYZ(i,0,1,0);
+ const m=new THREE.MeshStandardMaterial({map:bladeTex(kind),alphaTest:.45,side:THREE.DoubleSide,roughness:.9,color:o.tint||'#ffffff',emissive:kind==='reed'?'#1a1c0c':'#0c1a08'});m.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <normal_fragment_begin>','float faceDirection=1.0;\nvec3 normal=normalize(vNormal);\nvec3 geometryNormal=normal;');};
+ const im=new THREE.InstancedMesh(geo,m,n);const M4=new THREE.Matrix4(),q=new THREE.Quaternion(),sv=new THREE.Vector3(),pv=new THREE.Vector3();let c=0,guard=0;
+ while(c<n&&guard<n*20){guard++;const x=area.x0+Math.random()*(area.x1-area.x0),z=area.z0+Math.random()*(area.z1-area.z0);if(o.avoid&&o.avoid(x,z))continue;
+  const s=(o.smin||.7)+Math.random()*((o.smax||1.4)-(o.smin||.7));q.setFromAxisAngle(new THREE.Vector3(0,1,0),Math.random()*6.28);sv.set(s,s*(.8+Math.random()*.5),s);pv.set(x,0,z);M4.compose(pv,q,sv);im.setMatrixAt(c++,M4);}
+ im.count=c;im.instanceMatrix.needsUpdate=true;im.castShadow=false;im.receiveShadow=true;g.add(im);return im;}
+function gravelTex(){if(NATC.gr)return NATC.gr;const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle='#8a8478';g.fillRect(0,0,256,256);
+ for(let i=0;i<2600;i++){const r=1+Math.random()*4.5;const v=110+Math.random()*90|0;g.fillStyle=`rgb(${v},${v-6},${v-16})`;g.beginPath();g.ellipse(Math.random()*256,Math.random()*256,r*1.3,r,Math.random()*3,0,7);g.fill();g.fillStyle='rgba(0,0,0,.18)';g.beginPath();g.ellipse(Math.random()*256,Math.random()*256,r,r*.6,0,0,7);g.fill();}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;return NATC.gr=t;}
+function lawnTex(){if(NATC.lw)return NATC.lw;const t=noiseTex('#4a6a32',34,256,{blot:16,blades:2600});t.wrapS=t.wrapT=THREE.RepeatWrapping;return NATC.lw=t;}
+function dressTenryu0(){const R=ROOMS.tenryu0;if(!R||!R.g||R.dressed)return;R.dressed=1;const g=R.g,key='tenryu0';
+ // 地面：芝と砂利をテクスチャ付きに
+ {const lt=lawnTex().clone();lt.needsUpdate=true;lt.repeat.set(30,6);const lawn=new THREE.Mesh(new THREE.PlaneGeometry(120,10.6),new THREE.MeshStandardMaterial({map:lt,roughness:.95,color:'#c8d8b0'}));lawn.rotation.x=-Math.PI/2;lawn.position.set(0,.004,6.4);lawn.receiveShadow=true;g.add(lawn);}
+ g.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.parameters&&o.geometry.parameters.width===120&&o.geometry.parameters.height===9){const gt=gravelTex().clone();gt.needsUpdate=true;gt.repeat.set(40,3);o.material=new THREE.MeshStandardMaterial({map:gt,roughness:1,color:'#d8d2c4'});o.receiveShadow=true;}});
+ const avoidYard=(x,z)=>(Math.abs(x)<1.3&&z>1.6)||(Math.abs(x-6)<1.6&&z<2.8)||(Math.abs(x+4)<1.1&&z<2.2)||(z>9.6&&Math.abs(x)<4)||(Math.abs(x-6)<2.2&&Math.abs(z+.7)<1.3);
+ tuftField(g,2600,{x0:-14,x1:14,z0:1.7,z1:10.2},{avoid:avoidYard,smin:.35,smax:.8,w:.32,h:.26});
+ tuftField(g,900,{x0:-40,x1:40,z0:-1.4,z1:1.4},{avoid:(x,z)=>Math.abs(x)<14&&z>.4,smin:.45,smax:.9,tint:'#e8f0d8',w:.34,h:.3});
+ tuftField(g,520,{x0:-14,x1:14,z0:-3.1,z1:-2.1},{kind:'reed',w:.55,h:1.1,smin:.7,smax:1.3,avoid:(x,z)=>Math.abs(x-2)<.6||Math.abs(x+7.5)<1});
+ tuftField(g,700,{x0:-40,x1:40,z0:-11.3,z1:-10.2},{kind:'reed',w:.55,h:1.2,smin:.8,smax:1.5});
+ tuftField(g,500,{x0:-14,x1:14,z0:-10,z1:-3.4},{smin:.4,smax:.8,tint:'#c8c09a',avoid:(x,z)=>Math.abs(z+9.6)<.6});
+ jpHouse(g,0,10.9+3.5,0,{w:10,d:7,doorX:0,wins:[[-3.4,1.5,1.6,1.1],[3.4,1.5,1.6,1.1],[-3.2,4.4,1.4,1.0],[0,4.4,1.0,.8],[3.2,4.4,1.4,1.0]]});
+ if(KK.ready){
+  // 庭の茂みと木
+  [[-11.5,3.2],[-12.2,6.5],[11.8,4.4],[12.3,8.1],[-6.5,9.9],[6.8,9.9],[-9.2,9.6],[9.5,9.7],[3.2,10.1],[-3.4,10.1]].forEach(([x,z],i)=>{kk('bush',g,x,0,z,{h:.7+(i%3)*.18,ry:i*1.3});block(key,x,z,.8,.8);});
+  [[-12.4,9.4],[12.6,2.2],[-12.8,1.9]].forEach(([x,z],i)=>{kk(i%2?'trees_A_large':'tree_single_A',g,x,0,z,{h:5.2+i*.6,ry:i*2});block(key,x,z,.9,.9);});
+  // 対岸の林を厚く
+  for(let i=0;i<26;i++)kk(['trees_A_large','trees_A_medium','trees_B_medium','tree_single_B','tree_single_A'][i%5],g,-44+i*3.5+rnd(-1.2,1.2),0,-13.2-rnd(0,6),{h:rnd(4.5,8),ry:rnd(0,6),cast:false});
+  for(let i=0;i<10;i++)kk('bush',g,-30+i*6+rnd(-1,1),0,-12.4,{h:rnd(.8,1.3),ry:rnd(0,6),cast:false});
+  // 川原の岩と流木
+  for(let i=0;i<8;i++)kk('rocks_A',g,rnd(-12,12),0,rnd(-10,-4),{h:rnd(.3,.6),ry:rnd(0,6)});
+  for(let i=0;i<10;i++)kk('waterplant_A',g,rnd(-12,12),0,-9.6+rnd(-.4,.4),{h:rnd(.3,.5),ry:rnd(0,6)});
+ }
+ // 流木
+ for(let i=0;i<5;i++){const L=rnd(1.2,2.4);const w=new THREE.Mesh(new THREE.CylinderGeometry(.06,.09,L,7),new THREE.MeshStandardMaterial({color:'#8a7a66',roughness:1}));w.rotation.z=Math.PI/2;w.rotation.y=rnd(0,3);w.position.set(rnd(-11,11),.07,rnd(-9.5,-4));w.castShadow=true;g.add(w);}
+ // 遠くの橋（トラス）
+ {const B=new THREE.Group();B.position.set(-30,0,-6.8);g.add(B);const M=new THREE.MeshStandardMaterial({color:'#5a7f7a',roughness:.6,metalness:.3}),D=new THREE.MeshStandardMaterial({color:'#8c9096',roughness:.8});
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(6,.5,40),D);deck.position.y=3.6;B.add(deck);for(let i=0;i<5;i++){const pz=-16+i*8;const pr=new THREE.Mesh(new THREE.BoxGeometry(1.2,3.4,1.2),D);pr.position.set(0,1.7,pz);B.add(pr);}
+  [-2.9,2.9].forEach(x=>{for(let i=0;i<10;i++){const z0=-20+i*4;const d=new THREE.Mesh(new THREE.BoxGeometry(.14,3.4,.14),M);d.position.set(x,5.4,z0+2);d.rotation.x=(i%2?1:-1)*.78;B.add(d);}const top=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,40),M);top.position.set(x,6.9,0);B.add(top);});}
+}
+
 // ---------- start ----------
 async function buildHome(){LEO=await makeChar('hmale',{height:1.74,civ:'leo'});MOLLY=await (async()=>{let buf=null;try{if(location.protocol!=='file:'){const r=await fetch('models/hy_molly.glb');if(r.ok)buf=await r.arrayBuffer();}}catch(e){}if(!buf)buf=await hyScript('molly');if(buf){try{const c=await makeChar('shibu',{height:1.62,civ:'molly',buf});c.tripo=1;return c;}catch(e){console.warn('molly tripo',e);}}return makeChar('shibu',{height:1.6,civ:'molly'});})();
  try{MOM1=await makeChar('shino',{height:1.6,civ:'mom1'});MOM2=await makeChar('dark',{height:1.6,civ:'mom2'});NPC1=await makeChar('fumi',{height:1.73,civ:'suit'});NPC2=await makeChar('fumi',{height:1.68,civ:'casual'});}catch(e){console.warn(e);}
  try{DAD=await makeChar('fumi',{height:1.72,civ:'suit'});BRO1=await makeChar('fumi',{height:1.7,civ:'casual'});recolorChar(DAD,{Tops:'#3a4e6a',Bottoms:'#33445c',Shoes:'#2a2420'},'#6a6a6a');recolorChar(BRO1,{Tops:'#4a6a4a',Bottoms:'#3a4048',Shoes:'#e8e4dc'},'#2a1e16');}catch(e){console.warn(e);}
  {const nv0=scene.children.length;buildTokyoOutside();buildUlsanOutside();window.NIGHTV=scene.children.slice(nv0);}{const n0=scene.children.length;buildAirportOutside(-400,-30,'#2a6ad0');{const fj0=scene.children.length;fuji(-385,0,-110,40,28);window.FUJI=scene.children.slice(fj0);}buildAirportOutside(-400,220,'#1a5ab8');buildAirportOutside(-600,220,'#1a5ab8');window.NIGHTV=(window.NIGHTV||[]).concat(scene.children.slice(n0).filter(o=>!(window.FUJI||[]).includes(o)));const BK=new THREE.MeshBasicMaterial({color:0,side:THREE.DoubleSide});scene.children.slice(n0).forEach(o=>o.traverse(m=>{if(m.isMesh){m.userData.dark3d=BK;BLOOM_3D.push(m);}}));}
- await loadFurn();initRig();buildRoom2('leo');buildRoom2('molly');buildLiving2('leoL');buildLiving2('mollyL');buildAirport2('hnd');buildAirport2('icn');buildArrival2();try{buildDayViews();}catch(e){console.warn('dayview',e);}try{fishingProps();}catch(e){console.warn('fish',e);}if(NPC1)placeHuman(NPC1,'hnd',-1.5,1.2,Math.PI*.8);if(NPC2)placeHuman(NPC2,'icn',2.5,-1.5,-Math.PI*.3);spawnRoomPets();charShadows();}
+ await loadFurn();initRig();buildRoom2('leo');buildRoom2('molly');buildLiving2('leoL');buildLiving2('mollyL');buildAirport2('hnd');buildAirport2('icn');buildArrival2();try{fishingProps();}catch(e){console.warn('fish',e);}if(NPC1)placeHuman(NPC1,'hnd',-1.5,1.2,Math.PI*.8);if(NPC2)placeHuman(NPC2,'icn',2.5,-1.5,-Math.PI*.3);spawnRoomPets();charShadows();}
 async function startStory(){if(!LEO)await buildHome();applyHpUps();const k=$('chapsel')&&!$('chapsel').classList.contains('hide')?$('chapv').value:'intro';if(k&&k!=='intro')return chapterStart(k);storyStart();}
 async function chapterStart(k){$('gear').classList.remove('hide');ACT='leo';placeHuman(LEO,'leo',0,0);placeHuman(MOLLY,'molly',0,0);enterRoomScene();
  if(k==='net1'){PH='rooms0pad';FL.pc_leo=FL.pc_molly=1;await diveNet1();}
@@ -4444,7 +4541,7 @@ function peerOpts(){const o={debug:0};if(QS.get('ph')){o.host=QS.get('ph');o.por
 function onNetData(raw){let o;try{o=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){return;}if(o.t==='role'){if(NET.awaitRole){NET.awaitRole=false;NET.roleRes&&NET.roleRes(o.m);}return;}NET.peerSeen=1;if(NET.host)hostOnMsg(o);else guestOnMsg(o);}
 function onNetClose(){if(!NET.on&&!NET.ready&&!NET.gReady){netStatus('接続が切れました。ページを読み込み直してください。');return;}
  NET.cusG=false;if(NET.host){if(NET.gSayRes){const f=NET.gSayRes;NET.gSayRes=null;f();}if(NET.waitChoice){const f=NET.waitChoice;NET.waitChoice=null;f(NET.waitChoiceN||0);}NET.on=false;NET.conn=null;if(MODE!=='title'){banner('2Pとの接続が切れました（ミストはCPUが操作します）','#ffb0b0');}else netStatus('2Pとの接続が切れました。もう一度URLを送ってください。');if(MODE!=='title'&&NET.creator&&NET.code)setTimeout(()=>naviToast('sys','相手が同じ部屋コード <b style="color:#ffd24a">'+NET.code+'</b> で入り直すと、続きから合流できます。'),1600);}
- else{NET.on=false;if(document.pointerLockElement)document.exitPointerLock();const rj=!NET.creator&&NET.rid;showResult('接続が切れました',rj?'相手との接続が切れました。<br>相手がゲームを開いたままなら、下のボタンで<b>続きから合流</b>できます。':'相手との接続が切れました。<br>相手にもう一度部屋を作ってもらって、つなぎ直してください。',()=>{if(rj)location.href=location.pathname+'?join='+NET.rid+(QS.get('bc')?'&bc=1':'');else location.reload();});}}
+ else{NET.on=false;if(document.pointerLockElement)document.exitPointerLock();const rj=!NET.creator&&NET.rid;showResult('接続が切れました',rj?'相手との接続が切れました。<br>相手がゲームを開いたままなら、下のボタンで<b>続きから合流</b>できます。':'相手との接続が切れました。<br>相手にもう一度部屋を作ってもらって、つなぎ直してください。',()=>{if(rj)window.__noLeaveGuard=1,location.href=location.pathname+'?join='+NET.rid+(QS.get('bc')?'&bc=1':'');else (window.__noLeaveGuard=1,location.reload());});}}
 const ROLE_TX={leo:'<b style="color:#9fe8ff">レオ＆ボルト</b>（天竜側）',molly:'<b style="color:#ff8fc8">モリー＆ミスト</b>（ウルサン側）'};
 function bcListen(id){NET.bc=new BroadcastChannel(id);NET.bc.onmessage=ev=>{if(ev.data.from!==(NET.host?'h':'g'))onNetData(ev.data.d);};}
 function hostLogicStart(){walUse('V');NET.ready=false;const st=$('lstat');if(st)st.textContent='つながりました！　読み込み中…';bootGame(true).then(()=>{NET.ready=true;hostMaybeReady();});}
@@ -4487,7 +4584,7 @@ function hostOnMsg(o){switch(o.t){
  case 'fire':if(MODE==='play'&&!M.down){const c=!!o.c;busterFire(M,o.a,c,{remote:1});if(M.is3d)charOneShot(M,'Pistol_Shoot',c?.9:1.6);}break;
  case 'chip':if(MODE==='play'&&!M.down&&CH[o.id])castChip(o.id,M,o.a,V);break;
  case 'skill':if(MODE==='play'&&!M.down&&NET.skillCD<=0){NET.skillCD=13;if(V.hp<V.max*.5){heal(V,35);heal(M,20);popup(M.x,2.3,M.z,'リンクヒール','#7dff9a',18);SFX('heal');}else{const e=liveEn().sort((a,b)=>Math.hypot(a.x-M.x,a.z-M.z)-Math.hypot(b.x-M.x,b.z-M.z))[0];popup(M.x,2.3,M.z,'フリーズショット','#9fe8ff',18);SFX('chip');if(e)fireAt(M,{x:e.x,y:(e.y||0)+.8,z:e.z},{side:'P',sp:22,dmg:15,freeze:1,col:'#9fe8ff',r:.3});}if(M.is3d)charOneShot(M,'Spell_Simple_Shoot',1.5);}break;}}
-async function hostGuestInteract(){if(MODE!=='room'||DLGS||CHOICE)return;if(MG&&MG.k==='cricket')return;if(busyStory){NET.send({t:'call',f:'banner',a:['レオが調べものをしています…','#9fe8ff']});return;}const sa=ACT,sc=ACTC;ACT='molly';ACTC=MOLLY;const it=nearInter();ACT=sa;ACTC=sc;if(!it)return;busyStory=true;NET.actor='molly';INTER_ACTOR=MOLLY;try{await it.fn();}finally{INTER_ACTOR=null;busyStory=false;NET.actor=null;}}
+async function hostGuestInteract(){if(MODE!=='room'||CHOICE)return;if(MG&&MG.k==='cricket')return;if(busyStory&&MG&&NET.actor==='leo'&&!NET.busyM){const sa=ACT,sc=ACTC;ACT='molly';ACTC=MOLLY;const it=nearInter();ACT=sa;ACTC=sc;if(!it)return;NET.busyM=1;const pa=NET.actor;NET.actor='molly';const pi=INTER_ACTOR;INTER_ACTOR=MOLLY;try{await it.fn();}finally{NET.busyM=0;NET.actor=MG?pa:null;INTER_ACTOR=pi;}return;}if(DLGS)return;if(busyStory){NET.send({t:'call',f:'banner',a:['レオが調べものをしています…','#9fe8ff']});return;}const sa=ACT,sc=ACTC;ACT='molly';ACTC=MOLLY;const it=nearInter();ACT=sa;ACTC=sc;if(!it)return;if(it.story&&it.story()){await storyRun(MOLLY,it.fn);return;}busyStory=true;NET.actor='molly';INTER_ACTOR=MOLLY;try{await it.fn();}finally{INTER_ACTOR=null;busyStory=false;NET.actor=null;}}
 function netCall(f,a){NET.send({t:'call',f,a});}
 function netWrap(name,map,dedupe){const f=window[name];if(typeof f!=='function')return;window[name]=function(...a){if(NET.on&&NET.host){let aa;try{aa=map?map(a):a;}catch(e){aa=null;}if(aa){const s=JSON.stringify(aa);if(!dedupe||NET.dedupe[name]!==s){NET.dedupe[name]=s;netCall(name,aa);}}}return f.apply(this,a);};}
 const WHO=c=>c===LEO?'leo':c===MOLLY?'molly':c===MOM1?'mom1':c===MOM2?'mom2':c===NPC1?'npc1':c===NPC2?'npc2':null;
@@ -4514,6 +4611,7 @@ function hostSnap(){const lockM=hostLockM();
  const s={t:'s',mode:MODE,ph:PH,net:NETCUR,fl:FL,rof:ROOM_OF,lock:lockM,seq:NET.tpSeq,paused,fz:(NET.on?(sharedFreeze()||mFrozen()):worldFrozen())?1:0,hc:cusOpenH()?1:0,
   L:LEO?[r2(LEO.x),r2(LEO.z),r2(LEO.face),LEO.moving?1:0,LEO.sprint?1:0]:null,
   Mo:MOLLY?[r2(MOLLY.x),r2(MOLLY.z),r2(MOLLY.face),MOLLY.moving?1:0]:null,
+  NP:[DAD,BRO1,NPC1,NPC2,MOM1,MOM2].map(c=>c?[r2(c.x),r2(c.z),r2(c.face),c.moving?1:0,c.g.visible?1:0]:null),
   V:[r2(V.x),r2(V.z),r2(V.y||0),r2(V.face),V.moving?1:0,V.slide>0?1:0,V.sprint?1:0,Math.round(V.hp),V.max,r2(V.inv||0)],
   M:[r2(M.x),r2(M.z),r2(M.y||0),r2(M.face),M.moving?1:0,Math.round(M.hp),M.max,M.down?1:0,r2(M.inv||0)],
   z:ZONES.map(z=>[z.act?1:0,z.clear?1:0,z.sym?r2(z.sym.x):null,z.sym?r2(z.sym.z):null,z.sym?r2(z.sym.face||0):0,z.sym&&z.sym.moving?1:0,r2(z.x),r2(z.z),z.parts?((z.parts.includes('V')?1:0)|(z.parts.includes('M')?2:0)):-1]),
@@ -4533,7 +4631,7 @@ function guestOnMsg(o){switch(o.t){
  case 'go':$('title').classList.add('hide');guestInit();break;
  case 's':NET.snap=o;NET.snapT=performance.now();break;
  case 'call':guestCall(o.f,o.a);break;
- case 'cus':NET.cusN=o.n;NET.fz=true;if(MODE==='play'||MODE==='dead'){gaugeV=1;openCustom(true);}else NET.send({t:'cusDone',n:o.n});break;
+ case 'cus':NET.cusN=o.n;if((MODE==='play'||MODE==='dead')&&!isBlade()){NET.fz=true;gaugeV=1;openCustom(true);}else NET.send({t:'cusDone',n:o.n});break;
  case 'say':gSay(o.w,o.x);if(o.p)DLGS.personal=1;break;
  case 'dlgHide':DLGS=null;$('dlg').classList.add('hide');break;
  case 'choose':choose(o.q,o.o).then(i=>NET.send({t:'choice',i}));break;
@@ -4549,7 +4647,7 @@ function guestCall(f,a){try{
  if(f==='setPads'){setPads(a[0].map(([r,x,z])=>findPad(r,x,z)).filter(Boolean),null);return;}
  if(f==='respawn'){HAZ.forEach(h=>{h.cancel=true;h.t=0;});NET.gseq=a[0];const S=NETSTART[NETCUR];M.x=a[1]!=null?a[1]:S[0]-1;M.z=a[2]!=null?a[2]:S[1]-1.5;M.y=0;return;}
  if(f==='tpM'){M.x=a[0];M.z=a[1];M.y=0;M.face=a[2];NET.gseq=a[3];return;}
- if(f==='showResult'){showResult(a[0],a[1],a[0]==='THE END'?()=>{}:()=>location.reload());return;}
+ if(f==='showResult'){showResult(a[0],a[1],a[0]==='THE END'?()=>{}:()=>(window.__noLeaveGuard=1,location.reload()));return;}
  if(f==='enterRoomScene'){HAZ.forEach(h=>h.cancel=true);PROJ.forEach(p=>p.dead=true);enterRoomScene();guestHUD();return;}
  if(f==='enterNet'){enterNet(a[0]);guestHUD();return;}
  if(f==='markHz'){markHz(a[0],a[1],a[2],a[3],0);return;}
@@ -4565,6 +4663,7 @@ function guestApply(dt){const s=NET.snap;if(!s)return;const k=Math.min(1,dt*12);
  NET.lock=s.lock||(NET.gseq!=null&&s.seq>NET.gseq);
  if(s.L&&LEO){LEO.x+=(s.L[0]-LEO.x)*k;LEO.z+=(s.L[1]-LEO.z)*k;if(Math.hypot(s.L[0]-LEO.x,s.L[1]-LEO.z)>3){LEO.x=s.L[0];LEO.z=s.L[1];}LEO.face=s.L[2];LEO.moving=!!s.L[3];LEO.sprint=!!s.L[4];}
  if(s.Mo&&MOLLY&&NET.lock){MOLLY.x+=(s.Mo[0]-MOLLY.x)*k;MOLLY.z+=(s.Mo[1]-MOLLY.z)*k;if(Math.hypot(s.Mo[0]-MOLLY.x,s.Mo[1]-MOLLY.z)>3){MOLLY.x=s.Mo[0];MOLLY.z=s.Mo[1];}MOLLY.face=s.Mo[2];MOLLY.moving=!!s.Mo[3];}
+ if(s.NP)[DAD,BRO1,NPC1,NPC2,MOM1,MOM2].forEach((c,i)=>{const a=s.NP[i];if(!c||!a)return;if(Math.hypot(a[0]-c.x,a[1]-c.z)>3){c.x=a[0];c.z=a[1];}else{c.x+=(a[0]-c.x)*k;c.z+=(a[1]-c.z)*k;}c.face=a[2];c.moving=!!a[3];c.g.visible=!!a[4];if(c.shadow)c.shadow.visible=false;});
  const v=s.V;V.x+=(v[0]-V.x)*k;V.z+=(v[1]-V.z)*k;if(Math.hypot(v[0]-V.x,v[1]-V.z)>4){V.x=v[0];V.z=v[1];}V.y=v[2];V.face=v[3];V.moving=!!v[4];V.slide=v[5]?.2:0;V.sprint=!!v[6];
  const hpCh=V.hp!==v[7]||M.hp!==s.M[5]||M.down!==!!s.M[7];V.hp=v[7];V.max=v[8];V.inv=v[9];
  const m=s.M;M.hp=m[5];M.max=m[6];if(!!m[7]!==M.down){M.down=!!m[7];M.tint=M.down?'#666':null;if(M.is3d&&!M.down){M.lockT=0;M.cur=null;}}M.inv=m[8];
@@ -4608,7 +4707,7 @@ function guestShot(c){SFX(c?'charge':'shot');const aim=aimInfo();M.face=Math.ata
 function guestSkill(){if(NET.skillCD>0){popup(M.x,2.2,M.z,'スキル準備中 '+Math.ceil(NET.skillCD)+'秒','#9ab',14);return;}NET.skillCD=13;NET.send({t:'skill'});}
 function guestRoomStep(dt){try{dayViewSync();}catch(e){}roomLight(ROOM_OF.molly);if(window.FUJI){const R=ROOMS[ROOM_OF.molly];const v=!!R&&R.oz<200;FUJI.forEach(o=>o.visible=v);}
  if(!NET.lock&&!DLGS&&!CHOICE)humanStep(MOLLY,dt,true);else if(MOLLY)MOLLY.auto=null;
- [LEO,MOLLY].forEach(c=>{charLocomotion(c,dt);updChar(c,dt,T);});[MOM1,MOM2,NPC1,NPC2].forEach(c=>{if(c){c.moving=false;charLocomotion(c,dt);updChar(c,dt,T);}});petsRoomStep(dt);
+ [LEO,MOLLY].forEach(c=>{charLocomotion(c,dt);updChar(c,dt,T);});[MOM1,MOM2,NPC1,NPC2,DAD,BRO1].forEach(c=>{if(c&&c.g.visible){charLocomotion(c,dt);updChar(c,dt,T);}});petsRoomStep(dt);
  const it=!DLGS&&!CHOICE&&!NET.lock&&nearInter();$('prompt').classList.toggle('hide',!it);if(it)$('prompt').textContent='F／クリック：'+it.label;
  $('clickme').classList.toggle('hide',locked()||plFail||!!DLGS||!!CHOICE);
  PADS.forEach(p=>{p.m.rotation.z+=dt*2;p.m.material.opacity=.6+.3*Math.sin(T*6);});
@@ -4621,7 +4720,7 @@ async function netJoin(id,byCode){NET.rid=id;let me=byCode?null:(QS.get('r')==='
  const go=async()=>{audioInit();netStatus('相手に接続しています…');if(!me){NET.awaitRole=true;NET.rolePromise=new Promise(res=>{NET.roleRes=res;});}
   if(QS.get('bc')){bcListen(id);}
   else{try{await loadPeer();}catch(e){netStatus('接続に失敗しました：'+e.message);return;}
-   const peer=NET.peer=new Peer(peerOpts());peer.on('error',e=>{netStatus('接続に失敗しました（'+(e.type==='peer-unavailable'?'部屋が見つかりません。コード（URL）がまちがっていないか、作った人のページが開いたままか確認してください':(e.type||e))+'）<br><button class="big" onclick="location.reload()">もどる</button>');});
+   const peer=NET.peer=new Peer(peerOpts());peer.on('error',e=>{netStatus('接続に失敗しました（'+(e.type==='peer-unavailable'?'部屋が見つかりません。コード（URL）がまちがっていないか、作った人のページが開いたままか確認してください':(e.type||e))+'）<br><button class="big" onclick="(window.__noLeaveGuard=1,location.reload())">もどる</button>');});
    await new Promise(r=>peer.on('open',r));const c=NET.conn=peer.connect(id,{reliable:true});c.on('data',onNetData);c.on('close',onNetClose);await new Promise(r=>c.on('open',r));}
   if(!me){netStatus('つながりました！　キャラを確認中…');const cr=await Promise.race([NET.rolePromise,new Promise(r=>setTimeout(()=>r('leo'),8000))]);NET.awaitRole=false;me=cr==='molly'?'leo':'molly';NET.host=me==='leo';NET.guest=!NET.host;}
   if(NET.host){netStatus('<div id="lstat">つながりました！　あなたは '+ROLE_TX[me]+'。読み込み中…</div><button class="big hide" id="hstart" style="margin-top:10px">ふたりで はじめる</button>');NET.send({t:'hello'});hostLogicStart();}
@@ -4662,7 +4761,7 @@ function frame(now){window.__FT0=performance.now();PSTAT.frame(now);let dt=Math.
   if(!vfz)gaugeV=Math.min(1,gaugeV+dt/10*(1+.25*((ncpOf(NET.on&&NET.guest?'M':'V').cust)||0)));
   pickupStep(dt);if(NETCUR==='net1')linkStep(dt);else if(NETCUR==='net3')link3Step(dt);else if(NETCUR==='inet')inetMDStep();ZONES.forEach(z=>{if(z.act&&!z.clear&&EN.filter(e=>e.zone===z).every(e=>e.dead)){z.clear=true;BATTLE_END=T;(z.parts||['V','M']).forEach(k=>{const u=k==='V'?V:M;if(u)u.battleEnd=T;});NET.cusG=false;wallOff(z);onZoneClear(z);const hv=zoneHas(z,V),hm=NET.on&&zoneHas(z,M);if(hv){if(!$('custom').classList.contains('hide')){$('custom').classList.add('hide');paused=false;}CHIPS_IN=[];hand=[];selSlot=0;renderChips();gaugeV=1;rawBanner('ALL DELETED!','#7dff9a');}if(hm)netCall('banner',['ALL DELETED!','#7dff9a']);flashScreen(.2);setTimeout(()=>{if(MODE==='play')showBust(z);},1100);}});
   const allClear=ZONES.every(z=>z.clear);gate.material.color.set(allClear?'#ffd24a':'#555a70');gateIn.material.opacity=allClear?.25+.15*Math.sin(T*4):.05;
-  if(false){MODE='end';showResult('第1章 クリア','ケーブル管理ネットのノイズは消えた。<br>――でも、ノイズはどこから来たのか？<br><br>（つづく）',()=>location.reload());}
+  if(false){MODE='end';showResult('第1章 クリア','ケーブル管理ネットのノイズは消えた。<br>――でも、ノイズはどこから来たのか？<br><br>（つづく）',()=>(window.__noLeaveGuard=1,location.reload()));}
   $('area').textContent=ZONES.some(z=>z.act&&!z.clear)?'バトル中：ウイルス残り '+EN.filter(e=>!e.dead).length:(()=>{const me=NET.on&&NET.guest?M:V;const w=wOf(me);const zs=ZONES.filter(z=>z.net===NETCUR&&!z.clear&&!(z.gate&&!FL[z.gate])&&(w==='both'||(z.world||'both')===w||z.world==='both'));const rq=zs.filter(z=>z.req).length;return 'このエリアのウイルス 残り '+zs.length+(rq?'（必須 '+rq+'）':'');})();
   $('gbar').style.width=(gaugeV*100)+'%';$('gtx').textContent=gaugeV>=1?'カスタムOK！ Tab':'CUSTOM';$('gbar').style.background=gaugeV>=1?'#ffe14d':'#43e6ff';
   $('clickme').classList.toggle('hide',locked()||plFail);
@@ -4686,8 +4785,9 @@ function frame(now){window.__FT0=performance.now();PSTAT.frame(now);let dt=Math.
  if(msgT>0){msgT-=dt||.016;$('msg').style.opacity=Math.min(1,msgT*3);}
  drawCharge();if(SND.ctx){const inB=ZONES.find(z=>z.act&&!z.clear);bgmSet(MODE==='room'?'room':!inB?fieldBgm():inB.boss?'boss':inB.navi?'navi':'battle');bgmTick();}{const be=EN.find(x=>x.k==='boss'&&!x.dead&&x.zone.act);$('bossbar').classList.toggle('hide',!be||MODE!=='play');if(be){$('bbf').style.width=Math.max(0,be.hp/be.max*100)+'%';$('bbp').textContent=['','第1形態','第2形態','第3形態：暴走'][be.phase||1]+(be.dazed>0?'　オーバーヒート中！ダメージ×1.6':'')+(be.binv>0?'　無敵':'');}}glowStep(dt||.016);vignT=Math.max(0,vignT-(dt||.016));{const now=performance.now(),rd=Math.min(.25,(now-(window.__wfL||now))/1000);window.__wfL=now;wflashT=Math.max(0,wflashT-Math.max(dt||.016,rd)*1.6);}$('vign').style.opacity=Math.min(1,vignT*2)+((NET.guest?M:V)&&(NET.guest?M:V).hp<(NET.guest?M:V).max*.25&&MODE==='play'?.35+.2*Math.sin(T*6):0);$('wflash').style.opacity=Math.min(.45,wflashT*1.5);
  try{partnerStep(dt||.016);if(typeof p3Step==='function')p3Step();}catch(e){}if(!NET.guest&&MODE==='play'&&!paused)[V,M].forEach(A=>{if(!A||A.down)return;const n=ncpOf(A===M?'M':'V');if(n.regen&&A.hp<A.max&&ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,A))){A.rgT=(A.rgT||0)+(dt||.016);if(A.rgT>1.5){A.rgT=0;A.hp=Math.min(A.max,A.hp+2);renderHP();}}});{const me=NET.on&&NET.guest?M:V;const inB=me&&ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,me));const ge=$('gauge');if(ge)ge.style.visibility=inB?'visible':'hidden';}envStep(dt||.016);renderFrame();requestAnimationFrame(frame);}
+addEventListener('beforeunload',e=>{if(typeof MODE!=='undefined'&&MODE!=='title'&&!window.__noLeaveGuard){e.preventDefault();e.returnValue='';}});
 let BOOTED=null;function bootGame(quiet){if(BOOTED)return BOOTED;BOOTED=(async()=>{if(quiet){const lo=$('loading');lo.style.visibility='hidden';}
- if(GLL){$('loading').classList.remove('hide');try{await loadAssets();$('ldt').textContent='キャラを組み立て中…';await new Promise(r=>setTimeout(r,30));const pbuf=async k=>{try{if(location.protocol!=='file:'){const r=await fetch('models/hy_'+k+'.glb');if(r.ok)return await r.arrayBuffer();}}catch(e){}try{return await hyScript(k);}catch(e){return null;}};const vb=await pbuf('volt'),mb=await pbuf('mist');CH3D.V=await makeChar('fumi',{height:1.7,navi:'volt',buf:vb||undefined});CH3D.M=await makeChar('shino',{height:1.58,navi:'mist',buf:mb||undefined});CH3D.B=await makeChar('dark',{height:2.9,navi:'boss'});CH3D.B.g.visible=false;CH3D.B.shadow.visible=false;USE3D=true;}catch(err){console.warn('3D load failed',err);USE3D=false;$('ldt').textContent='3Dキャラの読み込みに失敗：'+(err&&err.message||err)+'（2Dで続行）';await new Promise(r=>setTimeout(r,2500));}$('loading').classList.add('hide');}
+ if(GLL){$('loading').classList.remove('hide');try{await loadAssets();$('ldt').textContent='キャラを組み立て中…';await new Promise(r=>setTimeout(r,30));const pbuf=async k=>{try{if(location.protocol!=='file:'){const r=await fetch('models/hy_'+k+'.glb');if(r.ok)return await r.arrayBuffer();}}catch(e){}try{return await hyScript(k);}catch(e){return null;}};const vb=await pbuf('volt'),mb=await pbuf('mist');CH3D.V=await makeChar('fumi',{height:1.7,navi:'volt',buf:vb||undefined});CH3D.M=await makeChar('shino',{height:1.58,navi:'mist',buf:mb||undefined,backHead:mb?'#f4f2ea':undefined});CH3D.B=await makeChar('dark',{height:2.9,navi:'boss'});CH3D.B.g.visible=false;CH3D.B.shadow.visible=false;USE3D=true;}catch(err){console.warn('3D load failed',err);USE3D=false;$('ldt').textContent='3Dキャラの読み込みに失敗：'+(err&&err.message||err)+'（2Dで続行）';await new Promise(r=>setTimeout(r,2500));}$('loading').classList.add('hide');}
  else{$('loading').classList.remove('hide');$('ldt').textContent='3D読み込み機能（GLTFLoader）が読み込めませんでした（2Dで続行）';await new Promise(r=>setTimeout(r,2500));$('loading').classList.add('hide');}
 
  initWorld();if(USE3D)await buildHome();$('loading').style.visibility='';})();return BOOTED;}
