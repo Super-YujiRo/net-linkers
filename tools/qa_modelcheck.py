@@ -36,7 +36,8 @@ JS_JOINTS=r"""(()=>{const R={};const W=b=>b.getWorldPosition(new THREE.Vector3()
      if(K.clone().sub(H).angleTo(A.clone().sub(K))*57.3>12)kn.push(d.dot(f));
      const Sh=W(c.tb[S+'_UpperArm']),E=W(c.tb[S+'_LowerArm']),Hd=W(c.tb[S+'_Hand']);const d2=E.clone().sub(Sh.clone().add(Hd).multiplyScalar(.5));d2.y=0;
      if(E.clone().sub(Sh).angleTo(Hd.clone().sub(E))*57.3>15)el.push(d2.dot(f));});}
-   out[cl]={kneeFwd:kn.length?+(kn.filter(v=>v>0).length/kn.length).toFixed(2):null,elbowBack:el.length?+(el.filter(v=>v<0).length/el.length).toFixed(2):null};}
+   let armOut=null;if(cl==='Idle_Loop'){c.mixer.setTime(a.getClip().duration*.3);retarget(c);c.g.updateMatrixWorld(true);const Hp=W(c.tb.Hips);const r=['L','R'].map(S=>{const Sh=W(c.tb[S+'_UpperArm']),Hd=W(c.tb[S+'_Hand']);const sx=Math.hypot(Sh.x-Hp.x,Sh.z-Hp.z),hx=Math.hypot(Hd.x-Hp.x,Hd.z-Hp.z);return hx/Math.max(.001,sx);});armOut=+Math.min(...r).toFixed(2);}
+   out[cl]={armOut,kneeFwd:kn.length?+(kn.filter(v=>v>0).length/kn.length).toFixed(2):null,elbowBack:el.length?+(el.filter(v=>v<0).length/el.length).toFixed(2):null};}
   c.mixer.stopAllAction();c.cur=null;c.face=keep.face;c.rotY=keep.rotY;c.g.rotation.y=keep.ry;R[k]=out;}
  return JSON.stringify(R);})()""" % CHARS
 def img(b64):
@@ -79,6 +80,7 @@ async def main():
             for cl,v in (jr.items() if isinstance(jr,dict) else []):
                 if v['kneeFwd'] is not None and v['kneeFwd']<.8:bad.append(f'{cl}:ひざ逆({v["kneeFwd"]})')
                 if cl!='Idle_Loop' and v['elbowBack'] is not None and v['elbowBack']<.5:bad.append(f'{cl}:ひじ逆({v["elbowBack"]})')
+            if jr.get('Idle_Loop',{}).get('armOut') is not None and jr['Idle_Loop']['armOut']<.8:bad.append(f"腕が体にめり込み({jr['Idle_Loop']['armOut']})")
             if cc>.85:bad.append(f'後頭部が顔と酷似({cc:.2f})')
             report.append((k,'OK' if not bad else 'NG',bad,round(cc,2)))
         sheet.save(OUT+'sheet.png')
