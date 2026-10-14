@@ -1,7 +1,10 @@
 import asyncio,json
 from playwright.async_api import async_playwright
 EX='/home/claude/test/node_modules/three/examples/js/'
-JS=r"""(()=>{const a=ARM[MYW];armToggle();const b=ARM[MYW];armToggle();return JSON.stringify([[MYW,a,b,ARM[MYW]]]);})()"""
+JS=r"""(()=>{const out=[];const prevS=SCN;SCN='net';const fz={act:true,clear:false,parts:['V','M'],list:[]};ZONES.push(fz);
+ const a=ARM[MYW];armToggle();out.push(['inBattle',a,ARM[MYW]]);
+ fz.clear=true;armToggle();out.push(['afterBattle',a,ARM[MYW]]);armToggle();out.push(['back',ARM[MYW]]);
+ ZONES.splice(ZONES.indexOf(fz),1);SCN=prevS;return JSON.stringify(out);})()"""
 async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch(args=['--use-gl=swiftshader','--disable-dev-shm-usage']);pg=await b.new_page(viewport={'width':640,'height':360})
