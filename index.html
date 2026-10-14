@@ -516,7 +516,7 @@ async function makeChar(key,opt){
  const tgt=tg.scene,src=sg.scene;const clips={};sg.animations.forEach(c=>clips[c.name]=c);
  // materials -> toon + outlines
  const meshes=[];tgt.traverse(o=>{if(o.isMesh)meshes.push(o);});
- meshes.forEach(o=>{o.frustumCulled=false;const conv=m=>{const blend=m.transparent||m.alphaTest>0;const tex=m.userData&&m.userData.tex?modelTex(m.userData.tex):m.map;const nm=new (opt.buf&&opt.civ?THREE.MeshStandardMaterial:THREE.MeshToonMaterial)(Object.assign(opt.buf&&opt.civ?{roughness:.78,metalness:0,envMapIntensity:.35}:{gradientMap:toonGrad},{map:tex,color:0xffffff,skinning:!!o.isSkinnedMesh,transparent:m.transparent,alphaTest:m.alphaTest||(m.transparent?0:0),side:opt.buf?THREE.DoubleSide:m.side,depthWrite:m.depthWrite}));
+ meshes.forEach(o=>{o.frustumCulled=false;const conv=m=>{const blend=m.transparent||m.alphaTest>0;const tex=m.userData&&m.userData.tex?modelTex(m.userData.tex):m.map;const nm=new (opt.buf&&(opt.civ||opt.tpr)?THREE.MeshStandardMaterial:THREE.MeshToonMaterial)(Object.assign(opt.buf&&(opt.civ||opt.tpr)?{roughness:.78,metalness:0,envMapIntensity:.35}:{gradientMap:toonGrad},{map:tex,color:0xffffff,skinning:!!o.isSkinnedMesh,transparent:m.transparent,alphaTest:m.alphaTest||(m.transparent?0:0),side:opt.buf?THREE.DoubleSide:m.side,depthWrite:m.depthWrite}));
   const SUIT={volt:{Tops:'#e03040',Bottoms:'#1c2348',Shoes:'#ffc633',Accessory:'#ffc633'},mist:{Tops:'#ffffff',Bottoms:'#ffc23f',Shoes:'#ffffff',Accessory:'#ffe27a'},boss:{Tops:'#231a35',Bottoms:'#120c1e',Shoes:'#ff2a4a',Accessory:'#ff2a4a'}}[opt.navi];
   {const CV={leo:{Tops:'#1d1e24',Bottoms:'#33405a',Shoes:'#e8e4dc'},mom1:{Tops:'#d9956a',Bottoms:'#4a4450',Shoes:'#6a5040'},suit:{Tops:'#34383f',Bottoms:'#2a2c33',Shoes:'#15161a'},casual:{Tops:'#5a7a4a',Bottoms:'#3a4a6a',Shoes:'#e8e4dc'},mom2:{Tops:'#6f9a86',Bottoms:'#3a3446',Shoes:'#5a4a40'}}[opt.civ];if(opt.civ==='mom1'&&/HAIR/i.test(m.name||''))nm.color.set('#5a3826');if(opt.civ==='suit'&&/HAIR/i.test(m.name||''))nm.color.set('#2a2a30');if(opt.civ==='casual'&&/HAIR/i.test(m.name||''))nm.color.set('#9a6a3a');if(CV)for(const part in CV)if(new RegExp(part,'i').test(m.name||'')){nm.map=null;nm.color.set(CV[part]);}}
   if(SUIT&&/Body_00_SKIN/i.test(m.name||'')){nm.map=null;nm.color.set(opt.navi==='volt'?'#17181f':opt.navi==='boss'?'#0e0a18':'#24345e');nm.userData.suit='Body';}
@@ -525,7 +525,7 @@ async function makeChar(key,opt){
   o.material=Array.isArray(o.material)?o.material.map(conv):conv(o.material);
   if(!Array.isArray(o.material)&&o.material.visible===false)o.visible=false;
   const mm=Array.isArray(o.material)?o.material[0]:o.material;
-  if(window.__charOutline&&!(opt.buf&&opt.civ)&&o.isSkinnedMesh&&mm.visible!==false&&!mm.userData.blend&&!/Eye|Face_00_SKIN|Mouth|Brow|Lash/i.test(mm.name||'')){const om=new THREE.MeshBasicMaterial({color:'#070a1a',side:THREE.BackSide,skinning:true});om.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed += normal * 0.006;');};
+  if(window.__charOutline&&!(opt.buf&&(opt.civ||opt.tpr))&&o.isSkinnedMesh&&mm.visible!==false&&!mm.userData.blend&&!/Eye|Face_00_SKIN|Mouth|Brow|Lash/i.test(mm.name||'')){const om=new THREE.MeshBasicMaterial({color:'#070a1a',side:THREE.BackSide,skinning:true});om.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed += normal * 0.006;');};
    const ol=new THREE.SkinnedMesh(o.geometry,om);ol.bind(o.skeleton,o.bindMatrix);ol.frustumCulled=false;o.parent.add(ol);ol.position.copy(o.position);ol.quaternion.copy(o.quaternion);ol.scale.copy(o.scale);BLOOM_HIDE.push(ol);}
   const dark=new THREE.MeshBasicMaterial({color:0,skinning:!!o.isSkinnedMesh,transparent:true,alphaTest:.3,map:mm.map});o.userData.dark3d=dark;BLOOM_3D.push(o);});
  // bones
@@ -544,9 +544,9 @@ async function makeChar(key,opt){
  // order: parents first
  const order=[];tgt.traverse(o=>{const k=keys.find(k=>tb[k]===o);if(k)order.push(k);});
  const parentKey={};order.forEach(k=>{let p=tb[k].parent;parentKey[k]=keys.find(x=>tb[x]===p)||null;});
- const wrap=new THREE.Group();const inner=new THREE.Group();inner.add(tgt);inner.rotation.y=tgtFacesZ?0:Math.PI;const sc=opt.buf&&opt.civ?(opt.height||1.6)/Math.max(.01,new THREE.Box3().setFromObject(tgt).getSize(new THREE.Vector3()).y):(opt.height||1.6)/(tH.y*1.9);inner.scale.setScalar(sc);wrap.add(inner);scene.add(wrap);
+ const wrap=new THREE.Group();const inner=new THREE.Group();inner.add(tgt);inner.rotation.y=tgtFacesZ?0:Math.PI;const sc=opt.buf&&(opt.civ||opt.tpr)?(opt.height||1.6)/Math.max(.01,new THREE.Box3().setFromObject(tgt).getSize(new THREE.Vector3()).y):(opt.height||1.6)/(tH.y*1.9);inner.scale.setScalar(sc);wrap.add(inner);scene.add(wrap);
  const shadow=new THREE.Mesh(new THREE.CircleGeometry(.4,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.45,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.02;scene.add(shadow);BLOOM_HIDE.push(shadow);
- wrap.updateMatrixWorld(true);if(opt.backHead)try{backHeadFix(meshes,tb,tgtFacesZ,opt.backHead);}catch(e){console.warn('backHead',e);}if(opt.navi==='mist'&&opt.buf)meshes.forEach(o=>{(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map){m.map=texRecolor(m.map,yelPix);m.needsUpdate=true;}});});if(opt.navi&&!opt.buf)decorateNavi(tb,opt.navi);if(opt.civ==='leo')leoMask(tb,tgt);if(opt.civ==='leo')leoCargo(tb);
+ wrap.updateMatrixWorld(true);if(opt.backHead)try{backHeadFix(meshes,tb,tgtFacesZ,opt.backHead);}catch(e){console.warn('backHead',e);}if(opt.navi==='mist'&&opt.buf&&!opt.tpr)meshes.forEach(o=>{(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map){m.map=texRecolor(m.map,yelPix);m.needsUpdate=true;}});});if(opt.navi&&!opt.buf)decorateNavi(tb,opt.navi);if(opt.civ==='leo')leoMask(tb,tgt);if(opt.civ==='leo')leoCargo(tb);
  const acts={};Object.keys(clips).forEach(n=>acts[n]=mixer.clipAction(clips[n]));
  const c={is3d:true,g:wrap,shadow,mixer,acts,cur:null,lockT:0,src,tb,sb,srcRest,tgtRest,tgtParentRest,order,parentKey,R,Ri,hs,srcHipRest,tgtHipLocal,cw:{},rotY:0,
   face:0,x:0,y:0,z:0,vy:0,moving:false,flash:0,meshes};
@@ -2286,7 +2286,7 @@ ALLRECTS.push(...IALL);
 function dressHome(){recolorChar(MOM2,{Tops:'#8a5a7a',Bottoms:'#3a3a52',Shoes:'#efe8e0'},'#2a1a14');recolorChar(MOM1,{Tops:'#c88a5a',Bottoms:'#3a3a4a',Shoes:'#efe8e0'},'#3a2618');}
 let P2PADS=null;
 async function part2Start(){chapReached('p2');FL.p2=1;FL.airFixed=1;dressHome();busyStory=true;MODE='room';
- placeHuman(LEO,'mollyL',.5,.2,-Math.PI/2);placeHuman(MOLLY,'mollyL',-.8,.3,Math.PI/2);placeHuman(MOM2,'mollyL',-2.35,.55,Math.PI/2);ACT='leo';ACTC=LEO;enterRoomScene();yaw=Math.PI/2+.5;pitch=.25;dist=3.2;fade(false);
+ placeHuman(LEO,'mollyL',.5,.2,-Math.PI/2);placeHuman(MOLLY,'mollyL',-1.05,.3,Math.PI/2);placeHuman(MOM2,'mollyL',-2.35,.55,Math.PI/2);ACT='leo';ACTC=LEO;enterRoomScene();yaw=Math.PI/2+.5;pitch=.25;dist=3.2;fade(false);
  await chapter('第2部','ネットの海のむこうへ');await chapter('CHAPTER 4','ウルサンの朝');PH='p2a';
  await say('sys','――レオがウルサンに来て、3日目の朝。モリーの家のリビング。');
  await say('mom2','레오야（レオ）、もっと食べなさい！　ほら、ケランマリ（卵焼き）もあるよ。');await say('leo','い、いただきます！　……オモニのごはん、ぜんぶうまい！');
@@ -2321,7 +2321,7 @@ async function inetNaviDone(zn){if(zn.navi==='neon'&&!FL.frag1){FL.frag1=1;
   await say('origin','……ウラヘ……オイデ……。トドカナカッタ コトバハ……ミンナ……ココニ……アル……。');
   await say('mist','「ウラ」……さっきの電車のナビが言ってた、ウラインターネットだ。');await say('volt','行ってやろうじゃねえか。……でも、その前に作戦会議だな。');
   await ch4End();}}
-async function ch4End(){busyStory=true;await wait(500);fade(true);await wait(700);enterRoomScene();placeHuman(LEO,'mollyL',1.4,.9,-Math.PI/2);placeHuman(MOLLY,'mollyL',.2,1.1,Math.PI/2);fade(false);
+async function ch4End(){busyStory=true;await wait(500);fade(true);await wait(700);enterRoomScene();placeHuman(LEO,'mollyL',1.4,.9,-Math.PI/2);placeHuman(MOLLY,'mollyL',.35,1.4,Math.PI/2);fade(false);
  await say('sys','――その夜。モリーの家のリビング。窓の外に、ウルサンの港の灯り。');
  await say('molly','「届かなかったメッセージ」かぁ。……わたしにも、あるかも。');await say('leo','モリーにも？');
  await say('molly','はじめてレオと話した日。ほんとは「明日も話せる？」って送りたかったのに、はずかしくて消しちゃったの。');
@@ -2463,7 +2463,7 @@ async function talkGauge(){if(FL.nc1)return nc1Gauge();if(FL.river){await say('v
  FL.river=1;SFX('chip');if(ROOMS.tenryu0.scr)ROOMS.tenryu0.scr.material.color.set('#ffb13c');objective2('家に帰ろう（河原の上の道へ）→ PCからダイブ');}
 
 
-async function walkTo(c,key,x,z,face){if(!c||!ROOMS[key])return;const R_=ROOMS[key];c.auto={x:R_.ox+x,z:R_.oz+z,face:face==null?c.face:face};const t0=performance.now();while(c.auto&&performance.now()-t0<5000)await wait(60);c.auto=null;}
+async function walkTo(c,key,x,z,face){if(!c||!ROOMS[key])return;const R_=ROOMS[key];c.auto={x:R_.ox+x,z:R_.oz+z,face:face==null?c.face:face,key};const t0=performance.now();while(c.auto&&performance.now()-t0<9000)await wait(60);c.auto=null;}
 async function walkBoth(key,a,b){await Promise.all([walkTo(LEO,key,a[0],a[1],a[2]),walkTo(MOLLY,key,b[0],b[1],b[2])]);}
 async function netRun(x,z,sp){V.auto={x,z,sp:sp||6};const t0=performance.now();while(V.auto&&performance.now()-t0<5000)await wait(60);V.auto=null;}
 function camShot(x,z,yw,pt,ds){camTarget.set(x,1.3,z);yaw=yw;pitch=pt==null?.18:pt;dist=ds||4;}
@@ -2521,7 +2521,7 @@ async function nc1FactoryIntro(){if(FL.f_intro)return;FL.f_intro=1;const pa=NET.
  placeHuman(LEO,'factory',-5.4,4.4,Math.PI);placeHuman(MOLLY,'factory',-4.3,4.4,Math.PI);if(DAD)placeHuman(DAD,'factory',1,-.6,Math.PI);
  const R_=ROOMS.factory;camShot(R_.ox-3,R_.oz+2.5,.6,.16,5.5);
  await say('sys','お父さんの工場「鈴木製作所」。いつもなら機械の音でうるさいのに、今日はしんと静まりかえっている。');
- await Promise.all([walkBoth('factory',[-3.6,2.9,Math.PI*.8],[-2.6,3.3,Math.PI*.85]),walkTo(DAD,'factory',-1.6,1.7,-Math.PI*.2)]);
+ await Promise.all([walkBoth('factory',[-3.4,3.4,Math.PI*.85],[-2.5,3.55,Math.PI*.9]),walkTo(DAD,'factory',-1.7,1.45,-Math.PI*.2)]);
  await talkDad();}finally{busyStory=false;NET.actor=pa&&busyStory?pa:null;}}
 async function talkDad(){
  if(FL.nc1done){await say('dad','水が戻って、機械も全部動いとる。……レオ、モリーちゃん、ありがとな。');return;}
@@ -2544,7 +2544,7 @@ async function talkFactoryCtrl(){
  await say('volt','……ポンプはちゃんと動く。故障じゃねえ。水そのものが、入口まで来てねえんだ！');
  await say('volt','工場の冷却水は、天竜川から引いてる工業用水だよな？　取水口の水位データが……ゼロだ。');
  await say('molly','川の水が、来てないってこと……？');await say('mist','天竜川の水位観測所のデータも、ゼロになってる。川そのものがおかしいみたい。');
- await say('leo','裏口から河原に出られる。見に行こう！');FL.f_cause=1;SFX('chip');objective2(nc1Obj());if(true){busyStory=true;try{await walkBoth('factory',[-6.9,-3.1,-Math.PI/2],[-6.9,-4.1,-Math.PI/2]);fade(true);await wait(350);placeHuman(LEO,'tenryu0',8,3.6,Math.PI*.8);placeHuman(MOLLY,'tenryu0',9,3.6,Math.PI*.8);ACTC=ACT==='leo'?LEO:MOLLY;setWho();fade(false);FL.f_river=1;const R_=ROOMS.tenryu0;camShot(R_.ox+6,R_.oz+1,.5,.2,7);await say('sys','工場の裏の、天竜川の河原。');await say('molly','……うそ。川が……。');await walkBoth('tenryu0',[5.4,.5,Math.PI],[6.8,.6,Math.PI]);await say('leo','天竜川が、ほとんど干上がってる……！');}finally{busyStory=false;}}}
+ await say('leo','裏口から河原に出られる。見に行こう！');FL.f_cause=1;SFX('chip');objective2(nc1Obj());if(true){busyStory=true;try{await walkBoth('factory',[-6.9,-3.1,-Math.PI/2],[-6.9,-4.1,-Math.PI/2]);fade(true);await wait(350);placeHuman(LEO,'tenryu0',8,3.6,Math.PI*.8);placeHuman(MOLLY,'tenryu0',9,3.6,Math.PI*.8);ACTC=ACT==='leo'?LEO:MOLLY;setWho();fade(false);FL.f_river=1;const R_=ROOMS.tenryu0;camShot(R_.ox+6,R_.oz+1,.5,.2,7);await say('sys','工場の裏の、天竜川の河原。');await say('molly','……うそ。川が……。');await walkBoth('tenryu0',[5.4,.4,Math.PI],[6.9,.3,Math.PI]);await say('leo','天竜川が、ほとんど干上がってる……！');}finally{busyStory=false;}}}
 async function talkPipe(){await say('sys','冷却水の配管。「流量 0 L/min」の表示が赤く光っている。');if(!FL.f_cause&&!FL.nc1done)await say(ACTR()==='molly'?'molly':'leo','水が、まったく来てない……？');}
 async function factoryHomeDoor(){const c=doorC(ACTC);const me=c===MOLLY?'molly':'leo';if(PH==='nc1free'){await goRoom(c,me==='molly'?'mollyL':'leoL',-1.6,ROOMS.leoL.d/2-1.3,0);return;}await say(me,'今は、工場の機械をなんとかしないと。');}
 async function factoryRiverDoor(){const c=doorC(ACTC);const me=c===MOLLY?'molly':'leo';if(!FL.f_cause){await say(me,'まずは、機械が止まった原因を調べよう。');return;}await goRoom(c,'tenryu0',me==='molly'?9:8,3.6,Math.PI*.8);if(!FL.f_river){FL.f_river=1;objective2(nc1Obj());await say('sys','工場の裏の、天竜川の河原。');}}
@@ -4036,7 +4036,20 @@ async function cricketGame(){if(MG){banner('いまはミニゲーム中！','#ff
 function mgStep(dt){if(MG&&MG.k==='fetch'&&MG.phase==='aim'){MG.t+=dt;MG.pow=(Math.sin(MG.t*3.2-Math.PI/2)+1)/2;}}
 
 // ---------- control ----------
-function humanStep(c,dt,control){c.slide=0;c.faceHold=0;c.inv=0;if(c.auto){const dx=c.auto.x-c.x,dz=c.auto.z-c.z,d=Math.hypot(dx,dz);if(d>.08){c.x+=dx/d*Math.min(d,2.2*dt);c.z+=dz/d*Math.min(d,2.2*dt);c.face=Math.atan2(dx,dz);c.moving=true;}else{c.moving=false;c.face=c.auto.face;c.auto=null;}return;}
+function autoPath(sx,sz,gx,gz,key){// グリッドA*：家具や機械を避けて歩く
+ const S=.25,M=.22,Rm=ROOMS[key],ok=(x,z)=>{if(!Rm)return true;const lx=x-Rm.ox,lz=z-Rm.oz;if(Math.abs(lx)>Rm.w/2-M||Math.abs(lz)>Rm.d/2-M)return false;return !BLOCK.some(b=>b.room===key&&lx>b.x0-M&&lx<b.x1+M&&lz>b.z0-M&&lz<b.z1+M);};
+ const x0=Math.min(sx,gx)-6,z0=Math.min(sz,gz)-6,W=Math.ceil((Math.max(sx,gx)+6-x0)/S),H=Math.ceil((Math.max(sz,gz)+6-z0)/S);if(W*H>40000)return null;
+ const idx=(i,j)=>j*W+i,ci=x=>Math.round((x-x0)/S),cj=z=>Math.round((z-z0)/S);const si=ci(sx),sj=cj(sz),gi=ci(gx),gj=cj(gz);
+ const g=new Float32Array(W*H).fill(1e9),from=new Int32Array(W*H).fill(-1),blk=new Int8Array(W*H);const B=(i,j)=>{const k=idx(i,j);if(!blk[k])blk[k]=ok(x0+i*S,z0+j*S)?1:2;return blk[k]===2;};
+ const open=[[0,si,sj]];g[idx(si,sj)]=0;const D=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]];let n=0,found=false;
+ while(open.length&&n++<40000){let bi=0;for(let k=1;k<open.length;k++)if(open[k][0]<open[bi][0])bi=k;const [,i,j]=open.splice(bi,1)[0];if(Math.abs(i-gi)<=1&&Math.abs(j-gj)<=1){from[idx(gi,gj)]=from[idx(gi,gj)]>=0?from[idx(gi,gj)]:idx(i,j);found=true;break;}
+  for(const [di,dj,w] of D){const a=i+di,b=j+dj;if(a<0||b<0||a>=W||b>=H)continue;if(B(a,b)&&!(Math.abs(a-gi)<=2&&Math.abs(b-gj)<=2)&&!(Math.abs(a-si)<=2&&Math.abs(b-sj)<=2&&g[idx(i,j)]<2.5))continue;if(di&&dj&&(B(i+di,j)||B(i,j+dj))&&g[idx(i,j)]>=2.5)continue;const ng=g[idx(i,j)]+w;if(ng<g[idx(a,b)]){g[idx(a,b)]=ng;from[idx(a,b)]=idx(i,j);open.push([ng+Math.hypot(a-gi,b-gj),a,b]);}}}
+ if(!found)return null;const pts=[];let k=idx(gi,gj);let guard=0;while(k>=0&&k!==idx(si,sj)&&guard++<5000){pts.unshift([x0+(k%W)*S,z0+Math.floor(k/W)*S]);k=from[k];}
+ const out=[];let cur=[sx,sz];const clear=(a,b)=>{const d=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.ceil(d/.12);for(let t=1;t<=n;t++){const x=a[0]+(b[0]-a[0])*t/n,z=a[1]+(b[1]-a[1])*t/n;if(!ok(x,z))return false;}return true;};
+ for(let i=0;i<pts.length;i++){const nx=pts[i+1];if(nx&&clear(cur,nx))continue;out.push(pts[i]);cur=pts[i];}out.push([gx,gz]);return out;}
+function humanStep(c,dt,control){c.slide=0;c.faceHold=0;c.inv=0;if(c.auto){if(c.auto.path===undefined){let p=null;try{p=c.auto.key?autoPath(c.x,c.z,c.auto.x,c.auto.z,c.auto.key):null;}catch(e){p=null;}c.auto.path=p||[[c.auto.x,c.auto.z]];}
+ const wp=c.auto.path[0]||[c.auto.x,c.auto.z];const dx=wp[0]-c.x,dz=wp[1]-c.z,d=Math.hypot(dx,dz);const last=c.auto.path.length<=1;
+ if(d>(last?.08:.18)){c.x+=dx/d*Math.min(d,2.2*dt);c.z+=dz/d*Math.min(d,2.2*dt);const tf=Math.atan2(dx,dz);let df=tf-c.face;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;c.face+=df*Math.min(1,dt*12);c.moving=true;}else if(!last){c.auto.path.shift();}else{c.moving=false;c.face=c.auto.face;c.auto=null;}return;}
  if(!control){c.moving=false;return;}
  let mx=0,mz=0;const fwx=-Math.sin(yaw),fwz=-Math.cos(yaw),rtx=Math.cos(yaw),rtz=-Math.sin(yaw);
  if(!DLGS&&!CHOICE){if(K.KeyW){mx+=fwx;mz+=fwz;}if(K.KeyS){mx-=fwx;mz-=fwz;}if(K.KeyD){mx+=rtx;mz+=rtz;}if(K.KeyA){mx-=rtx;mz-=rtz;}}
@@ -4787,7 +4800,7 @@ function frame(now){window.__FT0=performance.now();PSTAT.frame(now);let dt=Math.
  try{partnerStep(dt||.016);if(typeof p3Step==='function')p3Step();}catch(e){}if(!NET.guest&&MODE==='play'&&!paused)[V,M].forEach(A=>{if(!A||A.down)return;const n=ncpOf(A===M?'M':'V');if(n.regen&&A.hp<A.max&&ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,A))){A.rgT=(A.rgT||0)+(dt||.016);if(A.rgT>1.5){A.rgT=0;A.hp=Math.min(A.max,A.hp+2);renderHP();}}});{const me=NET.on&&NET.guest?M:V;const inB=me&&ZONES.some(z=>z.act&&!z.clear&&zoneHas(z,me));const ge=$('gauge');if(ge)ge.style.visibility=inB?'visible':'hidden';}envStep(dt||.016);renderFrame();requestAnimationFrame(frame);}
 addEventListener('beforeunload',e=>{if(typeof MODE!=='undefined'&&MODE!=='title'&&!window.__noLeaveGuard){e.preventDefault();e.returnValue='';}});
 let BOOTED=null;function bootGame(quiet){if(BOOTED)return BOOTED;BOOTED=(async()=>{if(quiet){const lo=$('loading');lo.style.visibility='hidden';}
- if(GLL){$('loading').classList.remove('hide');try{await loadAssets();$('ldt').textContent='キャラを組み立て中…';await new Promise(r=>setTimeout(r,30));const pbuf=async k=>{try{if(location.protocol!=='file:'){const r=await fetch('models/hy_'+k+'.glb');if(r.ok)return await r.arrayBuffer();}}catch(e){}try{return await hyScript(k);}catch(e){return null;}};const vb=await pbuf('volt'),mb=await pbuf('mist');CH3D.V=await makeChar('fumi',{height:1.7,navi:'volt',buf:vb||undefined});CH3D.M=await makeChar('shino',{height:1.58,navi:'mist',buf:mb||undefined,backHead:mb?'#f4f2ea':undefined});CH3D.B=await makeChar('dark',{height:2.9,navi:'boss'});CH3D.B.g.visible=false;CH3D.B.shadow.visible=false;USE3D=true;}catch(err){console.warn('3D load failed',err);USE3D=false;$('ldt').textContent='3Dキャラの読み込みに失敗：'+(err&&err.message||err)+'（2Dで続行）';await new Promise(r=>setTimeout(r,2500));}$('loading').classList.add('hide');}
+ if(GLL){$('loading').classList.remove('hide');try{await loadAssets();$('ldt').textContent='キャラを組み立て中…';await new Promise(r=>setTimeout(r,30));const pbuf=async k=>{try{if(location.protocol!=='file:'){const r=await fetch('models/hy_'+k+'.glb');if(r.ok)return await r.arrayBuffer();}}catch(e){}try{return await hyScript(k);}catch(e){return null;}};const vb=await pbuf('volt'),mb=await pbuf('mist');CH3D.V=await makeChar('fumi',{height:1.78,navi:'volt',buf:vb||undefined,tpr:!!vb});CH3D.M=await makeChar('shino',{height:1.66,navi:'mist',buf:mb||undefined,tpr:!!mb});CH3D.B=await makeChar('dark',{height:2.9,navi:'boss'});CH3D.B.g.visible=false;CH3D.B.shadow.visible=false;USE3D=true;}catch(err){console.warn('3D load failed',err);USE3D=false;$('ldt').textContent='3Dキャラの読み込みに失敗：'+(err&&err.message||err)+'（2Dで続行）';await new Promise(r=>setTimeout(r,2500));}$('loading').classList.add('hide');}
  else{$('loading').classList.remove('hide');$('ldt').textContent='3D読み込み機能（GLTFLoader）が読み込めませんでした（2Dで続行）';await new Promise(r=>setTimeout(r,2500));$('loading').classList.add('hide');}
 
  initWorld();if(USE3D)await buildHome();$('loading').style.visibility='';})();return BOOTED;}

@@ -60,7 +60,7 @@ async def main():
         J=json.loads(await E_(JS_JOINTS)); await E_(JS_SETUP)
         ks=[k for k in ['leo','molly','volt','mist','dad','bro1'] if J.get(k)!='nochar']
         views=[('front',0),('back',3.14159),('left',1.5708),('right',-1.5708)]
-        S=200;cols=[f'{p}_{v}' for p in ['idle','run'] for v,_ in views]+['headF','headB']
+        S=200;cols=[f'{p}_{v}' for p in ['idle','run'] for v,_ in views]+['headF','headB','feetF','feetS']
         sheet=Image.new('RGB',(S*len(cols),S*len(ks)),'#222');report=[]
         for r,k in enumerate(ks):
             shots={}
@@ -69,6 +69,8 @@ async def main():
                     shots[f'{pose}_{v}']=img(await E_(f"{JS_SHOT}('{k}','{pose}',{yw},3.2,.9,{t})"))
             for v,yw in [('headF',0),('headB',3.14159)]:
                 shots[v]=img(await E_(f"{JS_SHOT}('{k}','idle',{yw},.95,-1,.3)"))
+            for v,yw in [('feetF',0),('feetS',1.5708)]:
+                shots[v]=img(await E_(f"{JS_SHOT}('{k}','idle',{yw},1.1,.12,.3)"))
             for c,n in enumerate(cols):sheet.paste(shots[n].resize((S,S)),(c*S,r*S))
             d=ImageDraw.Draw(sheet);d.text((4,r*S+4),k,fill='red')
             f=np.asarray(shots['headF'].convert('L'),float);bk=np.asarray(shots['headB'].convert('L').transpose(Image.FLIP_LEFT_RIGHT),float)
