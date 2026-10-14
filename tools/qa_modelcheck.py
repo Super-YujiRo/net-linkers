@@ -30,15 +30,15 @@ JS_JOINTS=r"""(()=>{const R={};const W=b=>b.getWorldPosition(new THREE.Vector3()
  for(const [k,c] of Object.entries(C)){if(!c||!c.tb||!c.acts){R[k]='nochar';continue;}
   const keep={face:c.face,rotY:c.rotY,ry:c.g.rotation.y};c.g.rotation.y=0;const out={};
   for(const cl of ['Jog_Fwd_Loop','Sprint_Loop','Idle_Loop']){const a=c.acts[cl];if(!a)continue;c.mixer.stopAllAction();a.reset();a.play();a.setEffectiveWeight(1);
-   const kn=[],el=[],LE=[];
+   const kn=[],el=[],LE=[],LL=[];
    for(let i=0;i<24;i++){c.mixer.update(i?(a.getClip().duration/24):0);retarget(c);c.g.updateMatrixWorld(true);const f=new THREE.Vector3(0,0,1).applyQuaternion(c.g.getWorldQuaternion(new THREE.Quaternion()));
     {const fr=(root,tb)=>{const q=root.getWorldQuaternion(new THREE.Quaternion()).invert();const lx=W(tb.L_UpperArm).sub(W(tb.Hips)).applyQuaternion(q).x;return [q,lx>0?0:Math.PI];};c.src.updateMatrixWorld(true);const [qs,ys]=fr(c.src,c.sb),[qt,yt]=fr(c.g.children[0].children[0],c.tb);const ry=(v,a)=>v.applyAxisAngle(new THREE.Vector3(0,1,0),a);
-     for(const [a,b] of [['L_UpperArm','L_LowerArm'],['R_UpperArm','R_LowerArm'],['L_LowerArm','L_Hand'],['R_LowerArm','R_Hand'],['L_UpperLeg','L_LowerLeg'],['R_UpperLeg','R_LowerLeg'],['L_LowerLeg','L_Foot'],['R_LowerLeg','R_Foot']]){if(!c.sb[a]||!c.sb[b])continue;const ds=ry(W(c.sb[b]).sub(W(c.sb[a])).applyQuaternion(qs),ys).normalize(),dt=ry(W(c.tb[b]).sub(W(c.tb[a])).applyQuaternion(qt),yt).normalize();LE.push(ds.angleTo(dt)*57.3);}}
+     for(const [a,b] of [['L_UpperArm','L_LowerArm'],['R_UpperArm','R_LowerArm'],['L_LowerArm','L_Hand'],['R_LowerArm','R_Hand'],['L_UpperLeg','L_LowerLeg'],['R_UpperLeg','R_LowerLeg'],['L_LowerLeg','L_Foot'],['R_LowerLeg','R_Foot']]){if(!c.sb[a]||!c.sb[b])continue;const ds=ry(W(c.sb[b]).sub(W(c.sb[a])).applyQuaternion(qs),ys).normalize(),dt=ry(W(c.tb[b]).sub(W(c.tb[a])).applyQuaternion(qt),yt).normalize();LE.push(ds.angleTo(dt)*57.3);if(/Leg/.test(a))LL.push(ds.angleTo(dt)*57.3);}}
     ['L','R'].forEach(S=>{const H=W(c.tb[S+'_UpperLeg']),K=W(c.tb[S+'_LowerLeg']),A=W(c.tb[S+'_Foot']);const d=K.clone().sub(H.clone().add(A).multiplyScalar(.5));d.y=0;
      if(K.clone().sub(H).angleTo(A.clone().sub(K))*57.3>12)kn.push(d.dot(f));
      const Sh=W(c.tb[S+'_UpperArm']),E=W(c.tb[S+'_LowerArm']),Hd=W(c.tb[S+'_Hand']);const d2=E.clone().sub(Sh.clone().add(Hd).multiplyScalar(.5));d2.y=0;
      if(E.clone().sub(Sh).angleTo(Hd.clone().sub(E))*57.3>15)el.push(d2.dot(f));});}
-      out[cl]={limbErr:LE.length?Math.round(LE.reduce((a,b)=>a+b,0)/LE.length):null,limbMax:LE.length?Math.round(Math.max(...LE)):null,kneeFwd:kn.length?+(kn.filter(v=>v>0).length/kn.length).toFixed(2):null,elbowBack:el.length?+(el.filter(v=>v<0).length/el.length).toFixed(2):null};}
+      out[cl]={legErr:LL.length?Math.round(LL.reduce((a,b)=>a+b,0)/LL.length):null,limbErr:LE.length?Math.round(LE.reduce((a,b)=>a+b,0)/LE.length):null,limbMax:LE.length?Math.round(Math.max(...LE)):null,kneeFwd:kn.length?+(kn.filter(v=>v>0).length/kn.length).toFixed(2):null,elbowBack:el.length?+(el.filter(v=>v<0).length/el.length).toFixed(2):null};}
   c.mixer.stopAllAction();c.cur=null;c.face=keep.face;c.rotY=keep.rotY;c.g.rotation.y=keep.ry;R[k]=out;}
  return JSON.stringify(R);})()""" % CHARS
 def img(b64):
@@ -82,9 +82,10 @@ async def main():
                 if v['kneeFwd'] is not None and v['kneeFwd']<.8:bad.append(f'{cl}:ひざ逆({v["kneeFwd"]})')
                 if cl!='Idle_Loop' and v['elbowBack'] is not None and v['elbowBack']<.5:bad.append(f'{cl}:ひじ逆({v["elbowBack"]})')
             for cl,v in (jr.items() if isinstance(jr,dict) else []):
+                if v.get('legErr') is not None and v['legErr']>8:bad.append(f"{cl}:脚の向きがズレ・ガニ股/内股(平均{v['legErr']}°)")
                 if v.get('limbErr') is not None and v['limbErr']>20:bad.append(f"{cl}:手足の向きが元の動きとズレ(平均{v['limbErr']}°/最大{v['limbMax']}°)")
             if cc>.85:bad.append(f'後頭部が顔と酷似({cc:.2f})')
-            report.append((k,'OK' if not bad else 'NG',bad,round(cc,2),{cl:(v.get('limbErr'),v.get('limbMax')) for cl,v in jr.items()} if isinstance(jr,dict) else jr))
+            report.append((k,'OK' if not bad else 'NG',bad,round(cc,2),{cl:(v.get('limbErr'),v.get('limbMax'),v.get('legErr')) for cl,v in jr.items()} if isinstance(jr,dict) else jr))
         sheet.save(OUT+'sheet.png')
         for r in report:print('CHECK',*r)
         print('errs',errs[:5]); await b.close()

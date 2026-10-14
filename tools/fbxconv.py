@@ -55,6 +55,7 @@ def straighten(chain,target):
         print('tpose',bn,round(math.degrees(ang),1))
 for S,sx in (('L',1),('R',-1)):
     straighten(['J_Bip_%s_UpperArm'%S,'J_Bip_%s_LowerArm'%S,'J_Bip_%s_Hand'%S],mathutils.Vector((sx,0,0)))
+    straighten(['J_Bip_%s_UpperLeg'%S,'J_Bip_%s_LowerLeg'%S],mathutils.Vector((0,0,-1)))
 bpy.context.view_layer.update()
 bpy.ops.object.mode_set(mode='OBJECT')
 for o in me:
