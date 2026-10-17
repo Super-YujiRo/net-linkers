@@ -236,7 +236,7 @@ h1{font-family:"Orbitron","M PLUS Rounded 1c",sans-serif;font-weight:900;letter-
 <div id="shop" class="ov hide"><div class="card" style="max-width:640px;width:92vw;max-height:94vh;overflow:auto"><h1 style="font-size:22px;display:flex;justify-content:space-between"><span id="shopt">ネットショップ</span><span id="shopz" style="color:#ffd24a"></span></h1><div id="shoph" style="font-size:13px;opacity:.8;margin-bottom:8px">いらっしゃい！ 欲しいチップをクリック。（F／Esc で閉じる）</div><div id="shopl"></div><div id="shopmsg" style="min-height:20px;margin-top:8px;color:#9fe8ff"></div><div style="text-align:center"><button class="big" onclick="closeShop()">とじる</button></div></div></div>
 <div id="folder" class="ov hide"><div class="card" style="max-width:900px;width:94vw;max-height:94vh;overflow:auto"><h1 style="font-size:22px">フォルダ編集</h1><div id="fhead"></div><div style="font-size:12px;opacity:.75;margin:4px 0 8px">チップをクリックで フォルダ⇄パック を入れ替え。フォルダは15〜30枚、同じチップは4枚まで。（F／Esc で閉じる）</div>
 <div class="fcols"><div><div class="fcap">フォルダ</div><div id="ffold" class="fgrid"></div></div><div><div class="fcap">パック</div><div id="fpack" class="fgrid"></div></div></div>
-<div class="fcap" style="margin-top:8px">チップライブラリ</div><div id="flib"></div><div id="fextra"></div><div id="fmsg" style="min-height:18px;color:#ffb0b0"></div><div style="text-align:center"><button class="big" onclick="closeFolder()">とじる</button></div></div></div>
+<div class="fcap" style="margin-top:8px">チップライブラリ</div><div id="flib"></div><div class="fcap" style="margin-top:8px">P.A.メモ <small style="opacity:.7;font-weight:600">（カスタム画面で、この順番に3枚えらぶと合体）</small></div><div id="fpa" style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px"></div><div id="fextra"></div><div id="fmsg" style="min-height:18px;color:#ffb0b0"></div><div style="text-align:center"><button class="big" onclick="closeFolder()">とじる</button></div></div></div>
 <div id="cwait" class="hide" style="position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:30;padding:14px 26px;border-radius:12px;background:rgba(8,14,32,.86);border:1px solid #3fd0ff;color:#dff6ff;font-size:17px;font-weight:700;letter-spacing:.05em;box-shadow:0 0 24px rgba(63,208,255,.35);pointer-events:none">相手がチップを選んでいます…</div>
 <div id="bust" class="ov hide"><div class="card" style="max-width:440px;text-align:center">
 <div style="font-size:14px;letter-spacing:.3em;color:#9ef;font-weight:900">BATTLE RESULT</div>
@@ -407,7 +407,28 @@ async function hyAdd(V,k,buf){try{const g=await parseGLB(buf);const key='t_'+k;g
   const hb=g.scene.getObjectByName('J_Bip_C_Hips'),fb=V.tpl.fumi&&V.tpl.fumi.getObjectByName('J_Bip_C_Hips');const ratio=hb&&fb&&fb.position.y?hb.position.y/fb.position.y:1;
   V.hy[key]=hb?hb.getWorldPosition(new THREE.Vector3()).y:1;const C={};
   for(const n in V.clips.fumi){const c=V.clips.fumi[n].clone();c.tracks.forEach(t=>{if(/\.position$/.test(t.name)){for(let i=0;i<t.values.length;i++)t.values[i]*=ratio;}});C[n]=c;}
-  if(window.HY_CLIPS)HY_CLIPS(k,C,ratio);V.clips[key]=C;V.tpl[key]=g.scene;}catch(e){console.warn('hy',k,e);}}
+  if(HY_TPR.has(k)&&V.tpl.fumi){try{const Cf={};for(const n in V.clips.fumi)Cf[n]=V.clips.fumi[n];if(window.HY_CLIPS)HY_CLIPS(k,Cf,1);hyBake(V.tpl.fumi,Cf,g.scene,C);}catch(e){console.warn('hyBake',k,e);if(window.HY_CLIPS)HY_CLIPS(k,C,ratio);}}
+  else if(window.HY_CLIPS)HY_CLIPS(k,C,ratio);V.clips[key]=C;V.tpl[key]=g.scene;}catch(e){console.warn('hy',k,e);}}
+// Tripo-rigged bosses: bone rest orientations differ from fumi(VRM), so bake fumi clips into target bone space
+const HY_TPR=new Set([]);  // Tripo純正リグのボスを入れる時だけ名前を足す
+function hyBake(src,clips,tgt,C){const S=THREE.SkeletonUtils.clone(src);S.updateMatrixWorld(true);tgt.updateMatrixWorld(true);
+ const names=[];tgt.traverse(o=>{if(o.isBone&&/^J_Bip_/.test(o.name)&&S.getObjectByName(o.name))names.push(o.name);});
+ const sb={},tb={},sR={},tR={},pk={},tPR={};const Q=()=>new THREE.Quaternion();
+ for(const n of names){sb[n]=S.getObjectByName(n);tb[n]=tgt.getObjectByName(n);sR[n]=sb[n].getWorldQuaternion(Q());tR[n]=tb[n].getWorldQuaternion(Q());
+  let p=tb[n].parent;while(p&&!(p.isBone&&names.includes(p.name)))p=p.parent;pk[n]=p?p.name:null;tPR[n]=tb[n].parent.getWorldQuaternion(Q());}
+ const hs=sb.J_Bip_C_Hips,ht=tb.J_Bip_C_Hips;const sHip0=hs.getWorldPosition(new THREE.Vector3()),tHip0=ht.getWorldPosition(new THREE.Vector3());const hr=tHip0.y/Math.max(.01,sHip0.y);
+ const tPInv=new THREE.Matrix4().copy(ht.parent.matrixWorld).invert();
+ const mx=new THREE.AnimationMixer(S);const qa=Q(),qb=Q(),cw={},v=new THREE.Vector3();
+ for(const cn in clips){const clip=clips[cn];const fps=30,nf=Math.max(2,Math.round(clip.duration*fps)+1);const times=new Float32Array(nf);const QV={};names.forEach(n=>QV[n]=new Float32Array(nf*4));const PV=new Float32Array(nf*3);
+  mx.stopAllAction();const a=mx.clipAction(clip);a.reset().play();
+  for(let f=0;f<nf;f++){const t=Math.min(clip.duration,f/fps);times[f]=t;mx.setTime(t);S.updateMatrixWorld(true);
+   for(const n of names){sb[n].getWorldQuaternion(qa);qa.multiply(qb.copy(sR[n]).invert());const w=(cw[n]||(cw[n]=Q())).copy(qa).multiply(tR[n]);
+    const pw=pk[n]?cw[pk[n]]:tPR[n];qb.copy(pw).invert().multiply(w);qb.toArray(QV[n],f*4);}
+   hs.getWorldPosition(v).sub(sHip0).multiplyScalar(hr).add(tHip0).applyMatrix4(tPInv);v.toArray(PV,f*3);}
+  a.stop();mx.uncacheClip(clip);
+  const tr=names.map(n=>new THREE.QuaternionKeyframeTrack(n+'.quaternion',times,QV[n]));tr.push(new THREE.VectorKeyframeTrack('J_Bip_C_Hips.position',times,PV));
+  C[cn]=new THREE.AnimationClip(cn,clip.duration,tr);}
+}
 function hyScript(k){return new Promise(res=>{window.__HYB=window.__HYB||{};const sc=document.createElement('script');sc.src='models/hy_'+k+'.js';sc.onload=()=>{const b=window.__HYB[k];delete window.__HYB[k];res(b?b64u8(b).buffer:null);};sc.onerror=()=>res(null);document.head.appendChild(sc);});}
 // ===== KayKit CC0 props (models/hy_kk.js / kk.glb) =====
 const KK={lib:{},box:{},ready:false};
@@ -1299,7 +1320,14 @@ const CH={
  giga:{n:'ギガキャノン',ic:'chip_triple',d:'P.A. 極太ビーム 250',pa:1}
 };
 const FOLDER=[['cannon','A'],['cannon','B'],['cannon','C'],['cannon','A'],['sword','S'],['sword','S'],['wide','S'],['wide','S'],['long','S'],['long','S'],['bomb','B'],['bomb','B'],['wave','W'],['wave','W'],['spread','A'],['recov','*'],['recov','*'],['barrier','*'],['hammer','W'],['steal','*'],['dogs','*'],['dogs','*'],['liz','*']];
-const PAS=[{seq:[['sword','S'],['wide','S'],['long','S']],to:'dream'},{seq:[['cannon','A'],['cannon','B'],['cannon','C']],to:'giga'}];
+const PAS=[{seq:[['sword','S'],['wide','S'],['long','S']],to:'dream'},{seq:[['cannon','A'],['cannon','B'],['cannon','C']],to:'giga'},
+ {seq:[['wave','W'],['wave','W'],['hammer','W']],to:'gaiaq'},{seq:[['bomb','B'],['bomb','B'],['bomb','B']],to:'bombp'},
+ {seq:[['spread','A'],['spread','A'],['spread','A']],to:'sstorm'},{seq:[['dogs','*'],['liz','*'],['dogs','*']],to:'petpa'}];
+Object.assign(CH,{gaiaq:{n:'ガイアクエイク',ic:'chip_hammer',f:'hue-rotate(60deg) saturate(2)',d:'P.A. まわり全体に大地割れ 210',pa:1,paBase:'quake',paMult:3.5},
+ bombp:{n:'ボムパニック',ic:'chip_bomb',f:'hue-rotate(-30deg) saturate(2.2)',d:'P.A. 超大型ボム 210',pa:1,paBase:'bomb',paMult:3},
+ sstorm:{n:'スプレッドストーム',ic:'chip_spread',f:'hue-rotate(40deg) saturate(2.2)',d:'P.A. 巻きこみ弾の嵐 180（周りにも）',pa:1,paBase:'spread',paMult:6},
+ petpa:{n:'ペットパレード',ic:'dogA_front',d:'P.A. コリーとトカゲ総出撃 突進180×2＋バリア',pa:1,paBase:'dogs',paMult:3,paAlso:'liz'}});
+function paSeen(){SAVE.x=SAVE.x||{};return SAVE.x.paSeen=SAVE.x.paSeen||{};}
 let deck=[],CHIPS_IN=[],selSlot=0,gaugeV=1,hand=[],pick=[];
 function shuffleDeck(){deck=FOLDER.map(c=>c.slice());for(let i=deck.length-1;i>0;i--){const j=ri(0,i);[deck[i],deck[j]]=[deck[j],deck[i]];}}
 function cusOpenH(){return !$('custom').classList.contains('hide');}
@@ -1403,9 +1431,9 @@ const NAVI_TALK={
  crane:{pre:[['crane','ツミアゲル……ツミアゲル……スベテ、フサグ……。'],['mist','造船所のクレーン管理ナビ……！　ノイズで暴走してる！'],['mist','荷役サーバーにノイズが流れこんでる……。港じゅうにコンテナを積みあげてるの、このノイズのせいだね。'],['crane','コンテナデ……ミチヲ……フサグ……！'],['mist','その道、通らせてもらうね。……ごめん！']],
   post:[['crane','……う、うう……。おや、嬢ちゃん……助けてくれたのかい。'],['crane','港じゅうにコンテナを積みあげちまった。こりゃ片付けが大変だ。'],['molly','（通信）ニュースで、クレーンが止まったって！　道もあけてくれてるみたい。'],['mist','お仕事がんばってね。わたし、行かなきゃいけないところがあるの。'],['crane','そうかい。じゃあこいつを持っていきな！']],reward:['cranek','C'],rn:'クレーンガイスト C'}};
 async function naviPre(zn){const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.pre)await say(w,x);}
-async function naviPost(zn){busyStory=true;qAdd('navi');await wait(1600);const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.post)await say(w,x);packAddBoth(T_.reward);const P1=zn.navi==='dam'||zn.navi==='crane';if(P1)hpUpGive(zn.navi==='dam'?'V':'M');
+async function naviPost(zn){busyStory=true;qAdd('navi');await wait(1600);const T_=NAVI_TALK[zn.navi];for(const [w,x] of T_.post)await say(w,x);packAddBoth(T_.reward);const P1=zn.navi==='dam'||zn.navi==='crane'||zn.navi==='wavem';if(P1)hpUpGive(zn.navi==='dam'?'V':'M');
  await say('sys','ナビチップ「'+CH[T_.reward[0]].n+' '+T_.reward[1]+'」'+(P1?'と HPメモリ ':'')+'を手に入れた！　チップはパックに入った。F のフォルダ画面でフォルダに入れると、バトルで使える。');
- if(!P1){busyStory=false;await inetNaviDone(zn);busyStory=false;tryLock();return;}busyStory=false;if(FL.nc1&&zn.navi==='dam'&&!FL.nc1done){nc1End();return;}tryLock();}
+ if(!P1){busyStory=false;await inetNaviDone(zn);busyStory=false;tryLock();return;}busyStory=false;if(FL.nc1&&zn.navi==='dam'&&!FL.nc1done){nc1End();return;}if(zn.navi==='wavem'&&!FL.ch2done){ch2End();return;}tryLock();}
 
 // ===== Part 2 navis =====
 const NAVI_LOOK={dam:{c1:'#2f6fd8',c2:'#1a3a7a',c3:'#9fd8ff',hd:'#dfe8ff',style:'dam',aura:'#7fc8ff'},crane:{c1:'#e8a820',c2:'#2a2a30',c3:'#ffe08a',hd:'#2a2a30',style:'crane',aura:'#ffb040'},
@@ -1490,7 +1518,7 @@ const CH_ALIAS={tricannon:'hicannon',vsword:'wide',fullheal:'recov',meteor:'bomb
 function chipArt(id){if(CHIPART[id])return CHIPART[id];if(CH[id]&&CH[id].v2base&&!GICON[id]&&GICON[CH[id].v2base])GICON[id]=GICON[CH[id].v2base];if(CH_ALIAS[id]&&!GICON[id]&&GICON[CH_ALIAS[id]])GICON[id]=GICON[CH_ALIAS[id]];if(GICON[id==='recov80'||id==='recov150'?'recov':id])return CHIPART[id]=chipArtGI(id);return chipArtOld(id);}
 function chipArtGI(id){const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');
  const T={sword:['#1e2c66','#e8f4ff'],wide:['#1e2c66','#e8f4ff'],long:['#1e2c66','#e8f4ff'],dream:['#4a1a6a','#ffd6ff'],firesword:['#5a1408','#ffb04a'],cannon:['#3a2a08','#ffd24a'],hicannon:['#3a2a08','#ffd24a'],mcannon:['#3a2a08','#ffe07a'],giga:['#4a3000','#fff0a0'],bomb:['#26262e','#d8d8e8'],minibomb:['#26262e','#d8d8e8'],wave:['#08264a','#7fd8ff'],thunder:['#2a2600','#fff36a'],quake:['#36220e','#e8b070'],spread:['#36103a','#ff9ad8'],heatshot:['#4a1206','#ff8a4a'],recov:['#08361a','#7dff9a'],recov80:['#08361a','#7dff9a'],recov150:['#08361a','#7dff9a'],barrier:['#0e264a','#9fe8ff'],invis:['#1a1a2e','#c8c8ff'],hammer:['#36260e','#ffc080'],steal:['#1a1a3e','#c8a0ff'],dogs:['#2a2010','#ffe14d'],liz:['#08261a','#7dff9a'],damk:['#081e4a','#7fc8ff'],cranek:['#362600','#ffc040'],neonk:['#2a082a','#ff7ae0'],linerk:['#082a12','#9dffa8'],wavek:['#08283a','#7fe6ff'],shadek:['#1a0a2e','#c8a0ff'],hanabik:['#2e0a08','#ff9a4a'],bambook:['#082a12','#9dff7a'],blackk:['#0a0a0e','#ff5a7a'],bubble:['#062a4a','#7fd0ff'],woodtower:['#0a2a10','#8dff8a'],tricannon:['#3a2a00','#ffe14d'],vsword:['#24083e','#d8a8ff'],fullheal:['#06362a','#9dffd8'],meteor:['#3a0c06','#ff8a4a']}[(CH[id]&&CH[id].v2base)||id]||['#1a2a4a','#ffffff'];
- const pa=id==='dream'||id==='giga',navi=!!(typeof NAVICHIP!=='undefined'&&NAVICHIP[id]);
+ const pa=!!(CH[id]&&CH[id].pa),navi=!!(typeof NAVICHIP!=='undefined'&&NAVICHIP[id]);
  const rr=(x,y,w,h,r)=>{g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();};
  const bg=g.createLinearGradient(0,0,96,96);bg.addColorStop(0,T[0]);bg.addColorStop(1,'#04060c');rr(3,3,90,90,12);g.fillStyle=bg;g.fill();
  g.save();rr(3,3,90,90,12);g.clip();const rg=g.createRadialGradient(48,44,4,48,44,46);rg.addColorStop(0,T[1]+'40');rg.addColorStop(1,'#00000000');g.fillStyle=rg;g.fillRect(0,0,96,96);
@@ -1687,7 +1715,8 @@ function openFolder(){if(myBattle(NET.on&&NET.guest?M:V)||MODE!=='play')return;p
 function closeFolder(){$('folder').classList.add('hide');paused=false;saveGame();tryLock();}
 function chipCell(c,i,where){const d=CH[c[0]];if(!d)return '';return '<button class="fc" data-w="'+where+'" data-i="'+i+'"><img src="'+chipArt(c[0])+'"><span class="fn">'+d.n+'</span><span class="fcd">'+c[1]+'</span></button>';}
 function sortChips(a){return a.map((c,i)=>[c,i]).sort((p,q)=>p[0][0]<q[0][0]?-1:p[0][0]>q[0][0]?1:p[0][1]<q[0][1]?-1:1);}
-function renderFolder(){const allIds=Object.keys(CH).filter(k=>!CH[k].pa);const owned=allIds.filter(k=>LIB.has(k)).length;
+function renderPAMemo(){const el=$('fpa');if(!el)return;const seen=paSeen();el.innerHTML=PAS.map(pa=>{const D=CH[pa.to];const ok=seen[pa.to];const rec=pa.seq.map((c,i)=>(ok||i===0)?CH[c[0]].n+' '+c[1]:'？？？').join(' → ');return '<div style="padding:5px 9px;border-radius:8px;background:'+(ok?'rgba(255,123,240,.14)':'rgba(255,255,255,.05)')+';border:1px solid '+(ok?'#ff7bf0':'#33405a')+'"><b style="color:'+(ok?'#ff9af2':'#8a96b0')+'">'+(ok?D.n:'？？？？')+'</b><br><span style="opacity:.85">'+rec+'</span></div>';}).join('');}
+function renderFolder(){setTimeout(renderPAMemo,0);const allIds=Object.keys(CH).filter(k=>!CH[k].pa);const owned=allIds.filter(k=>LIB.has(k)).length;
  $('fhead').innerHTML='<span style="color:'+(MYW==='M'?'#ff9ad8':'#ffd24a')+'">'+navNm()+'の持ち物</span><span>フォルダ <b>'+FOLDER.length+'</b>/'+FOLDER_MAX+'</span><span>パック <b>'+PACK.length+'</b></span><span>ライブラリ <b>'+owned+'</b>/'+allIds.length+'</span><span>'+zenny+' Z</span>';
  $('ffold').innerHTML=sortChips(FOLDER).map(([c,i])=>chipCell(c,i,'f')).join('');$('fpack').innerHTML=PACK.length?sortChips(PACK).map(([c,i])=>chipCell(c,i,'p')).join(''):'<div style="opacity:.6;padding:12px">パックは空です。ミステリーデータやショップでチップを集めよう</div>';
  renderExtra();$('flib').innerHTML=allIds.map(k=>LIB.has(k)?'<span class="lb on" title="'+CH[k].d+'"><img src="'+chipArt(k)+'"></span>':'<span class="lb">？</span>').join('');
@@ -1984,6 +2013,28 @@ function v2Setup(){V2DEF.forEach(d=>{const A=IAREAS[d.area];if(!A)return;const z
 let v2T=0;function v2Step(dt){if(NET.on&&NET.guest)return;v2T-=dt;if(v2T>0)return;v2T=1;const ch=SAVE.chap||0;
  V2DEF.forEach(d=>{const g='v2_'+d.n;if(FL[g]){const z=ZONES.find(z=>z.v2===d.n);if(z&&!z.clear&&!z.act&&!z.sym)makeSymbol(z);return;}const beat=FL['nd_'+d.n]||ch>=d.def;if(beat&&(ch>=d.unl||SAVE.clear)){FL[g]=1;if(inetArea((NET.on&&NET.guest?M:V).x,(NET.on&&NET.guest?M:V).z)===d.area)banner(((EDEF[d.n]||{}).n||d.n)+' V2 の反応！','#ff9a3a');}});}
 // ===== HUB: ネットスクエア =====
+// ===== 章の合間の頼まれごと（日常パート）=====
+const REQS={
+ gyoza:{t:'注文タブレットのウイルス',town:'hama',giver:'餃子屋のおばちゃん',dev:'注文タブレット',need:()=>FL.nc1done,list:[['bitton',-2,0],['sparkle',2,1],['bitton',0,2]],
+  intro:[['g','あら、ナビの子！　ちょうどよかった。注文タブレットがね、「もやし」を押すと「マタアシタ」って出るのよ。'],['g','お客さんが困っちゃって……ちょっと中を見てくれない？']],
+  net:[['volt','タブレットの中に、ウイルスが巣をつくってやがる！'],['mist','小さいけど数が多いよ。気をつけて！']],
+  done:[['g','直った直った！　もやし、ちゃんと出るわ！　はいこれ、お礼。今度、焼きたて食べにおいで。']],rw:{z:600,chip:['minibomb','B'],t:'600ゼニー と チップ「ミニボム B」'}},
+ angler:{t:'湖の水位センサー',town:'hamanako',giver:'つり人',dev:'水位センサー',need:()=>FL.nc1done,list:[['driller',0,0],['bitton',-2,1],['bitton',2,1]],
+  intro:[['g','おっ、天竜ダムを直したっていうナビの子らか？　……この湖の水位センサーも、朝から数字がめちゃくちゃでな。'],['g','満潮なのに「水なし」って出やがる。見てもらえるか？']],
+  net:[['volt','センサーのネットだ。……ん？　このノイズ、ダムのときと同じ形だぞ。'],['mist','ほんの少しだけど……同じ「知らないコード」の切れはしが残ってる。']],
+  after:[['volt','……なあミスト。ダムのナビ、「止めろって命令された」って言ってたよな。'],['mist','うん。ここのセンサーのナビも、オペレーターの声が聞こえなくなってたみたい。……まるで、つながりを切られたみたいに。']],
+  done:[['g','おお、数字が戻った！　ありがとよ。……これ、湖で拾ったデータカードだ。ナビの子なら使えるだろ。']],rw:{z:800,chip:['bubble','B'],t:'800ゼニー と チップ「バブルショット B」'}},
+ dad:{t:'工場の旋盤エラー',room:'factory',giver:'お父さん',dev:'NC旋盤',need:()=>FL.nc1done,list:[['shielder',0,0],['driller',-2,1],['driller',2,1]],
+  intro:[['dad','水は戻ったが、今度はNC旋盤がエラーを吐いとる。「指示ヲ拒否」だと。'],['dad','機械が指示を拒否なんて、聞いたことがない。……ボルト、見てくれるか。']],
+  net:[['volt','旋盤のナビが、ウイルスに囲まれて動けなくなってる！'],['mist','ボルト、まずはまわりのウイルスから！']],
+  after:[['volt','旋盤のナビ、「お父さんの声が聞こえない」って泣いてた。……なんなんだよ、これ。']],
+  done:[['dad','おお、動いた。……レオ、ボルトもよくやった。'],['dad','そうだ。週末、舞阪の港にタチウオ行かんか。弟1も行くと言っとる。モリーちゃんもどうだ。'],['leo','行く！　今年はオレが指四本超えるのを釣る。'],['dad','言うようになったな。……これは工場の在庫だ。持ってけ。']],rw:{z:1000,chip:['hammer','W'],t:'1000ゼニー と チップ「ブレイクハンマー W」'}},
+ sakura:{t:'後輩のノートPC',room:'molly',giver:'モリーのPC',dev:'会社のノートPC',need:()=>FL.nc1done,mollyOnly:1,list:[['phantom',0,0],['sparkle',-2,1],['medic',2,1]],
+  intro:[['molly','……会社の後輩のさくらちゃんからメッセージ。「先輩、休みの日にすみません！　会社のノートPCが勝手にシャットダウンするんです」'],['mist','リモートでつないでもらえば、わたしが中に入れるよ。'],['molly','「今つないでもらったよ。ミスト、お願い」っと。']],
+  net:[['mist','会社のPCのネット……。ウイルスが、ファイルをかじってる！'],['volt','（通信）ミスト、手伝うぜ！']],
+  after:[['mist','……モリー。このPCのネットに、見たことない管理者アカウントがあったの。「KUJO-NW 保守」って。'],['molly','九条ネットワークス……？　うちの会社のネット、あそこが面倒見てるのかな。']],
+  done:[['molly','さくらちゃんから「直りました！　先輩とミストちゃん神です！」だって。……ふふ。'],['molly','お礼に、会社でもらった試供品のデータカード……チップになってる。']],rw:{z:800,chip:['recov80','*'],t:'800ゼニー と チップ「リカバリー80 *」'}}};
+const REQ_IDS=Object.keys(REQS),REQZ={};
 defArea('hub',[0,1500],{n:'ネットスクエア',spawn:[0,-7.5],col:'#ffd24a',areas:[['ネットスクエア',[-30,-30,30,30]]],build(A){
  AK.floor(A,[-16,-16,16,16],AK.tex.hub,'#ffd24a','#0a0f26');
  [[-2.5,16,2.5,26],[-2.5,-26,2.5,-16],[16,-2.5,26,2.5],[-26,-2.5,-16,2.5]].forEach(r=>AK.floor(A,r,AK.tex.hub,'#ffd24a','#0a0f26'));
@@ -2153,6 +2204,174 @@ defArea('zcore',[300,1160],{n:'ゼロの間',spawn:[0,-2],col:'#ff3b5c',areas:[[
  gateFace(addGate(A,-5,1,'ura','ウラインターネットへ','#b98cff'),Math.PI/2);
  addZone(A,{req:1,boss:1,final:1,x:0,z:28,r:11,list:[['boss',0,3]]});
  addHeal(A.o[0],A.o[1]+9);}});
+// 家電ネット（章の合間の頼まれごと用）
+defArea('dev',[-900,1160],{n:'デバイスネット',spawn:[0,-2],col:'#7dff9a',areas:[['デバイスネット',[-10,-8,10,22]]],build(A){
+ AK.floor(A,[-5,-5,5,5],AK.tex.hub,'#7dff9a','#04140a');AK.floor(A,[-2.5,5,2.5,9],AK.tex.hub,'#7dff9a','#04140a');AK.floor(A,[-8,9,8,22],AK.tex.hub,'#7dff9a','#04140a');
+ envRing(A.o[0],A.o[1]+8,60,110,18,['#06200e','#7dff9a','#3fd0ff'],8,40);
+ REQ_IDS.forEach(id=>{const z=addZone(A,{x:0,z:15,r:7.5,list:REQS[id].list,rq:id});z.clear=true;REQZ[id]=z;});
+ addHeal(A.o[0]+4,A.o[1]+2);}});
+
+// ===================== 第2章：舞阪漁港の夜 =====================
+function buildMaisaka(){const key='maisaka';TOWN_NAME.maisaka='舞阪漁港';
+ const g=outdoorBase(key,{ox:-3200,oz:-1200,w:52,d:34,sky:[[0,'#060a1c'],[.4,'#101a3a'],[.5,'#2a3458'],[.53,'#141a2a'],[1,'#080a12'],],ground:'#3c3f3e',hemi:.4,hcol:'#b8c8ff'});
+ const R=ROOMS[key];R.outdoor.sun=.18;R.outdoor.sunCol='#9fb4ff';
+ tWater(g,0,-40,180,70,'#0e2038');
+ const quay=new THREE.Mesh(new THREE.BoxGeometry(60,.5,1.2),envMat('#8a8a84'));quay.position.set(0,.2,-5.4);g.add(quay);
+ // pier (walkable)
+ box(g,-10,.22,-11,3,.3,12,'#7a6a58');[-1.4,1.4].forEach(s=>[-16,-12.5,-9,-6.5].forEach(zz=>cyl(g,-10+s,0,zz,.12,1.2,'#4a3e30')));
+ block(key,-18.75,-11.5,14.5,12.6);block(key,8.75,-11.5,34.5,12.6);
+ // moored boats
+ const boat=(x,z,col,name)=>{const b=new THREE.Group();b.position.set(x,0,z);g.add(b);box(b,0,.35,0,2.2,.7,6,'#eef0f2');box(b,0,.95,.8,1.7,.8,2,col);box(b,0,1.7,.9,.1,1.4,.1,'#ccc');if(name){const s=signMesh([[name,'#1a2a4a']],256,48,'#f4f6f8','#1a2a4a',1.6,.3);s.position.set(1.12,.45,-.6);s.rotation.y=Math.PI/2;b.add(s);}return b;};
+ boat(4,-9,'#3a7ad8','第五 浜名丸');boat(10,-9.5,'#d84a3a','福寿丸');R.emptyBerth=[16.5,-9];R.boat3=boat(40,-26,'#3aa86a','第三 天竜丸');R.boat3.visible=false;
+ // flag pole with 大漁旗
+ cyl(g,21,2.4,-4.6,.07,4.8,'#d8d8d8');const fc=document.createElement('canvas');fc.width=256;fc.height=160;const fx=fc.getContext('2d');fx.fillStyle='#f4f0e6';fx.fillRect(0,0,256,160);fx.fillStyle='#d8302a';fx.beginPath();fx.arc(70,80,46,0,7);fx.fill();fx.fillStyle='#1a3a8a';fx.font='bold 34px sans-serif';fx.fillText('大漁',130,70);fx.font='bold 22px sans-serif';fx.fillText('第三 天竜丸',122,118);
+ const flag=new THREE.Mesh(new THREE.PlaneGeometry(2.2,1.4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(fc),side:THREE.DoubleSide}));flag.position.set(22.15,4.1,-4.6);g.add(flag);
+ // buildings (south)
+ tBld(g,key,-14,12.5,10,7,5,'#d8d4c8',{f:'n',nokk:1,door:'#9fd0ff',sign:[['舞阪漁協','#fff'],['MAISAKA FISHERY','#9fe8ff',22]],sbg:'#1a3a5a',sw:5});
+ tBld(g,key,2,12.5,9,7,6.5,'#b8c4cc',{f:'n',nokk:1,door:'#3a4a5a',sign:[['製氷所','#fff'],['ICE PLANT','#9fe8ff',22]],sbg:'#2a3a4a',sw:4});
+ tBld(g,key,16,12,6,5,4,'#e8e4dc',{f:'n',nokk:1,door:'#6a5a48',sign:[['漁業無線局','#fff']],sbg:'#3a2a1e',sw:4});
+ cyl(g,16,8,12,.08,7,'#b0b0b0');box(g,16,11.4,12,1.6,.06,.06,'#b0b0b0');
+ // ice plant chute + status lamp, radio screen, notice board
+ box(g,2,1.6,8.7,3,.5,.8,'#7a8a96');R.iceLamp=cyl(g,4.4,2.4,8.95,.16,.1,'#7dff9a',1);R.iceLamp.rotation.x=Math.PI/2;
+ R.radioScr=box(g,17.6,1.5,9.42,.9,.6,.05,'#7dff9a',1);
+ box(g,-6,1.3,6.5,2.2,1.4,.1,'#3a3024');R.board=outSign(g,[['セリのご案内','#fff'],['毎朝 05:30 開始','#ffd27a',30],['製氷所の管理番号は','#cfe6ff',22],['「セリの開始時刻」','#cfe6ff',22]],-6,1.35,6.44,Math.PI,2,1.25,'#1a2a1a','#fff');
+ // harbor lamps (switchable)
+ R.lamps=[];for(let i=-2;i<=2;i++){const x=i*10+3;cyl(g,x,2.3,-3.8,.07,4.6,'#5a5e66');const h=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),new THREE.MeshBasicMaterial({color:'#ffe8b0'}));h.position.set(x,4.7,-3.8);g.add(h);const pool=new THREE.Mesh(new THREE.CircleGeometry(2.6,24),new THREE.MeshBasicMaterial({color:'#ffe8b0',transparent:true,opacity:.12,depthWrite:false}));pool.rotation.x=-Math.PI/2;pool.position.set(x,.02,-3.8);g.add(pool);R.lamps.push({h,pool});}
+ // fish boxes / ice / cooler props
+ for(let i=0;i<6;i++)box(g,-2+(i%3)*.8,.18+Math.floor(i/3)*.36,7.2,.7,.34,.5,'#2a6ab0');
+ tBench(g,key,-20,4,0);
+ tPerson(g,key,-10.5,7.4,{name:'漁協のおじさん',hat:'#2a4a7a',c:['#e8e4d8','#2a3a5a','#2a2a2a'],face:Math.PI,lines:['舞阪の港は、しらす漁がいちばん有名なんだ。',['夜はタチウオ、春はしらす。','……最近は、魚群探知機のナビまでたまに言うこと聞かんでな。']]});
+ tPerson(g,key,19.5,6.4,{name:'漁師の奥さん',c:['#c86a6a','#3a3a4a','#3a2a1e'],face:Math.PI,col:'#ff9a9a',lines:['うちの人は「第三 天竜丸」の船長なんだよ。',['大漁旗、きれいでしょ？','あれはうちの船の名前入り。']]});
+ tPerson(g,key,-18,-4.2,{name:'夜釣りのお客さん',hat:'#5a5a2a',c:['#4a5a3a','#2a2a30','#1a1a1a'],face:0,lines:['タチウオは、エサを下から食い上げてくるんだ。ウキがふわっと浮いたら、それがアタリさ。',['指の本数で大きさをはかるんだよ。','指4本で「ドラゴン級」ってね。']]});
+ tTravel(key,-22,9,'舞阪駅',[{n:'電車で 浜松へ',to:'hama',x:14,z:6,face:Math.PI,via:'train'},{n:'電車で 弁天島へ',to:'hamanako',x:14,z:6,face:Math.PI,via:'train'}]);
+ // story interactions
+ [[3,-4.6],[9,-4.6]].forEach(([x,z],k)=>INTER.push({room:key,x,z,r:1.3,label:'さおを出す',hide:()=>!FL.ch2||FL.ch2out,fn:()=>ch2Fish(k)}));
+ INTER.push({room:key,x:-6,z:6,r:1.5,label:'掲示板',fn:async()=>{await say('sys','「セリのご案内　毎朝 05:30 開始」……その下に小さく「製氷所の管理番号は、セリの開始時刻」と書いてある。');if(FL.ch2out&&!FL.c2board){FL.c2board=1;await say(ACTR()==='molly'?'mist':'volt','05:30……4ケタなら「0530」だな！');}}});
+ INTER.push({room:key,x:4.4,z:8.2,r:1.4,label:'製氷所の端末',fn:()=>ch2Ice()});
+ INTER.push({room:key,x:17.6,z:8.9,r:1.4,label:'漁業無線の端末',fn:()=>ch2Radio()});
+ INTER.push({room:key,x:21,z:-3.8,r:1.4,label:'大漁旗',fn:async()=>{await say('sys','風にはためく大漁旗。「大漁」の文字と、船の名前「第三 天竜丸」。');if(FL.ch2out&&!FL.c2flag){FL.c2flag=1;await say(ACTR()==='molly'?'mist':'volt','帰ってこれない船の名前、これだ。「第三 天竜丸」！');}}});
+}
+function c2Lamps(on){const R=ROOMS.maisaka;if(!R)return;R.lamps.forEach(l=>{l.h.material.color.set(on?'#ffe8b0':'#22242a');l.pool.visible=on;});if(R.iceLamp)R.iceLamp.material.color.set(on?'#7dff9a':'#ff3b5c');if(R.radioScr)R.radioScr.material.color.set(on?'#7dff9a':'#ff3b5c');}
+function ch2Obj(){const t=(k,s)=>(FL[k]?'✔ ':'・ ')+s;
+ if(!FL.ch2out)return 'タチウオを釣ってみよう（ウキを見て、アタリを見きわめる）<br>'+t('c2fL','レオ')+'　'+t('c2fM','モリー');
+ if(!(FL.c2ice&&FL.c2radio))return '港のナビがオペレーターから切られた！<br>'+t('c2ice','製氷所の端末を復旧（管理番号）')+'<br>'+t('c2radio','漁業無線で「第三 天竜丸」を呼ぶ');
+ if(PH!=='c2net')return '漁協の前の光るパネルに2人で立とう（ダイブ）';
+ return '舞阪港ネットを進もう<br>奥にいる港の管理ナビのもとへ';}
+async function ch2Arrive(c){if(FL.ch2||busyStory)return;
+ if(!FL.reqAll){await say(c===MOLLY?'mist':'volt','（スマホ）週末の夜にお父さんたちと来る約束だろ？　先に街の頼まれごとを片付けちまおうぜ。');return;}
+ await ch2Start();}
+async function ch2Start(){FL.ch2=1;busyStory=true;PH='c2';const R=ROOMS.maisaka;
+ placeHuman(LEO,'maisaka',2,-3.4,Math.PI);placeHuman(MOLLY,'maisaka',4,-3.4,Math.PI);if(DAD)placeHuman(DAD,'maisaka',7,-3.4,Math.PI);if(BRO1)placeHuman(BRO1,'maisaka',9,-3.4,Math.PI);
+ ACT='leo';ACTC=LEO;enterRoomScene();c2Lamps(true);camShot(R.ox+5,R.oz-2,.3,.22,6.5);
+ await chapter('CHAPTER 2','舞阪漁港の夜');
+ await say('sys','土曜日の夜。舞阪漁港。港の灯りが、黒い海にゆらゆら映っている。');
+ await say('dad','よし、ここらでいいだろう。今夜はタチウオだ。');
+ await say('bro1','兄ちゃん、エサはキビナゴね。モリーちゃんのぶんも付けといた。');
+ await say('molly','ありがとう！　……夜の港って、なんかドキドキするね。');
+ await say('dad','タチウオはな、下からエサを食い上げてくる。ウキが「ふわっ」と浮いたら、それがアタリだ。');
+ await say('leo','あわてて「ぴくぴく」で合わせると、エサだけ取られるんだよな。');
+ await say('volt','（スマホ）オレは魚群探知機のデータ、のぞいとくぜ！');await say('mist','（スマホ）モリー、がんばって！');
+ objective2(ch2Obj());busyStory=false;tryLock();}
+const C2CUE=[['ウキが、ぴくぴく小さくゆれている……',0],['ウキが、ふわっと浮きあがった！',1],['ウキが、すーっと横に走った……',0],['ウキが、ぐぐっと深く沈んだ！',1],['波で、ウキがゆらゆらしている……',0]];
+async function ch2Fish(k){const me=ACTR()==='molly'?'molly':'leo';const fk=me==='molly'?'c2fM':'c2fL';
+ let bait=3,got=0;await say('sys','さおを出した。……アタリを見きわめて「今だ！」で合わせよう。（エサは3つ）');
+ while(bait>0&&!got){const cue=C2CUE[Math.floor(Math.random()*C2CUE.length)];await say('sys',cue[0]);const i=await choose('どうする？',['今だ！　合わせる','まだ待つ']);
+  if(i===0&&cue[1]){got=1;}else if(i===0){bait--;SFX('hurt');await say('sys','……スカッ。エサだけ取られた。（のこりエサ '+bait+'）');}else if(cue[1]){bait--;await say('sys','……あっ、エサだけ持っていかれた！（のこりエサ '+bait+'）');}else await say('sys','……じっと待つ。');}
+ if(!got){await say(me,me==='molly'?'うう……タチウオ、むずかしい。':'くっ……エサ全部取られた。');await say('bro1','もう一回やってみなよ。エサならまだあるから。');return;}
+ const f=(3+Math.random()*2).toFixed(1);SFX('bust');await say('sys','ギラッと銀色に光る、タチウオが上がった！　指 '+f+' 本！');
+ if(me==='molly'){await say('molly','やった！　見て見て、銀色でキラキラしてる！');await say('dad','おお、モリーちゃんやるな！　指'+f+'本は立派だ。');}
+ else{await say('leo','よっしゃ！　指 '+f+' 本！');await say('dad',+f>=4?'ほう……ドラゴン級に近いな。':'まあまあだな。お父さんの記録は、まだ遠いぞ。');}
+ if(!FL[fk]){FL[fk]=1;saveGame();}objective2(ch2Obj());
+ if(FL.c2fL&&FL.c2fM&&!FL.ch2out)setTimeout(()=>{const go=()=>{if(DLGS||busyStory||CHOICE){setTimeout(go,300);return;}ch2Blackout();};go();},600);}
+async function ch2Blackout(){FL.ch2out=1;busyStory=true;
+ await say('bro1','よし、2人とも釣れたね。そろそろ――');
+ SFX('hurt');c2Lamps(false);flashScreen(.4);shakeT=.3;await wait(400);
+ await say('sys','……バチン。港じゅうの灯りが、いっせいに消えた。');
+ await say('molly','えっ……！？　まっくら……！');
+ await say('volt','（スマホ）レオ！　港じゅうのナビの反応が……ぜんぶ、オペレーターから切れてる！');
+ await say('mist','（スマホ）製氷所も、無線も、灯りも……みんな「主人の声が聞こえない」って言ってる！');
+ await say('sys','漁協のおじさんが、事務所から飛び出してきた。');
+ await say('dad','おーい、どうした！');
+ await say('sys','漁協のおじさん「製氷機が止まった！　朝のセリに氷がなきゃ、魚がぜんぶだめになっちまう！」');
+ await say('sys','漁師の奥さん「たいへん！　うちの人の船、『第三 天竜丸』がまだ海の上なの！　GPSが狂って、この暗さじゃ港に戻れない！」');
+ await say('leo','……ダムのときと同じだ。ナビとオペレーターのつながりが、切られてる。');
+ await say('molly','手分けしよう、レオ。わたしは無線で船を呼ぶ。');
+ await say('leo','オレは製氷所だ。……お父さん、弟1、奥さんのそばにいてあげて。');
+ await say('dad','わかった。気をつけろよ。');
+ objective2(ch2Obj());busyStory=false;tryLock();}
+async function ch2Ice(){if(!FL.ch2out){await say('sys','製氷所の端末。「ICE PLANT — 運転中」');return;}if(FL.c2ice){await say('sys','「ICE PLANT — 管理番号 認証済み」');return;}
+ await say('sys','製氷所の端末。「ICE PLANT — オペレーター応答なし。管理番号を入力してください」');
+ const i=await choose('管理番号は？',['0530','0800','1530','やめる']);if(i===3)return;
+ if(i===0){SFX('bust');FL.c2ice=1;await say('sys','ピピッ！「管理番号 認証OK」');await say(ACTR()==='molly'?'mist':'volt','（スマホ）よし、製氷所のネットへの入口が開いた！');c2Check();}
+ else{SFX('hurt');await say('sys','ブブー！「管理番号がちがいます」');await say(ACTR()==='molly'?'mist':'volt','（スマホ）漁協の前の掲示板に、なんか書いてあったよな？');}}
+async function ch2Radio(){if(!FL.ch2out){await say('sys','漁業無線の端末。「沿岸無線 — 受信中」');return;}if(FL.c2radio){await say('sys','「呼び出し中……第三 天竜丸、応答待ち」');return;}
+ await say('sys','漁業無線の端末。「オペレーター応答なし。呼び出す船の名前を選んでください」');
+ const i=await choose('呼び出す船は？',['第五 浜名丸','福寿丸','第三 天竜丸','やめる']);if(i===3)return;
+ if(i===2){SFX('bust');FL.c2radio=1;await say('sys','ザザッ……「こちら第三 天竜丸！　まっくらで港の位置がわからん！　GPSも変な場所を指しとる！」');
+  await say(ACTR()==='leo'?'leo':'molly','船長さん、聞こえますか！　いま港のシステムを直します。少しだけ、その場で待っててください！');
+  await say(ACTR()==='leo'?'volt':'mist','（スマホ）無線はつながった！　でも、GPSと灯りは港の管理ネットを直さないと……！');c2Check();}
+ else{SFX('hurt');await say('sys','……ザザッ。別の船が「こちら港内、問題なし」と答えた。');await say(ACTR()==='leo'?'volt':'mist','（スマホ）奥さんの船の名前……大漁旗に書いてあったよ！');}}
+function c2Check(){objective2(ch2Obj());if(FL.c2ice&&FL.c2radio&&!FL.c2pads){FL.c2pads=1;const p1=mkPad('maisaka',-15,8),p2=mkPad('maisaka',-13,8);setPads([p1,p2],ch2Dive);setTimeout(()=>{if(!DLGS&&!busyStory)say('sys','漁協の前のパネルが光った。2人で立つと、港の管理ネットへダイブできる。');},400);}}
+async function ch2Dive(){busyStory=true;PADS.forEach(p=>p.m.visible=false);PADS=[];
+ await say('leo','いくぞ、モリー！');await say('molly','うん！　ミスト、お願い！');await say('leo','リンク・ダイブ！');
+ await diveAnim();fade(true);await wait(300);PH='c2net';enterNet('inet');inetWarp(V,'mport');if(NET.on)inetWarp(M,'mport');else{M.x=V.x-1;M.z=V.z-.6;}fade(false);
+ await chapter('NET AREA','舞阪港ネット');
+ await say('volt','ここが港の管理ネット……灯りも、製氷機も、船のGPSも、ぜんぶここで動いてるのか。');
+ await say('mist','ボルト、見て。港のナビたち……みんな、同じ黒いコードにからまれてる。');
+ await say('volt','ダムのナビと同じだ。……奥に、港の管理ナビの反応がある。いくぞ！');
+ objective2(ch2Obj());busyStory=false;tryLock();}
+async function ch2End(){busyStory=true;
+ await say('sys','……ネットの奥の暗がりから、紫の影がにじみ出た。');
+ await say('shade','……港ヒトツ分ノ ナビヲ、マトメテ 切断。実験ハ 成功ダ。');
+ await say('volt','だれだ！？　……実験だと！？');
+ await say('shade','オレハ シェイド。「ロストリンク」ノ 幹部。……ナビヲ、人間ノ 鎖カラ 解キ放ツ 者ダ。');
+ await say('mist','鎖……？　わたしたち、モリーやレオに縛られてなんかいない！');
+ await say('shade','ソウ 思イコマサレテ イルダケダ。……〈ゼロ〉様ガ 目覚メレバ、スベテノ ナビハ 自由ニナル。人間ノ 命令ナド、モウ イラナイ。');
+ await say('volt','ゼロ……？　ふざけんな！　港の人たちが、どれだけ困ったと思ってる！');
+ await say('shade','次ハ モット 大キク 切ル。……ソノ時、オマエタチハ 主人ノ 声ヲ 覚エテ イラレルカナ。');
+ SFX('phase');await say('sys','シェイドは、ノイズのように消えた。');
+ await say('mist','……ロストリンク。ダムも、港も、あいつらのしわざだったんだ。');
+ await jackOut();busyStory=true;FL.ch2done=1;PH='c2free';
+ placeHuman(LEO,'maisaka',-14,6,Math.PI);placeHuman(MOLLY,'maisaka',-12.6,6,Math.PI);ACT='leo';ACTC=LEO;enterRoomScene();
+ c2Lamps(true);SFX('bust');const R=ROOMS.maisaka;
+ await say('sys','港に、灯りがもどった。製氷機が、ゴウンと動きだす。');
+ if(R.boat3){R.boat3.visible=true;const b=R.boat3,t0=performance.now();await new Promise(res=>{const st=()=>{const k=Math.min(1,(performance.now()-t0)/2600);b.position.set(40+(R.emptyBerth[0]-40)*k,0,-26+(R.emptyBerth[1]+26)*k);if(k<1)requestAnimationFrame(st);else res();};st();});}
+ await say('sys','暗い海の向こうから、「第三 天竜丸」がゆっくりと港に入ってきた。');
+ await say('sys','漁師の奥さん「あんた！　……よかった、本当によかった……！」');
+ await say('molly','……よかったぁ。');
+ await say('sys','漁協のおじさん「氷も間に合う！　朝のセリ、ちゃんとできるぞ！　ありがとうな、ナビの子ら！」');
+ await say('dad','……レオ、モリーちゃん。ようやった。');
+ await say('bro1','兄ちゃん、ボルトのやつ、だんだん頼もしくなってきたね。');
+ await say('volt','（スマホ）へへっ。……でもよ、シェイドのやつ「次はもっと大きく切る」って言ってた。');
+ SFX('chip');await say('sys','（ピロリン）レオのスマホに着信。');await say('leo','……ろーじーだ。');
+ await say('roji','（電話）レオ、港の件、ニュースで見た。……ひとつ、わかったことがある。');
+ await say('roji','（電話）ダムも、港も、止まったシステムの保守をしてたのは、全部同じ会社だ。……「九条ネットワークス」。');
+ await say('molly','九条ネットワークス……！　うちの会社のPCにも、あそこの管理者アカウントがあった。');
+ await say('roji','（電話）偶然にしちゃ、できすぎてる。……おれはもう少し掘ってみる。そっちも気をつけてくれ。');
+ await say('leo','……ロストリンクと、九条ネットワークス。なにか、つながってるのか。');
+ await say('dad','……今夜はもう遅い。タチウオ、塩焼きにして食うぞ。モリーちゃんも寄っていきなさい。');await say('molly','はい！');
+ if(DAD)placeHuman(DAD,'factory',1,-.6,Math.PI);if(BRO1)placeHuman(BRO1,'factory',-3,2,Math.PI);
+ SAVE.ch2=1;saveGame();busyStory=false;
+ showResult('第2章 クリア','<div style="font-size:20px;font-weight:900;margin:8px 0">舞阪漁港の夜</div>港を止めたのは、ナビと人を切りはなす「ロストリンク」。<br>第3章「止まった遠州鉄道」は制作中です。',()=>{objective2('自由行動：浜松の街を歩いてみよう<br>（第3章は制作中）');tryLock();});}
+// net area
+defArea('mport',[-600,1500],{n:'舞阪港ネット',spawn:[0,-2],col:'#5ad8ff',areas:[['舞阪港ネット',[-8,-8,8,40]],['しらす倉庫データ',[8,12,30,26]],['防波堤データ',[-12,40,12,64]]],build(A){
+ AK.floor(A,[-6,-6,6,6],AK.tex.beach,'#5ad8ff','#04121e');AK.floor(A,[-3.5,6,3.5,42],AK.tex.beach,'#5ad8ff','#04121e',6);
+ AK.floor(A,[3.5,14,16,20],AK.tex.sand,'#ffd27a','#04121e');AK.floor(A,[16,10,30,26],AK.tex.beach,'#ffd27a','#04121e');
+ AK.floor(A,[-12,42,12,64],AK.tex.beach,'#5ad8ff','#04121e');
+ AK.water(A,36,30,60,90,-1.2);AK.water(A,-36,30,60,90,-1.2);
+ AK.route(A,[[0,-3],[0,58]],'#5ad8ff');
+ const lh=new THREE.Group();lh.position.set(A.o[0]+9,0,A.o[1]+60);field.add(lh);wbox(1.6,10,1.6,'#f0f4ff',0,5,0,lh);wbox(1.7,1.2,1.7,'#d83a3a',0,7.4,0,lh);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.7,12,10),new THREE.MeshBasicMaterial({color:'#fff6c0'}));lamp.position.y=10.8;lh.add(lamp);WANIM.push((dt,t)=>{lamp.material.color.set(FL.ch2done||Math.floor(t*1.5)%2?'#fff6c0':'#3a3420');});
+ AK.sign(A,[['舞阪港','#fff'],['MAISAKA PORT NET','#5ad8ff',24]],0,3,6.05,Math.PI,5,1.5,'#04121e','#5ad8ff');
+ envRing(A.o[0],A.o[1]+30,100,160,30,['#0a2a4a','#5ad8ff','#ffd27a'],8,40);
+ addZone(A,{req:1,x:0,z:16,r:7.5,list:[['bitton',-3,2],['sparkle',3,2],['shielder',0,-1]]});
+ addZone(A,{x:23,z:18,r:6.5,list:[['phantom',-2,0],['driller',2,0],['medic',0,2]]});
+ addZone(A,{req:1,x:0,z:32,r:7,list:[['driller',-3,0],['driller',3,0],['sparkle',0,2],['bitton',0,-2]]});
+ addZone(A,{req:1,navi:'wavem',x:0,z:52,r:9,srv:[9,46],list:[['wave',0,3]]});
+ addMD({id:'mp_shirasu',x:A.o[0]+27,z:A.o[1]+22,c:{chip:['bubble','B']}});addMD({id:'mp_road',x:A.o[0]-2,z:A.o[1]+38,c:{z:900}});addMD({id:'mp_hp',x:A.o[0]-9,z:A.o[1]+60,c:{hp:'V'}});
+ addHeal(A.o[0],A.o[1]+42);}});
+Object.assign(NAVI_TALK,{wavem:{pre:[['wave','……ダレ……？　ゴシュジン……ノ……コエガ……キコエナイ……。'],['mist','港の管理ナビ……！　黒いコードで、オペレーターとのつながりを切られてる！'],['volt','うしろの港湾サーバーまで真っ黒だ。灯りも、製氷機も、GPSも、こいつが抱えこんでる！'],['wave','ダレモ……港ニ……チカヅクナ……！　ヒトリデ……マモル……！'],['volt','ひとりで抱えこむな！　そのコード、ふっとばしてやる！']],
+  post:[['wave','……ハッ。わたしは……港は、船は……！？'],['mist','だいじょうぶ。いま、灯りも製氷機も戻っていくよ。'],['wave','黒いコードが入ってきて……漁協のみなさんの声が、急に聞こえなくなったんです。'],['wave','聞こえないのに、「港を守れ」って命令だけが頭の中で響いて……。'],['volt','……それが、つながりを切るコードってやつか。'],['wave','助けてくれて、ありがとう。お礼に、これを。港を守る、わたしのデータです。']],reward:['wavek','W']}});
+
 // URA deep (postgame)
 defArea('urad',[-300,1160],{n:'ウラ 深層',spawn:[0,-2],col:'#ff5aff',areas:[['ウラ 深層',[-24,-8,24,80]]],build(A){
  const F=(r,c)=>AK.floor(A,r,AK.tex.ura,c||'#ff5aff','#05020a');F([-6,-6,6,6]);F([-3,6,3,24]);F([-14,24,14,40]);F([-3,40,3,52]);F([-16,52,16,78]);
@@ -2432,7 +2651,7 @@ function buildTenryu0(){const key='tenryu0';const g=outdoorBase(key,{ox:-1200,oz
  // upstream dam silhouette + mountains
  const dam=new THREE.Group();dam.position.set(-34,0,-40);g.add(dam);box(dam,0,7,0,30,14,4,'#5a6070');for(let i=0;i<5;i++)box(dam,-10+i*5,5,2.05,3,6,.2,'#3a3e48');box(dam,0,14.3,0,30.5,.5,4.4,'#7a808e');
  [-10,-5,0,5,10].forEach(x=>{const l=new THREE.Mesh(new THREE.SphereGeometry(.35,8,6),new THREE.MeshBasicMaterial({color:'#ff4f5f'}));l.position.set(x,9,2.2);l.userData.glow=1;dam.add(l);});
- if(KK.ready){for(let i=0;i<9;i++)kk(['mountain_C_grass_trees','mountain_A_grass_trees','mountain_B_grass_trees'][i%3],g,-90+i*22+rnd(-5,5),0,rnd(-62,-46),{h:rnd(16,26),ry:rnd(0,6),cast:false});for(let i=0;i<14;i++)kk(['trees_A_medium','tree_single_A','trees_B_medium','tree_single_B'][i%4],g,-26+i*4+rnd(-1,1),0,-14.5+rnd(-1.5,1),{h:rnd(4,6.5),ry:rnd(0,6)});[[-13,3.5],[13.5,3.8]].forEach(([x,z],i)=>{kk(i%2?'tree_single_B':'tree_single_A',g,x,0,z,{h:3.8,ry:i});block(key,x,z,.6,.6);});for(let i=0;i<10;i++)kk(['rock_single_A','rock_single_C','rock_single_E'][i%3],g,rnd(-12,12),0,rnd(-10.5,-4),{h:rnd(.35,.9),ry:rnd(0,6)});}
+ if(KK.ready){for(let i=0;i<9;i++)kk(['mountain_C_grass_trees','mountain_A_grass_trees','mountain_B_grass_trees'][i%3],g,-90+i*22+rnd(-5,5),0,rnd(-62,-46),{h:rnd(16,26),ry:rnd(0,6),cast:false});for(let i=0;i<14;i++)kk(['trees_A_medium','tree_single_A','trees_B_medium','tree_single_B'][i%4],g,-26+i*4+rnd(-1,1),0,-14.5+rnd(-1.5,1),{h:rnd(4,6.5),ry:rnd(0,6)});[[-13,3.5]].forEach(([x,z],i)=>{kk(i%2?'tree_single_B':'tree_single_A',g,x,0,z,{h:3.8,ry:i});block(key,x,z,.6,.6);});for(let i=0;i<10;i++)kk(['rock_single_A','rock_single_C','rock_single_E'][i%3],g,rnd(-12,12),0,rnd(-10.5,-4),{h:rnd(.35,.9),ry:rnd(0,6)});}
  else for(let i=0;i<12;i++){const m=new THREE.Mesh(new THREE.ConeGeometry(rnd(8,14),rnd(12,22),6),new THREE.MeshBasicMaterial({color:['#2e4a3a','#34503e','#2a4234'][i%3]}));m.position.set(rnd(-80,80),5,rnd(-55,-42));g.add(m);}
  // street lamps on the levee
  [-9,0,9].forEach(x=>{box(g,x,1.6,1.2,.12,3.2,.12,'#4a4a52');const l=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),new THREE.MeshBasicMaterial({color:'#ffe8b0'}));l.position.set(x,3.25,1.2);l.userData.glow=1;g.add(l);block(key,x,1.2,.3,.3);});
@@ -2491,7 +2710,7 @@ async function nc1Lizards(){
  else phoneSend('molly','ヒーターにウイルス入ってた……。最近、多くない？');
  SFX('chip');FL.pc_molly=1;nc1Check();}
 async function nc1TV(who){await say('news','浜松市内で、信号機やATMなど、ネットにつながる機器の不具合があいついでいます。');await say('news','ネットインフラ大手「九条ネットワークス」の九条レイジ社長に話を聞きました。');
- await say('kujo','（テレビ）街のネットは、人の暮らしそのものです。だれかが、しっかりと管理しなければなりません。……だれかが。');
+ await say('kujo','（テレビ）ナビは、人の命令に縛られすぎている。……ナビが、自分で選ぶ時代が来るべきなのです。');await say('kujo','（テレビ）そのために、だれかが街のネットをしっかりと管理しなければなりません。……だれかが。');
  if(!FL.kujoTV){FL.kujoTV=1;await say(who==='leo'?'volt':'mist',who==='leo'?'……ずいぶん自信満々な社長だな。':'この人、日本中のネットの会社をまとめてるんだって。');}}
 async function nc1Door(who){const c=doorC(who==='leo'?LEO:MOLLY);const me=c===MOLLY?'molly':'leo';
  if(PH==='rooms0'||PH==='intro'){await say(me,me==='leo'?'……先に、部屋のPCを見とこう。':'……トカゲたちの様子を見てからにしよう。');return;}
@@ -2524,7 +2743,7 @@ async function nc1FactoryIntro(){if(FL.f_intro)return;FL.f_intro=1;const pa=NET.
  await Promise.all([walkBoth('factory',[-3.4,3.4,Math.PI*.85],[-2.5,3.55,Math.PI*.9]),walkTo(DAD,'factory',-1.7,1.45,-Math.PI*.2)]);
  await talkDad();}finally{busyStory=false;NET.actor=pa&&busyStory?pa:null;}}
 async function talkDad(){
- if(FL.nc1done){await say('dad','水が戻って、機械も全部動いとる。……レオ、モリーちゃん、ありがとな。');return;}
+ if(FL.nc1done){if(reqAvail('dad')){await reqTalk('dad','dad');return;}await say('dad','水が戻って、機械も全部動いとる。……レオ、モリーちゃん、ありがとな。');return;}
  if(!FL.f_dad){FL.f_dad=1;await say('dad','おう、レオ。モリーちゃんも来てくれたか。休みの日に悪いな。');await say('molly','おじさん、おはようございます。機械、止まっちゃったって……。');
   await say('dad','朝イチで全部止まった。冷却水が来とらんのだ。水がなきゃ、機械が熱くなって動かせん。');await say('dad','業者にも電話したが、今日は市内のあちこちでネットの不具合が出とって、手が回らんらしい。');
   await say('leo','ボルトで中を見てみるよ。');await say('dad','頼む。……おーい、弟1！　レオたちにチップ渡してやれ。');SFX('chip');objective2(nc1Obj());return;}
@@ -2535,7 +2754,13 @@ async function talkBro1(){
   await say('sys','バトルチップ「キャノン」「ソード」「リカバリー50」を手に入れた！');
   await say('bro1','チップは、バトル中のカスタム画面で選んで使うんだ。ゲージがたまれば、また選べる。');
   await say('bro1','もらったチップは、F のフォルダ画面でフォルダに入れておいてね。');objective2(nc1Obj());return;}
- await say('bro1','チップがもっとほしくなったら言って。素材があれば、ここで作れるからさ。');}
+ await bro1LibReward();}
+const LIB_MS=[[10,{chip:['hicannon','*'],t:'ハイキャノン *'}],[18,{chip:['recov80','*'],t:'リカバリー80 *'}],[26,{chip:['invis','*'],t:'インビジブル *'}],[34,{chip:['mcannon','*'],t:'メガキャノン *'}],[42,{chip:['fullheal','*'],t:'フルリカバリー *'}]];
+async function bro1LibReward(){const n=LIB.size;SAVE.x=SAVE.x||{};const got=SAVE.x.libMs=SAVE.x.libMs||{};const next=LIB_MS.find(([k])=>!got[k]);
+ const due=LIB_MS.filter(([k])=>n>=k&&!got[k]);
+ if(due.length){for(const [k,rw] of due){got[k]=1;await say('bro1','ライブラリ '+k+'種類！　よく集めたね。これ、ボルトの調整のついでに作っといたやつ。');tGive({chip:rw.chip});await say('sys','チップ「'+rw.t+'」を手に入れた！');}saveGame();return;}
+ if(next)await say('bro1','いまライブラリ '+n+'種類か。'+next[0]+'種類そろったら、また見せてよ。いいチップ作っとくから。');
+ else await say('bro1','ライブラリ '+n+'種類……兄ちゃんたち、もうコレクターだね。');}
 async function talkFactoryCtrl(){
  if(FL.nc1done){await say('sys','制御盤。緑のランプが点いている。');return;}
  if(FL.f_cause){await say('volt','原因は天竜川だ。裏口から河原へ行こうぜ！');return;}
@@ -2578,12 +2803,37 @@ async function nc1End(){FL.nc1done=1;FL.nc1River=1;busyStory=true;await jackOut(
  await say('roji','（電話）よう、レオ。ニュース見たぞ。天竜川、干上がってたんだって？');
  await say('leo','ああ。ダムのナビがノイズに乗っ取られてた。今、ボルトとミストで止めたとこ。');
  await say('roji','（電話）……やっぱりか。実は今朝、名古屋でも東京でも、同じような「止まる事件」が起きてる。どれも、同じ形のノイズだ。');
- await say('roji','（電話）偶然じゃない。だれかが、街の機械を止める「練習」をしてる。……おれのほうでも調べてみる。何かわかったら連絡するよ。');
+ await say('roji','（電話）しかも、止まった機械のナビはみんな「オペレーターの声が聞こえなくなった」って言ってるらしい。'); await say('roji','（電話）偶然じゃない。だれかが、ナビと人のつながりを切るコードを試してる。……おれのほうでも調べてみる。何かわかったら連絡するよ。');
  await say('molly','ろーじーくん、ありがとう。気をつけてね。');await say('roji','（電話）そっちもな。');
- await say('volt','街の機械を止める、練習……？');await say('leo','……なんか、いやな予感がするな。');
+ await say('volt','ナビと人のつながりを、切る……？');await say('leo','……なんか、いやな予感がするな。');
  PH='nc1free';SAVE.nc1=1;saveGame();busyStory=false;
- showResult('第1章 クリア','<div style="font-size:20px;font-weight:900;margin:8px 0">干上がった天竜川</div>第2章「止まった街」は制作中です。<br>それまでは、浜松の街や工場を自由に歩けます。',()=>{objective2('自由行動：浜松の街や工場を歩いてみよう<br>（第2章は制作中）');tryLock();});}
+ showResult('第1章 クリア','<div style="font-size:20px;font-weight:900;margin:8px 0">干上がった天竜川</div>浜松の街の人たちが、ナビの不調で困っているみたい。<br>頼まれごとを解決すると、第2章「舞阪漁港の夜」へ。',()=>{objective2(reqObj());tryLock();});}
 
+// ===== 頼まれごと：進行 =====
+let REQ_ON=null;
+function reqState(id){return FL['rq_'+id]?(FL['rqd_'+id]?2:1):0;}
+function reqAvail(id){const q=REQS[id];return q&&q.need()&&!FL['rqd_'+id];}
+function reqCount(){return REQ_IDS.filter(id=>FL['rqd_'+id]).length;}
+function reqObj(){const n=reqCount();return '自由行動：浜松の街で頼まれごとを解決しよう（'+n+'/'+REQ_IDS.length+'）<br>'+REQ_IDS.map(id=>(FL['rqd_'+id]?'✔ ':'・ ')+REQS[id].t+'（'+REQS[id].giver+'）').join('<br>')+(n>=REQ_IDS.length?(FL.ch2done?'<br>（第3章は制作中）':'<br>→ 週末の夜、舞阪漁港へ（電車で「舞阪」へ）'):'');}
+function reqSay(q,who,t){return say(who==='g'?(q.gw||'sys'):who,t);}
+async function reqTalk(id,gw){const q=REQS[id];q.gw=gw||q.gw;if(REQ_ON){await say('sys','（いまは別の頼まれごとの途中だ）');return;}
+ if(q.mollyOnly&&ACTR&&ACTR()!=='molly'){await say('leo','モリーのPCだ。……勝手にさわるのはやめとこう。');return;}
+ for(const [w,t] of q.intro)await reqSay(q,w,t);
+ const i=await choose('「'+q.t+'」を引き受ける？',['引き受ける','あとで']);if(i!==0){await say(q.mollyOnly?'mist':'volt','わかった。準備ができたら、また話しかけてくれ。');return;}
+ FL['rq_'+id]=1;saveGame();await reqDive(id);}
+async function reqDive(id){const q=REQS[id];busyStory=true;REQ_ON=id;const me=q.mollyOnly?'molly':(ACTR&&ACTR()==='molly'?'molly':'leo');
+ await say(me,me==='molly'?'ミスト、プラグイン！':'ボルト、プラグイン！');SFX('phase');flashScreen(.3);await wait(250);fade(true);await wait(350);
+ const z=REQZ[id];z.clear=false;z.act=false;z.parts=null;z.x=z.hx;z.z=z.hz;
+ enterNet('inet');inetWarp(V,'dev');if(NET.on)inetWarp(M,'dev');else{M.x=V.x-1;M.z=V.z-.6;}
+ fade(false);await chapter('PLUG-IN',q.dev+' のネット');for(const [w,t] of q.net)await say(w,t);
+ objective2('頼まれごと：'+q.t+'<br>奥のウイルスをデリートしよう');busyStory=false;tryLock();}
+async function reqClear(id){const q=REQS[id];const until=()=>!paused&&!DLGS&&$('bust').classList.contains('hide')&&!busyStory;for(let k=0;k<400&&!until();k++)await wait(150);
+ busyStory=true;for(const [w,t] of (q.after||[['volt','よし、デリート完了！'],['mist','これで直るはずだよ。']]))await say(w,t);
+ await jackOut();busyStory=true;FL['rqd_'+id]=1;REQ_ON=null;
+ for(const [w,t] of q.done)await reqSay(q,w,t);tGive(q.rw);SFX('chip');await say('sys',q.rw.t+' を手に入れた！');
+ saveGame();busyStory=false;objective2(reqObj());
+ if(reqCount()>=REQ_IDS.length&&!FL.reqAll){FL.reqAll=1;await say('volt','（スマホ）レオ、浜松じゅうで、ナビがオペレーターの声を聞けなくなってる。……偶然じゃねえよな。');await say('mist','（スマホ）ダムも、センサーも、旋盤も。同じ「知らないコード」の切れはしが残ってた。');await say('leo','……週末の舞阪、ちょっと気をつけていこう。');busyStory=false;objective2('週末の夜：お父さんたちと舞阪漁港へタチウオ釣りに<br>（浜松駅か弁天島駅から、電車で「舞阪」へ）');}
+ tryLock();}
 // ===================== TOWNS：街の散策（浜松・浜名湖・静岡空港／ウルサン・ウルサン空港・明洞）=====================
 const TPEOPLE=[],TSPARK=[];let TP_N=0;
 const TOWN_NAME={hama:'浜松',hamanako:'浜名湖（弁天島）',fsz:'静岡空港',ulsan:'ウルサン',usn:'ウルサン空港',myeong:'明洞（ソウル）'};
@@ -2611,7 +2861,7 @@ function tPerson(g,key,x,z,o){const p=new THREE.Group();p.position.set(x,0,z);p.
  const hair=new THREE.Mesh(new THREE.SphereGeometry(.19,16,12,0,Math.PI*2,0,Math.PI*.55),toon(o.c[2]||'#2a1e18'));hair.position.y=1.63*h;hair.rotation.x=-.25;p.add(hair);
  if(o.hat){const ht=new THREE.Mesh(new THREE.CylinderGeometry(.2,.22,.12,14),toon(o.hat));ht.position.y=1.78*h;p.add(ht);}
  block(key,x,z,.6,.6);const who='tp'+(TP_N++);DLG[who]={n:o.name,img:null,col:o.col||'#ffd27a'};TPEOPLE.push({p,key,ph:Math.random()*6,face0:o.face||0,o,kid:(o.h||1)<.9});
- let i=0;INTER.push({room:key,x,z,r:1.4,label:o.name,fn:async()=>{const t=o.lines[i%o.lines.length];i++;for(const ln of (Array.isArray(t)?t:[t]))await say(who,ln);}});return p;}
+ let i=0;INTER.push({room:key,x,z,r:1.4,label:o.name,fn:async()=>{const rq=REQ_IDS.find(id=>REQS[id].town===key&&REQS[id].giver===o.name);if(rq&&reqAvail(rq)){await reqTalk(rq,who);return;}const t=o.lines[i%o.lines.length];i++;for(const ln of (Array.isArray(t)?t:[t]))await say(who,ln);}});return p;}
 function tFind(g,key,id,x,z,label,rw){INTER.push({room:key,x,z,r:1.15,label,fn:async()=>{const F=tFound(),k=key+':'+id;if(F[k]){await say('sys','……もう何もない。');return;}F[k]=1;tGive(rw);SFX('chip');await say('sys',rw.z?rw.z+' ゼニー 見つけた！':'バトルチップ「'+CH[rw.chip[0]].n+' '+rw.chip[1]+'」を見つけた！（パックに入った）');saveGame();}});
  const sp=new THREE.Mesh(new THREE.OctahedronGeometry(.09),new THREE.MeshBasicMaterial({color:'#9dffb0'}));sp.position.set(x,1.25,z);g.add(sp);TSPARK.push({sp,k:key+':'+id,y:1.25});}
 function noiseTex(base,vr,size,opt){opt=opt||{};const c=document.createElement('canvas');c.width=c.height=size||256;const g=c.getContext('2d');g.fillStyle=base;g.fillRect(0,0,c.width,c.height);const id=g.getImageData(0,0,c.width,c.height),d=id.data;for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*vr;d[i]+=n;d[i+1]+=n;d[i+2]+=n;}g.putImageData(id,0,0);
@@ -2638,7 +2888,7 @@ async function travelAnim(via,from,to){if(NET.on&&NET.host&&tActor()===MOLLY){tr
    else if(via==='plane'){g.fillStyle='#f4f6fa';g.fillRect(vx-100,vy-90,200,22);g.beginPath();g.moveTo(vx-40,vy-80);g.lineTo(vx+10,vy-80);g.lineTo(vx-30,vy-40);g.fill();}
    else{g.fillStyle='#f0f2f6';g.fillRect(vx-160,vy-46,320,38);g.beginPath();g.moveTo(vx+160,vy-46);g.quadraticCurveTo(vx+215,vy-40,vx+210,vy-8);g.lineTo(vx+160,vy-8);g.fill();g.fillStyle='#3a6ad8';g.fillRect(vx-160,vy-22,370,5);g.fillStyle='#9fd0ff';for(let i=0;i<9;i++)g.fillRect(vx-150+i*34,vy-40,26,12);}
    if(t<1)requestAnimationFrame(step);else{res();setTimeout(()=>{ov.style.opacity=0;setTimeout(()=>ov.style.display='none',350);},450);}};step();try{SFX('tele');}catch(e){}});}
-function tTravel(key,x,z,label,dests){INTER.push({room:key,x,z,r:1.7,label,fn:async()=>{const opts=dests.map(d=>d.n).concat(['やめる']);const i=await choose(label+'：どこへ行く？',opts);if(i==null||i>=dests.length)return;const d=dests[i];const c=doorC(tActor());await travelAnim(d.via,TOWN_NAME[key],TOWN_NAME[d.to]);await goRoom(c,d.to,d.x,d.z,d.face);}});}
+function tTravel(key,x,z,label,dests){INTER.push({room:key,x,z,r:1.7,label,fn:async()=>{const opts=dests.map(d=>d.n).concat(['やめる']);const i=await choose(label+'：どこへ行く？',opts);if(i==null||i>=dests.length)return;const d=dests[i];const c=doorC(tActor());await travelAnim(d.via,TOWN_NAME[key],TOWN_NAME[d.to]);await goRoom(c,d.to,d.x,d.z,d.face);if(d.to==='maisaka')await ch2Arrive(c);}});}
 function tHome(key,x,z,who,room){INTER.push({room:key,x,z,r:1.4,label:'家に入る',fn:async()=>{const c=doorC(tActor());if((c===LEO&&who!=='leo')||(c===MOLLY&&who!=='molly')){await say('sys','ここは人の家だ。');return;}await goRoom(c,room,-1.6,ROOMS[room].d/2-1.1,Math.PI);}});}
 const TPOOL={chars:[],town:null};const TCARS=[];
 setInterval(()=>{try{document.body.classList.toggle('lbox',!!DLGS&&SCN==='room'&&MODE==='room');}catch(e){}},120);
@@ -2661,7 +2911,7 @@ function buildTowns(){
   [[-24,8],[-17,15],[-12,9],[25,4.8],[-27,-4.8]].forEach(([x,z])=>tTree(g,key,x,z,1));for(let i=-3;i<=3;i++){tLamp(g,i*8,-5.2);tLamp(g,i*8+4,5.2);}
   tVend(g,key,-15,-6.4,0,'#d83a3a');tVend(g,key,3,-6.6,0,'#3a7ad8');tBench(g,key,-20,11,0);
   tHome(key,-21,-6.3,'leo','leoL');
-  tTravel(key,14,7.1,'浜松駅 改札',[{n:'電車で 浜名湖（弁天島）へ',to:'hamanako',x:14,z:5.4,face:Math.PI,via:'train'}]);
+  tTravel(key,14,7.1,'浜松駅 改札',[{n:'電車で 浜名湖（弁天島）へ',to:'hamanako',x:14,z:5.4,face:Math.PI,via:'train'},{n:'電車で 舞阪（漁港）へ',to:'maisaka',x:-20,z:8,face:0,via:'train'}]);
   tTravel(key,-6,5.4,'空港バス のりば',[{n:'バスで 静岡空港へ',to:'fsz',x:-14,z:3.6,face:Math.PI,via:'bus'}]);
   tPerson(g,key,-11,-6.2,{name:'楽器店のお兄さん',c:['#2a4a7a','#2a2a30','#3a2a1e'],face:0,lines:['浜松は「楽器の街」なんだ。ピアノもハーモニカも、この街で作られてるんだよ。',['きみのナビ、音楽はできる？','電子のピアノなら、ネットの中でも弾けるかもね。']]});
   tPerson(g,key,-2,-6.3,{name:'餃子屋のおばちゃん',c:['#e8e0d0','#4a3a5a','#8a8a8a'],face:0,col:'#ff9a7a',lines:['浜松餃子は、まんなかに茹でたもやしをのせるのがお約束！',['ネットナビの子かい？','うちの注文タブレットも、たまにおかしくなるんだよ。ノイズってやつかね。']]});
@@ -2678,7 +2928,7 @@ function buildTowns(){
   tBld(g,key,14,10,10,6,4.6,'#e8e2d4',{f:'n',door:'#9fd0ff',sign:[['弁天島駅','#fff'],['BENTENJIMA','#9fe8ff',22]],sbg:'#1a2a4a',sw:5});
   tBld(g,key,-4,10.5,5,4,3.6,'#5a3a24',{f:'n',door:'#2a1a10',sign:[['うなぎ','#fff'],['かば焼き・うなぎパイ','#ffd27a',22]],sbg:'#3a1a10',sw:4,win:false});
   for(let i=-2;i<=2;i++)tLamp(g,i*9,-3.2,'#ffd8a0');tBench(g,key,2,-2.6,0);tBench(g,key,-6,-2.6,0);
-  tTravel(key,14,6.4,'弁天島駅',[{n:'電車で 浜松へもどる',to:'hama',x:14,z:6,face:Math.PI,via:'train'}]);
+  tTravel(key,14,6.4,'弁天島駅',[{n:'電車で 浜松へもどる',to:'hama',x:14,z:6,face:Math.PI,via:'train'},{n:'電車で 舞阪（漁港）へ',to:'maisaka',x:-20,z:8,face:0,via:'train'}]);
   tPerson(g,key,-12,-9.3,{name:'つり人',hat:'#3a5a3a',c:['#5a6a4a','#3a3a30','#1a1a1a'],face:Math.PI,lines:['浜名湖は、海とつながった「汽水湖」だ。うなぎも、カキも、のりもとれる。',['……最近、湖の水位センサーの調子が悪くてな。','天竜ダムのときみたいに、ネットがおかしいんじゃなきゃいいが。']]});
   tPerson(g,key,4,-2.4,{name:'観光客',c:['#e86a9a','#e8e0d0','#4a2a1a'],face:Math.PI,lines:['弁天島の大鳥居、夕日といっしょに見ると、ほんとにきれい……！','写真とったら、韓国の友だちにも送ろうっと。']});
   tPerson(g,key,-4,7.6,{name:'うなぎ屋さん',c:['#f4f4f4','#2a2a2a','#1a1a1a'],face:Math.PI,lines:['いらっしゃい！　うなぎパイも買ってって。「夜のお菓子」だよ。',['うなぎは、ここ浜名湖が本場！','……なに？　韓国にもうなぎ料理があるって？　へえ〜！']]});
@@ -2741,7 +2991,7 @@ function buildTowns(){
   tPerson(g,key,4.4,-13,{name:'高校生',c:['#2a2a4a','#2a2a30','#1a1a1a'],face:-Math.PI/2,lines:['ウラインターネット？　……そのうわさ、ソウルの子はみんな知ってるよ。','「言えなかった言葉」がたまる場所なんだって。ちょっとこわいよね。']});
   tFind(g,key,'cup',3.8,-6.4,'カップのゴミ箱',{z:500});tFind(g,key,'alley',-5,12.6,'路地のすみ',{chip:['steal','*']});tFind(g,key,'neon',5,11.4,'ネオン看板の下',{z:900});}
 }
-const _buildHome0=buildHome;buildHome=async function(){await _buildHome0();try{await loadKK();}catch(e){}try{if(!MOLLY.tripo)recolorChar(MOLLY,{Tops:'#46506e',Bottoms:'#2a2d38',Shoes:'#1c1c22'});}catch(e){}try{await buildTPool();}catch(e){}try{buildBeach();buildTenryu();buildBamboo();buildTenryu0();buildFactory();}catch(e){console.warn('outdoor',e);}try{buildTowns();}catch(e){console.warn('towns',e);}};
+const _buildHome0=buildHome;buildHome=async function(){await _buildHome0();try{await loadKK();}catch(e){}try{if(!MOLLY.tripo)recolorChar(MOLLY,{Tops:'#46506e',Bottoms:'#2a2d38',Shoes:'#1c1c22'});}catch(e){}try{await buildTPool();}catch(e){}try{buildBeach();buildTenryu();buildBamboo();buildTenryu0();buildFactory();}catch(e){console.warn('outdoor',e);}try{buildTowns();}catch(e){console.warn('towns',e);}try{buildMaisaka();}catch(e){console.warn('maisaka',e);}};
 function locOf(k){if(FL.nc1&&['molly','mollyL','leo','leoL','factory','tenryu0'].includes(k))return '浜松';return ({arr:'金海空港',hnd:'静岡空港',icn:'金海空港',beach:'プサン',tenryu:'静岡・天竜',bamboo:'釜山',molly:'ウルサン',mollyL:'ウルサン',leo:'静岡',leoL:'静岡'})[k]||'';}
 function dressP3(){FL.dress='dressP3';recolorChar(NPC1,{Tops:'#d83a3a',Bottoms:'#1a2a4a',Shoes:'#e8e4dc'},'#2a2020');recolorChar(NPC2,{Tops:'#e8e4dc',Bottoms:'#3a4a3a',Shoes:'#3a3030'},'#3a2a20');}
 function dressP3b(){FL.dress='dressP3b';recolorChar(NPC1,{Tops:'#2a3a8a',Bottoms:'#2a2a30',Shoes:'#15161a'},'#9a9a9a');recolorChar(NPC2,{Tops:'#2a5a3a',Bottoms:'#2a2a30',Shoes:'#15161a'},'#2a2020');}
@@ -3098,7 +3348,7 @@ function hurtAlly(a,dmg,src){if(NET.guest)return;dmg=Math.round(dmg*1.3*(FL.ex?1
  if(src&&!ncpOf(a===M?'M':'V').armor){const dx=a.x-src.x,dz=a.z-src.z,d=Math.hypot(dx,dz)||1;const nx=a.x+dx/d*1.2,nz=a.z+dz/d*1.2;if(walk(nx,nz)){a.x=nx;a.z=nz;}}
  if(a.hp<=0){if(a===V){MODE='dead';banner('ログアウト…','#ff6b6b');setTimeout(respawn,1800);}else{a.down=true;a.rev=0;popup(a.x,2,a.z,'ダウン！近くで2秒で復活','#ffb0b0',16);}}
  renderHP();}
-function onZoneClear(z){if(z.crowEv==='loss')return;if(z.crowEv==='rand'&&!FL.crowRw){FL.crowRw=1;setTimeout(()=>{const c=['mcannon','*'];if(!NET.on||zoneHas(z,V)){packAdd(c);zenny+=3000;saveGame();}if(NET.on&&zoneHas(z,M)){netCall('packAdd',[c]);netCall('zennyGive',[3000]);}rawBanner('クロウに勝った！ 3000Z ＋ メガキャノン *','#b98cff');},1500);}if(z.navi)FL['nd_'+z.navi]=1;if(z.v2){FL['v2d_'+z.v2]=1;const T_=NAVI_TALK[z.v2];const rw=T_&&T_.reward;setTimeout(()=>{if(rw&&CH[rw[0]+'2']){const c=[rw[0]+'2',rw[1]];if(!NET.on||zoneHas(z,V))packAdd(c);if(NET.on&&zoneHas(z,M))netCall('packAdd',[c]);rawBanner(CH[c[0]].n+' をゲット！','#ff9a3a');}},1800);}if(z.navi){const go=()=>{if(paused||DLGS||busyStory){setTimeout(go,300);return;}naviPost(z);};setTimeout(go,1600);}if(z.core||z.boss){const go=()=>{if(paused||DLGS){setTimeout(go,300);return;}FL.ex&&!z.final?exClear(z):z.core?coreEvent():z.final?finalDefeated():bossDefeated();};setTimeout(go,z.boss?2500:1500);}}
+function onZoneClear(z){if(z.rq){const id=z.rq;setTimeout(()=>reqClear(id),900);return;}if(z.crowEv==='loss')return;if(z.crowEv==='rand'&&!FL.crowRw){FL.crowRw=1;setTimeout(()=>{const c=['mcannon','*'];if(!NET.on||zoneHas(z,V)){packAdd(c);zenny+=3000;saveGame();}if(NET.on&&zoneHas(z,M)){netCall('packAdd',[c]);netCall('zennyGive',[3000]);}rawBanner('クロウに勝った！ 3000Z ＋ メガキャノン *','#b98cff');},1500);}if(z.navi)FL['nd_'+z.navi]=1;if(z.v2){FL['v2d_'+z.v2]=1;const T_=NAVI_TALK[z.v2];const rw=T_&&T_.reward;setTimeout(()=>{if(rw&&CH[rw[0]+'2']){const c=[rw[0]+'2',rw[1]];if(!NET.on||zoneHas(z,V))packAdd(c);if(NET.on&&zoneHas(z,M))netCall('packAdd',[c]);rawBanner(CH[c[0]].n+' をゲット！','#ff9a3a');}},1800);}if(z.navi){const go=()=>{if(paused||DLGS||busyStory){setTimeout(go,300);return;}naviPost(z);};setTimeout(go,1600);}if(z.core||z.boss){const go=()=>{if(paused||DLGS){setTimeout(go,300);return;}FL.ex&&!z.final?exClear(z):z.core?coreEvent():z.final?finalDefeated():bossDefeated();};setTimeout(go,z.boss?2500:1500);}}
 function resetZone(z){z.act=false;EN.filter(e=>e.zone===z).forEach(e=>{clearCharge(e);scene.remove(e.g);e.bar.remove();e.hpn&&e.hpn.remove();if(e.chR)scene.remove(e.chR);});EN=EN.filter(e=>e.zone!==z);if(z.wall){scene.remove(z.wall);z.wall=null;z.wallDie=false;}z.x=z.hx;z.z=z.hz;if(!z.sym)makeSymbol(z);}
 function respawn(){const w=wOf(V);const same=w==='both'||wOf(M)===w;[V,M].forEach(c=>{if(c.is3d&&(c===V||same)){c.lockT=0;c.cur=null;c.play('Idle_Loop',0);}});const S=wStart(V);V.hp=V.max;V.x=S[0];V.z=S[1];if(same){M.hp=M.max;M.down=false;M.tint=null;M.x=V.x-1;M.z=V.z-1.5;}trail=[];V.inv=2;ZONES.forEach(z=>{if(!z.clear&&z.act&&(w==='both'||(z.world||'both')===w))resetZone(z);});HAZ.forEach(h=>{h.cancel=true;h.t=0;});MODE='play';banner('リスタート','#fff');renderHP();}
 function mRespawn(){const w=wOf(M);ZONES.forEach(z=>{if(z.act&&!z.clear&&z.world===w)resetZone(z);});const S=wStart(M);M.hp=M.max;M.down=false;M.tint=null;M.dT=0;if(M.is3d){M.lockT=0;M.cur=null;M.play('Idle_Loop',0);}tpM(S[0],S[1],0);M.inv=2;if(NET.on)netCall('banner',['リスタート','#fff']);renderHP();}
@@ -3152,7 +3402,7 @@ function useChip(i){const C=NET.on&&NET.guest?M:V;if(isBlade()){if(C)popup(C.x,2
   const L={sword:[1,2.4,.75],wide:[.8,2.6,1.1],long:[1,3.8,.45],hammer:[1,2.3,.6],dream:[0,5,1.8]}[id];if(L){const nx=C.x+Math.sin(C.aimFace)*L[0],nz=C.z+Math.cos(C.aimFace)*L[0];if(walk(nx,nz)){C.x=nx;C.z=nz;}arcFx(C,L[1],Math.PI*L[2],id==='dream'?'#ff7bf0':id==='hammer'?'#ffa53c':'#9ef');}
   if(id==='steal'){for(let k=0;k<6;k+=.25){const nx=C.x+Math.sin(C.aimFace)*.25,nz=C.z+Math.cos(C.aimFace)*.25;if(!walk(nx,nz))break;C.x=nx;C.z=nz;}}return;}
  castChip(id,V,aim,M);}
-function castChip(id,C,aim,P){let sm=1;if(CH[id]&&CH[id].v2base){sm=1.5;id=CH[id].v2base;}if(C.syncT>T){sm=2;C.syncT=0;popup(C.x,2.9,C.z,'シンクロ攻撃！','#ff7bf0',20);glow(C.x,1.2,C.z,'#ff7bf0',3,.4,1.2);}const prev=CHIP_CTX;CHIP_CTX={el:CHEL[id]||null,syncM:sm*(C.syncT>T?1:1)};try{castChip0(id,C,aim,P);}finally{CHIP_CTX=prev;}}
+function castChip(id,C,aim,P){let sm=1;if(CH[id]&&CH[id].paBase){const D=CH[id];try{paSeen()[id]=1;saveGame();}catch(e){}flashScreen(.35);cutin(['volt_e0','mist_e0'],D.n);sm=D.paMult;id=D.paBase;if(D.paAlso){const a2=D.paAlso;setTimeout(()=>{if(MODE==='play')castChip(a2,C,aim,P);},350);}}if(CH[id]&&CH[id].v2base){sm=1.5;id=CH[id].v2base;}if(C.syncT>T){sm=2;C.syncT=0;popup(C.x,2.9,C.z,'シンクロ攻撃！','#ff7bf0',20);glow(C.x,1.2,C.z,'#ff7bf0',3,.4,1.2);}const prev=CHIP_CTX;CHIP_CTX={el:CHEL[id]||null,syncM:sm*(C.syncT>T?1:1)};try{castChip0(id,C,aim,P);}finally{CHIP_CTX=prev;}}
 function castChip0(id,C,aim,P){C.aimFace=Math.atan2(aim.x-C.x,aim.z-C.z);C.face=C.aimFace;C.faceHold=.5;
  popup(C.x,2.3,C.z,CH[id].n,CH[id].pa?'#ff7bf0':'#ffe14d',18);SFX(/sword|wide|long|hammer|dream/.test(id)?'sword':/recov|barrier/.test(id)?'heal':'chip');if(C.is3d){if(/sword|wide|long|hammer|dream/.test(id))charOneShot(C,'Sword_Attack',1.7);else if(/cannon|spread|wave|bomb|giga/.test(id))charOneShot(C,'Spell_Simple_Shoot',1.5);else charOneShot(C,'Interact',1.6);}
  const melee=(R,ang,dmg,opt)=>{arcFx(C,R,ang,opt&&opt.col||'#fff');for(let k=0;k<9;k++){const a=C.aimFace-ang/2+ang*k/8;glow(C.x+Math.sin(a)*R*.75,1,C.z+Math.cos(a)*R*.75,opt&&opt.col||'#fff',.8,.2,.5);}for(const e of liveEn()){const dx=e.x-C.x,dz=e.z-C.z,d=Math.hypot(dx,dz);if(d>R+.4)continue;let a=Math.atan2(dx,dz)-C.aimFace;a=Math.atan2(Math.sin(a),Math.cos(a));if(Math.abs(a)<=ang/2||d<.9)hurtEnemy(e,dmg,C,Object.assign({kb:1},opt));}};
@@ -3170,15 +3420,15 @@ function castChip0(id,C,aim,P){C.aimFace=Math.atan2(aim.x-C.x,aim.z-C.z);C.face=
   case 'recov':heal(C,50);heal(P,25);break;
   case 'barrier':C.barrier=true;P.barrier=true;popup(C.x,2,C.z,'バリア','#7dff9a',18);break;
   case 'steal':{C.steal=.4;let k=0;for(;k<6;k+=.25){const nx=C.x+Math.sin(C.aimFace)*.25,nz=C.z+Math.cos(C.aimFace)*.25;if(!walk(nx,nz))break;C.x=nx;C.z=nz;}burst(C.x,1,C.z,'#7ff',12,3);break;}
-  case 'dogs':{const fx=Math.sin(C.aimFace),fz=Math.cos(C.aimFace);['dogA_side','dogB_side'].forEach((b,k)=>{const u=makeUnit(b,.9,false);const off=k?1:-1;u.x=C.x-fz*off*.8;u.z=C.z+fx*off*.8;u.face=C.aimFace;u.moving=true;PETS.push({u,kind:'dog',t:0,life:1.3,dx:fx,dz:fz,hit:new Set()});});popup(C.x,2.6,C.z,'ワンワン！','#ffe14d',20);break;}
+  case 'dogs':{const fx=Math.sin(C.aimFace),fz=Math.cos(C.aimFace);['dogA_side','dogB_side'].forEach((b,k)=>{const u=makeUnit(b,.9,false);const off=k?1:-1;u.x=C.x-fz*off*.8;u.z=C.z+fx*off*.8;u.face=C.aimFace;u.moving=true;PETS.push({u,kind:'dog',t:0,life:1.3,dx:fx,dz:fz,hit:new Set(),sm:(CHIP_CTX&&CHIP_CTX.syncM)||1});});popup(C.x,2.6,C.z,'ワンワン！','#ffe14d',20);break;}
   case 'liz':{for(let k=0;k<5;k++){const u=makeUnit('liz'+k,.55,false);PETS.push({u,own:C,kind:'liz',t:0,life:7,ph:k/5*Math.PI*2,tick:0});}popup(C.x,2.6,C.z,'トカゲたちが集まった！','#7dff9a',18);break;}
-  case 'dream':flashScreen(.4);cutin([C===C?'volt_e0':'mist_e0'],'ドリームソード');slowT=.5;melee(5,Math.PI*1.8,220,{col:'#ff7bf0'});ringFx(C.x,C.z,5,'#ff7bf0',.5);shakeT=.4;break;
-  case 'giga':{flashScreen(.4);cutin(['volt_e0','mist_e0'],'ギガキャノン');const dx=Math.sin(C.aimFace),dz=Math.cos(C.aimFace);const len=25;
+  case 'dream':try{paSeen().dream=1;}catch(e){}flashScreen(.4);cutin([C===C?'volt_e0':'mist_e0'],'ドリームソード');slowT=.5;melee(5,Math.PI*1.8,220,{col:'#ff7bf0'});ringFx(C.x,C.z,5,'#ff7bf0',.5);shakeT=.4;break;
+  case 'giga':{try{paSeen().giga=1;}catch(e){}flashScreen(.4);cutin(['volt_e0','mist_e0'],'ギガキャノン');const dx=Math.sin(C.aimFace),dz=Math.cos(C.aimFace);const len=25;
    const m=new THREE.Mesh(new THREE.CylinderGeometry(.9,.9,len,16,1,true),new THREE.MeshBasicMaterial({color:'#ffcf3a',transparent:true,opacity:.85}));m.rotation.order='YXZ';m.rotation.y=C.aimFace;m.rotation.x=Math.PI/2;m.position.set(C.x+dx*len/2,1,C.z+dz*len/2);scene.add(m);FX.push({m,fade:1,t:0,life:.6});
    for(const e of liveEn()){const ex=e.x-C.x,ez=e.z-C.z;const along=ex*dx+ez*dz,perp=Math.abs(ex*dz-ez*dx);if(along>0&&along<len&&perp<1.6)hurtEnemy(e,250,C,{ignoreShield:1,kb:2});}shakeT=.5;break;}
  }}
 function petStep(dt){for(const p of PETS){p.t+=dt;const u=p.u;
- if(p.kind==='dog'){const nx=u.x+p.dx*14*dt,nz=u.z+p.dz*14*dt;u.x=nx;u.z=nz;u.y=Math.abs(Math.sin(p.t*14))*.25;for(const e of liveEn())if(!p.hit.has(e)&&Math.hypot(e.x-u.x,e.z-u.z)<1.1){p.hit.add(e);hurtEnemy(e,60,{x:u.x-p.dx,z:u.z-p.dz},{ignoreShield:1,kb:1.2});}if(!walk(nx,nz,0))p.t=p.life;}
+ if(p.kind==='dog'){const nx=u.x+p.dx*14*dt,nz=u.z+p.dz*14*dt;u.x=nx;u.z=nz;u.y=Math.abs(Math.sin(p.t*14))*.25;for(const e of liveEn())if(!p.hit.has(e)&&Math.hypot(e.x-u.x,e.z-u.z)<1.1){p.hit.add(e);hurtEnemy(e,60,{x:u.x-p.dx,z:u.z-p.dz},{ignoreShield:1,kb:1.2,syncM:p.sm||1});}if(!walk(nx,nz,0))p.t=p.life;}
  else{const a=p.ph+p.t*2.2,O=p.own||V;u.x=O.x+Math.sin(a)*1.4;u.z=O.z+Math.cos(a)*1.4;u.face=a+Math.PI/2;u.moving=true;
   for(const q of PROJ)if(q.side==='E'&&Math.hypot(q.x-u.x,q.z-u.z)<.7){q.dead=true;burst(u.x,.4,u.z,'#7dff9a',5,2);}
   for(const w of WAVES)if(w.side==='E'&&Math.hypot(w.x-u.x,w.z-u.z)<.7){w.dead=true;burst(u.x,.4,u.z,'#7dff9a',5,2);}
@@ -4132,7 +4382,7 @@ async function storyStartOld(){$('gear').classList.remove('hide');ACT='leo';plac
  await say('leo','うそだろ……よりによって、前の晩に……！');
  await say('sys','レオ（静岡）とモリー（ウルサン）は、それぞれ自分の部屋でしか動けない。Xキーで操作するキャラを切り替えられる。');
  PH='rooms0';objective2('それぞれの部屋のPCで、通信が切れた原因を調べよう');tryLock();}
-async function talkPC(who){if(FL.nc1&&PH==='rooms0')return nc1PC(who);if(FL.nc1)return say(who,who==='leo'?'PCは静かにスリープしている。':'PCは静かにスリープしている。');
+async function talkPC(who){if(FL.nc1done&&who==='molly'&&reqAvail('sakura'))return reqTalk('sakura','molly');if(FL.nc1&&PH==='rooms0')return nc1PC(who);if(FL.nc1)return say(who,who==='leo'?'PCは静かにスリープしている。':'PCは静かにスリープしている。');
  if(PH==='rooms1'){if(who==='leo'){await say('sys','【eチケット】静岡 08:05 発 → 金海 10:35 着　NL2708便');if(!FL.ticket){await say('leo','着くのは10時35分か。モリーに伝えなきゃ。');await say('sys','「10時35分着」――モリーの目覚まし時計のヒントだ。');FL.ticket=1;phoneSend('leo','eチケット見た！　静岡空港 08:05発 → 金海 10:35着（NL2708便）');SFX('chip');updRooms1();}}else await say('molly','通話画面のレオが、スーツケースと格闘してる。……ふふっ。');return;}
  if(PH!=='rooms0'){await say('sys','PCは静かにスリープしている。');return;}
  if(FL['pc_'+who]){await say(who==='leo'?'volt':'mist',who==='leo'?'モリーのほうでも、原因を調べてもらわねーとな。（Xでモリーに切り替え）':'レオのほうの準備を待と。（Xでレオに切り替え）');return;}
@@ -4506,8 +4756,10 @@ function dressTenryu0(){const R=ROOMS.tenryu0;if(!R||!R.g||R.dressed)return;R.dr
  jpHouse(g,0,10.9+3.5,0,{w:10,d:7,doorX:0,wins:[[-3.4,1.5,1.6,1.1],[3.4,1.5,1.6,1.1],[-3.2,4.4,1.4,1.0],[0,4.4,1.0,.8],[3.2,4.4,1.4,1.0]]});
  if(KK.ready){
   // 庭の茂みと木
-  [[-11.5,3.2],[-12.2,6.5],[11.8,4.4],[12.3,8.1],[-6.5,9.9],[6.8,9.9],[-9.2,9.6],[9.5,9.7],[3.2,10.1],[-3.4,10.1]].forEach(([x,z],i)=>{kk('bush',g,x,0,z,{h:.7+(i%3)*.18,ry:i*1.3});block(key,x,z,.8,.8);});
-  [[-12.4,9.4],[12.6,2.2],[-12.8,1.9]].forEach(([x,z],i)=>{kk(i%2?'trees_A_large':'tree_single_A',g,x,0,z,{h:5.2+i*.6,ry:i*2});block(key,x,z,.9,.9);});
+  [[-11.5,3.2],[-12.2,6.5],[-6.5,9.9],[6.8,9.9],[-9.2,9.6],[9.5,9.7],[3.2,10.1],[-3.4,10.1]].forEach(([x,z],i)=>{kk('bush',g,x,0,z,{h:.7+(i%3)*.18,ry:i*1.3});block(key,x,z,.8,.8);});
+  [[-12.4,9.4],[-12.8,1.9]].forEach(([x,z],i)=>{kk(i%2?'trees_A_large':'tree_single_A',g,x,0,z,{h:5.2+i*.6,ry:i*2});block(key,x,z,.9,.9);});
+  // 敷地の外（左右）にも林：入口付近は空けて、奥行きだけ埋める
+  for(const sd of [-1,1])for(let i=0;i<16;i++){const x=sd*((sd>0?25:19)+(i%8)*3.8+rnd(-1,1)),z=1.2+Math.floor(i/8)*5+rnd(0,3.5);kk(['trees_A_large','trees_A_medium','trees_B_medium','tree_single_B','tree_single_A'][i%5],g,x,0,z,{h:rnd(4.5,7.5),ry:rnd(0,6),cast:false});}
   // 対岸の林を厚く
   for(let i=0;i<26;i++)kk(['trees_A_large','trees_A_medium','trees_B_medium','tree_single_B','tree_single_A'][i%5],g,-44+i*3.5+rnd(-1.2,1.2),0,-13.2-rnd(0,6),{h:rnd(4.5,8),ry:rnd(0,6),cast:false});
   for(let i=0;i<10;i++)kk('bush',g,-30+i*6+rnd(-1,1),0,-12.4,{h:rnd(.8,1.3),ry:rnd(0,6),cast:false});
@@ -4517,6 +4769,11 @@ function dressTenryu0(){const R=ROOMS.tenryu0;if(!R||!R.g||R.dressed)return;R.dr
  }
  // 流木
  for(let i=0;i<5;i++){const L=rnd(1.2,2.4);const w=new THREE.Mesh(new THREE.CylinderGeometry(.06,.09,L,7),new THREE.MeshStandardMaterial({color:'#8a7a66',roughness:1}));w.rotation.z=Math.PI/2;w.rotation.y=rnd(0,3);w.position.set(rnd(-11,11),.07,rnd(-9.5,-4));w.castShadow=true;g.add(w);}
+ // 空と山並み（手描きパノラマ：のっぺりしたグラデ空の代わり）
+ try{dvTex();const sk=DV.tex.sky.clone();sk.needsUpdate=true;sk.wrapS=THREE.MirroredRepeatWrapping;sk.repeat.set(3,1);
+  const cyl=new THREE.Mesh(new THREE.CylinderGeometry(80,80,70,48,1,true),new THREE.MeshBasicMaterial({map:sk,side:THREE.BackSide,fog:false,depthWrite:false}));cyl.position.set(0,10,0);cyl.renderOrder=-5;g.add(cyl);
+  [[DV.tex.mt,72,16,-1.5,2],[DV.tex.mtLo,62,9,-1,3]].forEach(([t,r,h,y,rep])=>{const tt=t.clone();tt.needsUpdate=true;tt.wrapS=THREE.MirroredRepeatWrapping;tt.repeat.set(rep,1);const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,48,1,true),new THREE.MeshBasicMaterial({map:tt,side:THREE.BackSide,transparent:true,fog:false,depthWrite:false}));m.position.set(0,y+h/2,0);m.renderOrder=-4;g.add(m);});
+ }catch(e){console.warn('tenryu sky',e);}
  // 遠くの橋（トラス）
  {const B=new THREE.Group();B.position.set(-30,0,-6.8);g.add(B);const M=new THREE.MeshStandardMaterial({color:'#5a7f7a',roughness:.6,metalness:.3}),D=new THREE.MeshStandardMaterial({color:'#8c9096',roughness:.8});
   const deck=new THREE.Mesh(new THREE.BoxGeometry(6,.5,40),D);deck.position.y=3.6;B.add(deck);for(let i=0;i<5;i++){const pz=-16+i*8;const pr=new THREE.Mesh(new THREE.BoxGeometry(1.2,3.4,1.2),D);pr.position.set(0,1.7,pz);B.add(pr);}
