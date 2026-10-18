@@ -2630,6 +2630,23 @@ function buildBamboo(){const key='bamboo';const g=outdoorBase(key,{ox:-1500,oz:4
  INTER.push({room:key,x:5,z:-1.2,r:1.2,label:'制御盤',fn:talkCtrl},{room:key,x:2.5,z:0,r:1.3,label:'照明スタッフ',fn:talkTech},{room:key,x:-4,z:2.8,r:1.3,label:'ポスター',fn:talkPoster},{room:key,x:-2,z:-1,r:1.3,label:'オモニ',fn:talkOmma6},{room:key,x:-11.4,z:-6.2,r:.8,label:'高い街灯の上',fn:talkNest});}
 
 // ===== 第1章：干上がった天竜川（遊んで原因に気づくパート） =====
+// 天竜川の水面：流れる波紋・きらめき・岸の白波（ShaderMaterial、毎フレーム uT を更新）
+function riverWaterMat(){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:false,
+ uniforms:{uT:{value:0},cDeep:{value:new THREE.Color('#1d4f6e')},cShal:{value:new THREE.Color('#4f9fb8')},cSky:{value:new THREE.Color('#d8ecff')}},
+ vertexShader:'varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.0);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
+ fragmentShader:`uniform float uT;uniform vec3 cDeep,cShal,cSky;varying vec2 vUv;varying vec3 vW;
+ float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+ void main(){vec2 p=vW.xz;float t=uT;
+  float a=n(vec2(p.x*.55-t*.9,p.y*1.6))*.6+n(vec2(p.x*1.3-t*1.6,p.y*3.1+3.0))*.4;
+  float b=n(vec2(p.x*2.6-t*2.4,p.y*5.0+7.0));
+  float edge=min(vUv.y,1.0-vUv.y);
+  vec3 col=mix(cShal,cDeep,smoothstep(.0,.45,edge));
+  col=mix(col,cSky,smoothstep(.62,.9,a)*.35);
+  float gl=smoothstep(.86,.97,b*a+.25);col+=vec3(1.0)*gl*.55;
+  float foam=(1.0-smoothstep(.0,.07,edge))*(.55+.45*n(vec2(p.x*3.0-t*1.2,p.y*3.0)));col=mix(col,vec3(.93,.97,1.0),foam*.8);
+  gl_FragColor=vec4(col,.9-.25*(1.0-smoothstep(.0,.05,edge))+foam*.1);}`});}
+function riverWet(){const tr=ROOMS.tenryu0&&ROOMS.tenryu0.trickle;if(!tr)return;tr.userData.wet=1;tr.scale.y=7.6;tr.position.z=-6.9;(window.__TPUD||[]).forEach(p=>p.visible=false);}
 function buildTenryu0(){const key='tenryu0';const g=outdoorBase(key,{ox:-1200,oz:-700,w:26,d:22,sky:[[0,'#2a58a0'],[.42,'#6f9ccc'],[.5,'#b8cfe0'],[.52,'#46583e'],[1,'#1e2a18'],],stars:0,ground:'#3e4e30',hemi:.62,hcol:'#fff0dc'});
  {// Leo's house back door: wall + lit door + sign + ground ring so the way home is obvious
   box(g,0,1.4,10.8,2.2,2.8,.2,'#cfc8b8');box(g,0,2.95,10.45,3.2,.12,1.1,'#3e4450');const dr=box(g,0,1.05,10.55,1.2,2.1,.08,'#e8b060',1);dr.userData.glow=1;box(g,.4,1.0,10.5,.08,.08,.06,'#3a2a1a');
@@ -2640,12 +2657,13 @@ function buildTenryu0(){const key='tenryu0';const g=outdoorBase(key,{ox:-1200,oz
  // dry riverbed (walkable) + embankment
  const bed=new THREE.Mesh(new THREE.PlaneGeometry(120,9),new THREE.MeshToonMaterial({color:'#3e3a34',gradientMap:toonGrad}));bed.rotation.x=-Math.PI/2;bed.position.set(0,.006,-6.8);g.add(bed);
  const wet=new THREE.Mesh(new THREE.PlaneGeometry(120,.6),new THREE.MeshToonMaterial({color:'#2e2c28',gradientMap:toonGrad}));wet.rotation.x=-Math.PI/2;wet.position.set(0,.008,-2.6);g.add(wet);
- const trickle=new THREE.Mesh(new THREE.PlaneGeometry(120,.7),new THREE.MeshBasicMaterial({color:'#2a5a7a'}));trickle.rotation.x=-Math.PI/2;trickle.position.set(0,.012,-9.6);g.add(trickle);ROOMS.tenryu0.trickle=trickle;
+ const trickle=new THREE.Mesh(new THREE.PlaneGeometry(120,1,1,1),riverWaterMat());trickle.rotation.x=-Math.PI/2;trickle.position.set(0,.014,-9.6);trickle.scale.y=.7;trickle.renderOrder=1;g.add(trickle);ROOMS.tenryu0.trickle=trickle;
+ {(window.RANIM=window.RANIM||[]).push((dt,t)=>{trickle.material.uniforms.uT.value=t;if(FL.nc1River&&!trickle.userData.wet)riverWet();});}
  const slope=new THREE.Mesh(new THREE.BoxGeometry(120,.5,1.6),toon('#5a5a54'));slope.position.set(0,.2,-1.9);slope.rotation.x=.25;g.add(slope);
  for(let i=0;i<70;i++){const r=rnd(.12,.45);const s=new THREE.Mesh(new THREE.DodecahedronGeometry(r,0),toon(['#4a463e','#56524a','#3a3832'][i%3]));s.position.set(rnd(-13,13),r*.4,rnd(-11,-3.2));s.rotation.set(rnd(0,3),rnd(0,3),0);g.add(s);}
  // stranded puddles with fish
- [[-6,-6.5],[3,-7.6],[8.5,-5.6]].forEach(([x,z],i)=>{const p=new THREE.Mesh(new THREE.CircleGeometry(.9+i*.15,18),new THREE.MeshBasicMaterial({color:'#2e5e80'}));p.rotation.x=-Math.PI/2;p.position.set(x,.014,z);g.add(p);
-  const f=new THREE.Mesh(new THREE.ConeGeometry(.08,.34,6),toon('#c8d0d8'));f.rotation.z=Math.PI/2;f.position.set(x+.2,.06,z);g.add(f);const ph=rnd(0,6);WANIM.push((dt,t)=>{f.rotation.y=Math.sin(t*6+ph)*.6;f.position.y=.06+Math.max(0,Math.sin(t*3+ph))*.05;});});
+ [[-6,-6.5],[3,-7.6],[8.5,-5.6]].forEach(([x,z],i)=>{const p=new THREE.Mesh(new THREE.CircleGeometry(.9+i*.15,18),new THREE.MeshBasicMaterial({color:'#2e5e80'}));p.rotation.x=-Math.PI/2;p.position.set(x,.014,z);g.add(p);(window.__TPUD=window.__TPUD||[]).push(p);
+  const f=new THREE.Mesh(new THREE.ConeGeometry(.08,.34,6),toon('#c8d0d8'));f.rotation.z=Math.PI/2;f.position.set(x+.2,.06,z);g.add(f);const ph=rnd(0,6);(window.RANIM=window.RANIM||[]).push((dt,t)=>{f.rotation.y=Math.sin(t*6+ph)*.6;f.position.y=.06+Math.max(0,Math.sin(t*3+ph))*.05;});});
  // old water line on far bank + far bank wall
  box(g,0,.9,-11.6,120,1.8,.4,'#6a6a62');box(g,0,1.25,-11.38,120,.12,.02,'#3a4a5a',0);
  // upstream dam silhouette + mountains
@@ -2792,7 +2810,7 @@ async function nc1Dive(){await say('leo','いくぞ、モリー！');await say('
  await say('sys','R キー：バスター ⇄ ブレード。ブレードではチップが使えないかわりに、右クリックで回転斬り、F で必殺技が出せる。');
  await say('sys','左クリックを長押しすると「チャージ」。光が大きくなってから離すと、強力なチャージショット！');await say('sys','C キー：ステップ回避。敵の攻撃が当たる直前によけると「ジャスト回避」――2.5秒間ダメージ1.5倍の反撃チャンス！　攻撃を出したあとの敵は「スキ」だらけ。攻撃をつなぐと HIT 数でダメージも上がる。');tryLock();}
 async function nc1End(){FL.nc1done=1;FL.nc1River=1;busyStory=true;await jackOut();busyStory=true;placeHuman(LEO,'tenryu0',5,-.6,0);placeHuman(MOLLY,'tenryu0',7,-.6,0);ACT='leo';ACTC=LEO;enterRoomScene();
- if(ROOMS.tenryu0.scr)ROOMS.tenryu0.scr.material.color.set('#7dff9a');if(ROOMS.tenryu0.trickle){ROOMS.tenryu0.trickle.scale.y=8;}
+ if(ROOMS.tenryu0.scr)ROOMS.tenryu0.scr.material.color.set('#7dff9a');riverWet();
  if(ROOMS.factory.scr)ROOMS.factory.scr.forEach(x=>x.material.color.set('#7dff9a'));if(ROOMS.factory.ctrl)ROOMS.factory.ctrl.material.color.set('#7dff9a');
  SFX('bust');await say('sys','ゴゴゴゴ……。上流から、水の音が近づいてくる。');
  await say('molly','見て、レオ！　川に水が戻ってきた！');await say('leo','……よかった。取り残されてた魚も、なんとかなりそうだな。');
@@ -4317,7 +4335,8 @@ function onPad(c,p){const R=ROOMS[p.room];return ROOM_OF[c===LEO?'leo':'molly']=
 let objBase='';function objective2(t){objBase=t;objective(t);}
 function sunStep(R){if(!RIG.moon)return;const c=ACTC||LEO;if(!c)return;const m=RIG.moon;RIG.sun=1;m.castShadow=true;m.intensity=R.outdoor.sun!=null?R.outdoor.sun:.55;m.color.set(R.outdoor.sunCol||'#fff0d8');const sc=m.shadow.camera;if(sc.right!==16){sc.left=-16;sc.right=16;sc.top=16;sc.bottom=-16;sc.near=.5;sc.far=70;sc.updateProjectionMatrix();m.shadow.bias=-.0015;m.shadow.normalBias=.06;}m.position.set(c.x+9,20,c.z+7);m.target.position.set(c.x,0,c.z);if(!R.shOn){R.shOn=1;R.g.traverse(o=>{if(o.isMesh){o.receiveShadow=true;o.castShadow=!(o.material&&o.material.isMeshBasicMaterial)&&!(o.geometry&&o.geometry.type==='PlaneGeometry');}});}}
 function roomLight(key){const R=ROOMS[key];if(R&&R.outdoor){[LEO,MOLLY,MOM1,MOM2,NPC1,NPC2,DAD,BRO1].forEach(c=>{if(c&&c.shadow)c.shadow.visible=false;});rigTo(null);sunStep(R);HEMI.intensity=R.outdoor.hemi;HEMI.color.set(R.outdoor.col);DIRL.intensity=.3;RL.intensity=.15;if(window.__BP)window.__BP.strength=.25;if(window.__BP)window.__BP.threshold=.72;return;}const rg=!!(R&&R.rig);if(RIG.sun&&RIG.moon){RIG.sun=0;RIG.moon.intensity=0;RIG.moon.castShadow=false;}[LEO,MOLLY,MOM1,MOM2,NPC1,NPC2,DAD,BRO1].forEach(c=>{if(c&&c.shadow)c.shadow.visible=!rg;});if(rg){rigTo(key);HEMI.intensity=((FL.nc1&&R.rigDay)?R.rigDay:R.rig).hemi||.3;HEMI.color.set(R.air?'#eef4ff':'#fff1dc');DIRL.intensity=0;RL.intensity=0;if(window.__BP)window.__BP.strength=R.air?.15:.4;__BP.threshold=.72;}else{rigTo(null);HEMI.intensity=.42;HEMI.color.set('#fff1dc');DIRL.intensity=.45;RL.intensity=.6;if(window.__BP)window.__BP.strength=R&&R.air?.12:.45;__BP.threshold=.72;}}
-function roomStep(dt){try{dayViewSync();}catch(e){}if(window.HOME_RING){HOME_RING.material.opacity=.35+.25*Math.sin(T*3);}if(window.ENTR_MARK){ENTR_MARK.visible=(PH==='rooms0'||PH==='rooms0pad')&&!!FL.riverGo&&!FL.river;ENTR_MARK.rotation.z+=dt*1.5;}roomLight(ROOM_OF[ACT]);{const cur=ROOM_OF[ACT];['beach','tenryu','bamboo','tenryu0'].forEach(k=>{const R=ROOMS[k];if(R&&R.dome)R.dome.forEach(o=>o.visible=cur===k);});}if(window.FUJI){const R=ROOMS[ROOM_OF[ACT]];const v=!!R&&R.oz<200;FUJI.forEach(o=>o.visible=v);}$('clickme').classList.toggle('hide',locked()||plFail||!!DLGS||!!CHOICE);
+window.RANIM=window.RANIM||[];// 部屋（現実側）の毎フレームアニメ {f(dt,t)}
+function roomStep(dt){try{dayViewSync();}catch(e){}try{for(const f of window.RANIM)f(dt,T);}catch(e){}if(window.HOME_RING){HOME_RING.material.opacity=.35+.25*Math.sin(T*3);}if(window.ENTR_MARK){ENTR_MARK.visible=(PH==='rooms0'||PH==='rooms0pad')&&!!FL.riverGo&&!FL.river;ENTR_MARK.rotation.z+=dt*1.5;}roomLight(ROOM_OF[ACT]);{const cur=ROOM_OF[ACT];['beach','tenryu','bamboo','tenryu0'].forEach(k=>{const R=ROOMS[k];if(R&&R.dome)R.dome.forEach(o=>o.visible=cur===k);});}if(window.FUJI){const R=ROOMS[ROOM_OF[ACT]];const v=!!R&&R.oz<200;FUJI.forEach(o=>o.visible=v);}$('clickme').classList.toggle('hide',locked()||plFail||!!DLGS||!!CHOICE);
  [LEO,MOLLY].forEach(c=>{if(!(NET.on&&c===MOLLY&&!c.auto))humanStep(c,dt,c===ACTC);charLocomotion(c,dt);updChar(c,dt,T);});[MOM1,MOM2,NPC1,NPC2,DAD,BRO1].forEach(c=>{if(c&&c.g.visible){c.moving=false;if(c.auto)humanStep(c,dt,false);charLocomotion(c,dt);updChar(c,dt,T);}});
  mgStep(dt);['leoL','mollyL'].forEach(k=>{const R=ROOMS[k];if(R.tv)R.tv.material.color.set(Math.floor(T*1.3)%3?'#24486a':'#2a5a50');});petsRoomStep(dt);
  const it=!DLGS&&!CHOICE&&!busyStory&&nearInter();$('prompt').classList.toggle('hide',!it);if(it)$('prompt').textContent='F／クリック：'+it.label;
@@ -4752,8 +4771,12 @@ function dressTenryu0(){const R=ROOMS.tenryu0;if(!R||!R.g||R.dressed)return;R.dr
  tuftField(g,900,{x0:-40,x1:40,z0:-1.4,z1:1.4},{avoid:(x,z)=>Math.abs(x)<14&&z>.4,smin:.45,smax:.9,tint:'#e8f0d8',w:.34,h:.3});
  tuftField(g,520,{x0:-14,x1:14,z0:-3.1,z1:-2.1},{kind:'reed',w:.55,h:1.1,smin:.7,smax:1.3,avoid:(x,z)=>Math.abs(x-2)<.6||Math.abs(x+7.5)<1});
  tuftField(g,700,{x0:-40,x1:40,z0:-11.3,z1:-10.2},{kind:'reed',w:.55,h:1.2,smin:.8,smax:1.5});
- tuftField(g,500,{x0:-14,x1:14,z0:-10,z1:-3.4},{smin:.4,smax:.8,tint:'#c8c09a',avoid:(x,z)=>Math.abs(z+9.6)<.6});
+ {const bedT=tuftField(g,500,{x0:-14,x1:14,z0:-10,z1:-3.4},{smin:.4,smax:.8,tint:'#c8c09a',avoid:(x,z)=>Math.abs(z+9.6)<.6});(window.__TPUD=window.__TPUD||[]).push(bedT);if(FL.nc1River&&bedT)bedT.visible=false;}
  jpHouse(g,0,10.9+3.5,0,{w:10,d:7,doorX:0,wins:[[-3.4,1.5,1.6,1.1],[3.4,1.5,1.6,1.1],[-3.2,4.4,1.4,1.0],[0,4.4,1.0,.8],[3.2,4.4,1.4,1.0]]});
+ // 近所の家並み（裏手が空き地に見えないように）
+ [[-15.5,0],[15.5,1],[-27,2],[27.5,3]].forEach(([x,i])=>{try{jpHouse(g,x,14.6+(i%2)*.8,0,{w:8+(i%2),d:6.5,doorX:(i%2?-1.5:1.5),wins:[[-2.4,1.5,1.4,1.0],[2.4,1.5,1.4,1.0],[-2.2,4.4,1.2,.9],[2.2,4.4,1.2,.9]]});}catch(e){}});
+ // ブロック塀
+ {const M=new THREE.MeshStandardMaterial({color:'#b8b2a4',roughness:.95});for(const sd of [-1,1]){const w=new THREE.Mesh(new THREE.BoxGeometry(34,1.1,.18),M);w.position.set(sd*(5.5+17),.55,11.1);w.receiveShadow=true;g.add(w);}}
  if(KK.ready){
   // 庭の茂みと木
   [[-11.5,3.2],[-12.2,6.5],[-6.5,9.9],[6.8,9.9],[-9.2,9.6],[9.5,9.7],[3.2,10.1],[-3.4,10.1]].forEach(([x,z],i)=>{kk('bush',g,x,0,z,{h:.7+(i%3)*.18,ry:i*1.3});block(key,x,z,.8,.8);});
@@ -4764,7 +4787,7 @@ function dressTenryu0(){const R=ROOMS.tenryu0;if(!R||!R.g||R.dressed)return;R.dr
   for(let i=0;i<26;i++)kk(['trees_A_large','trees_A_medium','trees_B_medium','tree_single_B','tree_single_A'][i%5],g,-44+i*3.5+rnd(-1.2,1.2),0,-13.2-rnd(0,6),{h:rnd(4.5,8),ry:rnd(0,6),cast:false});
   for(let i=0;i<10;i++)kk('bush',g,-30+i*6+rnd(-1,1),0,-12.4,{h:rnd(.8,1.3),ry:rnd(0,6),cast:false});
   // 川原の岩と流木
-  for(let i=0;i<8;i++)kk('rocks_A',g,rnd(-12,12),0,rnd(-10,-4),{h:rnd(.3,.6),ry:rnd(0,6)});
+  for(let i=0;i<8;i++)kk(['rock_single_A','rock_single_C','rock_single_E'][i%3],g,rnd(-12,12),0,rnd(-10,-4),{h:rnd(.3,.6),ry:rnd(0,6)});
   for(let i=0;i<10;i++)kk('waterplant_A',g,rnd(-12,12),0,-9.6+rnd(-.4,.4),{h:rnd(.3,.5),ry:rnd(0,6)});
  }
  // 流木
@@ -4861,7 +4884,7 @@ const WHO=c=>c===LEO?'leo':c===MOLLY?'molly':c===MOM1?'mom1':c===MOM2?'mom2':c==
 const WHOC=w=>({leo:LEO,molly:MOLLY,mom1:MOM1,mom2:MOM2,npc1:NPC1,npc2:NPC2})[w];
 function netInstallWraps(){NET.raw={fade,SFX,banner};
  netWrap('dressStaff',()=>['x']);netWrap('dressP3',()=>['x']);netWrap('dressP3b',()=>['x']);
- ['banner','popup','SFX','flashScreen','cutin','chapter','fade','markHz','ringWaveHz','enterRoomScene','enterNet','showResult'].forEach(n=>netWrap(n,n==='showResult'?(a=>[a[0],a[1]]):null));
+ ['banner','popup','SFX','flashScreen','cutin','chapter','fade','markHz','ringWaveHz','enterRoomScene','enterNet','showResult','c2Lamps'].forEach(n=>netWrap(n,n==='showResult'?(a=>[a[0],a[1]]):null));
  netWrap('objective',null,true);
  netWrap('placeHuman',a=>{const w=WHO(a[0]);if(w==='molly')NET.tpSeq++;return [w,a[1],a[2],a[3],a[4],NET.tpSeq];});
  netWrap('wallOn',a=>[ZONES.indexOf(a[0]),r2(a[0].x),r2(a[0].z)]);netWrap('wallOff',a=>[ZONES.indexOf(a[0])]);
@@ -4917,7 +4940,7 @@ function guestCall(f,a){try{
  if(f==='setPads'){setPads(a[0].map(([r,x,z])=>findPad(r,x,z)).filter(Boolean),null);return;}
  if(f==='respawn'){HAZ.forEach(h=>{h.cancel=true;h.t=0;});NET.gseq=a[0];const S=NETSTART[NETCUR];M.x=a[1]!=null?a[1]:S[0]-1;M.z=a[2]!=null?a[2]:S[1]-1.5;M.y=0;return;}
  if(f==='tpM'){M.x=a[0];M.z=a[1];M.y=0;M.face=a[2];NET.gseq=a[3];return;}
- if(f==='showResult'){showResult(a[0],a[1],a[0]==='THE END'?()=>{}:()=>(window.__noLeaveGuard=1,location.reload()));return;}
+ if(f==='showResult'){showResult(a[0],a[1],a[0]==='THE END'?()=>{}:/クリア/.test(a[0])?()=>{try{tryLock();}catch(e){}}:()=>(window.__noLeaveGuard=1,location.reload()));return;}  // 章クリアは物語が続くので再読込しない
  if(f==='enterRoomScene'){HAZ.forEach(h=>h.cancel=true);PROJ.forEach(p=>p.dead=true);enterRoomScene();guestHUD();return;}
  if(f==='enterNet'){enterNet(a[0]);guestHUD();return;}
  if(f==='markHz'){markHz(a[0],a[1],a[2],a[3],0);return;}
