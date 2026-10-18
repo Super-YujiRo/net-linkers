@@ -49,3 +49,4 @@
 - 「Low Poly Japanese Houses」by yarenkrmn（itch.io）— 無料・商用可（ゲーム用に変換・軽量化して使用）
 - 「日本のビルセット04」by INDIEPLAY（BOOTH）— パブリックドメイン
 - 「3D House Construction Site」by Majadroid（OpenGameArt）— CC0
+- 地面の写真テクスチャ（Grass004 / Gravel022 / Ground037 / PavingStones070 / Asphalt012）— ambientCG（CC0）
