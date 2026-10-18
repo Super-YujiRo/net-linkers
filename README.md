@@ -42,3 +42,10 @@
 - モーション：Quaternius Universal Animation Library（CC0）
 - チップアイコン：game-icons.net（Lorc・Delapouite ほか / CC BY 3.0）
 - 描画：three.js ／ 通信：PeerJS
+
+## 使用している無料素材（クレジット）
+- Kenney「City Kit (Suburban / Commercial / Industrial / Roads)」— CC0（https://kenney.nl）
+- KayKit「City Builder Bits」ほか — CC0（Kay Lousberg）
+- 「Low Poly Japanese Houses」by yarenkrmn（itch.io）— 無料・商用可（ゲーム用に変換・軽量化して使用）
+- 「日本のビルセット04」by INDIEPLAY（BOOTH）— パブリックドメイン
+- 「3D House Construction Site」by Majadroid（OpenGameArt）— CC0
