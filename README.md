@@ -38,7 +38,7 @@
 ## クレジット
 - 3Dモデル：VRoid Studio サンプルモデル（CC0）
 - 敵ナビ：ChatGPTで描いたオリジナル設定画を Tencent HY 3D Global（Hunyuan3D）で立体化し、Blenderで骨入れ・顔修正（`models/hy_*.glb`、参照画像は `tools/ref/`）
-- ウイルス・攻撃オブジェ・ネットの遠景：Blenderで自作
+- 攻撃オブジェ・ネットの遠景：Blenderで自作
 - モーション：Quaternius Universal Animation Library（CC0）
 - チップアイコン：game-icons.net（Lorc・Delapouite ほか / CC BY 3.0）
 - 描画：three.js ／ 通信：PeerJS
@@ -49,4 +49,5 @@
 - 「Low Poly Japanese Houses」by yarenkrmn（itch.io）— 無料・商用可（ゲーム用に変換・軽量化して使用）
 - 「日本のビルセット04」by INDIEPLAY（BOOTH）— パブリックドメイン
 - 「3D House Construction Site」by Majadroid（OpenGameArt）— CC0
+- ザコウイルス：Quaternius「Sci-Fi Essentials」（Enemy_EyeDrone / QuadShell / Trilobite）・「Animated Robots」（Mike / Leela）— CC0（https://quaternius.com、Web用変換版 github.com/nikitapage10/models から取得）
 - 地面の写真テクスチャ（Grass004 / Gravel022 / Ground037 / PavingStones070 / Asphalt012）— ambientCG（CC0）
